@@ -8,7 +8,8 @@ setup(
     author='',
     author_email="",
     install_requires=[
-        'PyFiglet'
+        'PyFiglet',
+        'clint'
     ],
     url='https://github.com/shirecoding/Fireside.git',
     download_url=f'https://github.com/shirecoding/Fireside/archive/{__version__}.tar.gz',
