@@ -11,6 +11,7 @@ setup(
         'PyFiglet',
         'clint'
     ],
+    scripts=['bin/fireside'],
     url='https://github.com/shirecoding/Fireside.git',
     download_url=f'https://github.com/shirecoding/Fireside/archive/{__version__}.tar.gz',
     long_description=open('README.md').read(),
