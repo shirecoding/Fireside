@@ -1,19 +1,24 @@
-import uuid
-import time 
 import logging
-import threading
+import time 
+import uuid
+
+from agents import Message
+from agents import PowerfulAgent
+from clint.textui import colored
+from clint.textui import indent
+from clint.textui import puts
 from pyfiglet import Figlet
-from rx import operators as op 
-from agents import PowerfulAgent, Message
+from rx import operators as op
 log = logging.getLogger(__name__)
 
 class Fireside(PowerfulAgent):
 
-    def setup(self, name='', pub_address=None, sub_address=None, mode='client'):
+    def setup(self, name='', pub_address='tcp://0.0.0.0:5000', sub_address='tcp://0.0.0.0:5001', mode='client'):
         self.name=name
         if mode=='server':
             self.create_notification_broker(pub_address, sub_address)
-        
+        self.pub_address = pub_address
+        self.sub_address = sub_address
         self.pub, self.sub = self.create_notification_client(pub_address, sub_address)
         self.sub.observable \
             .pipe(
@@ -21,15 +26,24 @@ class Fireside(PowerfulAgent):
             ).subscribe(lambda x: self.receive(x))
 
     def receive(self, msg):
-        print("{}: {}".format(msg['topic'], msg['payload']))
+        puts(colored.magenta(msg['topic'] + ': ') + msg['payload'])
 
     def main(self):
         f = Figlet(font='slant')
-        print('\n'+f.renderText('Fireside'))
-        print("username: {}".format(self.name))
+        puts('\n'+f.renderText('Fireside'))
+        puts('Welcom to Fireside!!!')
+        with indent(4, quote=' >'):
+            puts(colored.green('username: ') + self.name)
+            puts(colored.green('pub_address: ') + self.pub_address)
+            puts(colored.green('sub_address: ') + self.sub_address)
+
+        puts('Connect to this Fireside')    
+        with indent(4, quote=' >'):
+            puts('Fireside ')
 
         # use exit event to gracefully exit loop and graceful cleanup
         while not self.exit_event.is_set(): 
-            msg = input("{}: ".format(self.name))
-            self.pub.send(Message.notification(topic=self.name, payload=msg))
+            msg = input(colored.cyan(self.name + ' : '))
+            if msg:
+                self.pub.send(Message.notification(topic=self.name, payload=msg))
 
