@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 class Fireside(PowerfulAgent):
 
     def setup(self, name='', pub_address='tcp://0.0.0.0:5000', sub_address='tcp://0.0.0.0:5001', mode='client'):
-        self.name=name
-        if mode=='server':
+        self.name = name if name else uuid.uuid4()
+        if mode == 'server':
             self.create_notification_broker(pub_address, sub_address)
         self.pub_address = pub_address
         self.sub_address = sub_address
@@ -39,7 +39,7 @@ class Fireside(PowerfulAgent):
 
         puts('Connect to this Fireside')    
         with indent(4, quote=' >'):
-            puts('Fireside ')
+            puts('fireside ', self.pub_address, self.sub_address, '{{username}}')
 
         # use exit event to gracefully exit loop and graceful cleanup
         while not self.exit_event.is_set(): 
