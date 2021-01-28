@@ -1,43 +1,40 @@
 #!/usr/local/bin/python3
 import argparse
-from fireside import Fireside 
+from fireside import Fireside
 
-parser = argparse.ArgumentParser(description='Fireside App')
-parser.add_argument('-pub', 
-										metavar='pub-address', 
-										type=str, 
-										default='',
-                    help='Address for publish notification'
-                   )
+parser = argparse.ArgumentParser(description="Fireside App")
+parser.add_argument(
+    "-pub",
+    metavar="pub-address",
+    type=str,
+    default="",
+    help="Address for publish notification",
+)
 
-parser.add_argument('-sub', 
-										metavar='sub-address', 
-										type=str, 
-										default='',
-                    help='Address for subscribe notification'
-                   )
+parser.add_argument(
+    "-sub",
+    metavar="sub-address",
+    type=str,
+    default="",
+    help="Address for subscribe notification",
+)
 
-parser.add_argument('-username', 
-										metavar='username', 
-										type=str, 
-										default='',
-                    help='username in fireside app'
-                   )
+parser.add_argument(
+    "-username",
+    metavar="username",
+    type=str,
+    default="",
+    help="username in fireside app",
+)
 
 args = parser.parse_args()
 
 if args.pub and args.sub:
-	Fireside(
-		name=args.username, 
-		pub_address=args.pub,
-		sub_address=args.sub
-	).main()
+    Fireside(name=args.username, pub_address=args.pub, sub_address=args.sub).main()
 else:
-	Fireside(
-		name=args.username, 
-		pub_address='tcp://0.0.0.0:5000',
-		sub_address='tcp://0.0.0.0:5001',
-		mode='server'
-	).main()
-
-
+    Fireside(
+        name=args.username,
+        pub_address="tcp://0.0.0.0:5000",
+        sub_address="tcp://0.0.0.0:5001",
+        mode="server",
+    ).main()
