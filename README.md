@@ -43,12 +43,12 @@ After the first fireside session is started, it will show the command for the ot
 
 ```text
 
-    _______                _     __   
-   / ____(_)_______  _____(_)___/ /__ 
+    _______                _     __
+   / ____(_)_______  _____(_)___/ /__
   / /_  / / ___/ _ \/ ___/ / __  / _ \
  / __/ / / /  /  __(__  ) / /_/ /  __/
-/_/   /_/_/   \___/____/_/\__,_/\___/ 
-                                      
+/_/   /_/_/   \___/____/_/\__,_/\___/
+
 
 Welcom to Fireside!!!
  >  username: dc847b4f-403b-4e0e-9224-2b1781e01245
@@ -64,6 +64,6 @@ The other machine just enter the command to start fireside and it will join the 
 # join with randomID
 fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001
 
-# join with username 
+# join with username
 fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001 -username user2
  ```
