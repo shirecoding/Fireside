@@ -36,5 +36,5 @@ else:
         name=args.username,
         pub_address="tcp://0.0.0.0:5000",
         sub_address="tcp://0.0.0.0:5001",
-        mode="server",
+        mode="master",
     ).main()
