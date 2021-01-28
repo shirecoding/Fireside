@@ -22,10 +22,11 @@ class Fireside(PowerfulAgent):
         mode="client",
     ):
         self.name = name if name else str(uuid.uuid4())
-        if mode == "server":
-            self.create_notification_broker(pub_address, sub_address)
         self.pub_address = pub_address
         self.sub_address = sub_address
+
+        if mode == "master":
+            self.create_notification_broker(self.pub_address, self.sub_address)
         self.pub, self.sub = self.create_notification_client(pub_address, sub_address)
         self.sub.observable.pipe(
             op.filter(lambda x: x["topic"] != self.name)
