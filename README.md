@@ -37,7 +37,7 @@ fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001 -username user1
 ```
 
 
-## How to join fireside seesion
+## How to join fireside session
 
 After the first fireside session is started, it will show the command for the other fireside to join current session
 

@@ -3,7 +3,7 @@ import time
 import uuid
 
 from agents import Message
-from agents import PowerfulAgent
+from agents import Agent
 from clint.textui import colored
 from clint.textui import indent
 from clint.textui import puts
@@ -13,7 +13,7 @@ from rx import operators as op
 log = logging.getLogger(__name__)
 
 
-class Fireside(PowerfulAgent):
+class Fireside(Agent):
     def setup(
         self,
         name="",
