@@ -10,11 +10,13 @@ subparsers = parser.add_subparsers(dest="subcommand")
 ## Fireside web
 ################################################################################
 
-web_parser = subparsers.add_parser(
-    "web", description="Fireside Web"
+web_parser = subparsers.add_parser("web", description="Fireside Web")
+web_parser.add_argument(
+    "-host", help="ip address of fireside webserver", default="0.0.0.0", type=str
 )
-web_parser.add_argument("-host", help="ip address of fireside webserver", default="0.0.0.0", type=str)
-web_parser.add_argument("-port", help="port of fireside webserver", default="8080", type=str)
+web_parser.add_argument(
+    "-port", help="port of fireside webserver", default="8080", type=str
+)
 
 ################################################################################
 ## Fireside terminal

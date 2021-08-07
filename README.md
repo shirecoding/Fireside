@@ -1,4 +1,5 @@
 # Fireside
+
 Fireside p2p chat
 
 ## Installation
@@ -22,9 +23,9 @@ ln -s /usr/local/Cellar/python@3.9/3.9.1_6/Frameworks/Python.framework/Versions/
 fireside
 
 ```
-+ if username not provided, randomID will be assign as username
-+ if pub & sub address is not provided, fireside will start a session with default pub & sub address
 
+- if username not provided, randomID will be assign as username
+- if pub & sub address is not provided, fireside will start a session with default pub & sub address
 
 ```bash
 
@@ -35,7 +36,6 @@ fireside -username user1
 fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001 -username user1
 
 ```
-
 
 ## How to join fireside session
 
@@ -56,7 +56,7 @@ Welcom to Fireside!!!
  >  sub_address: tcp://0.0.0.0:5001
 Connect to this Fireside
  >  fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001
- ```
+```
 
 The other machine just enter the command to start fireside and it will join the current session automatically
 
@@ -66,4 +66,4 @@ fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001
 
 # join with username
 fireside -pub tcp://0.0.0.0:5000 -sub tcp://0.0.0.0:5001 -username user2
- ```
+```
