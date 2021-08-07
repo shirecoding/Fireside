@@ -1,1 +1,1 @@
-export { default } from './ChatTextField'
+export { default } from "./ChatTextField";

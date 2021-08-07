@@ -8,7 +8,8 @@ import { FixedSizeList } from "react-window";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    maxWidth: 360,
+    height: 400,
+    maxWidth: 300,
     backgroundColor: theme.palette.background.paper,
   },
 }));
@@ -17,12 +18,12 @@ const renderRow = (props) => {
   const { data, index, style } = props;
   return (
     <ListItem button style={style} key={index}>
-      <ListItemText primary={data[index].name} />
+      <ListItemText primary={data[index]} />
     </ListItem>
   );
 };
 
-const UserList = ({ users }) => {
+const ChatWindow = ({ messages }) => {
   const classes = useStyles();
 
   return (
@@ -31,8 +32,8 @@ const UserList = ({ users }) => {
         height={400}
         width={600}
         itemSize={46}
-        itemCount={users.length}
-        itemData={users}
+        itemCount={messages.length}
+        itemData={messages}
       >
         {renderRow}
       </FixedSizeList>
@@ -40,4 +41,4 @@ const UserList = ({ users }) => {
   );
 };
 
-export default UserList;
+export default ChatWindow;
