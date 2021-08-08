@@ -4,17 +4,21 @@ import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& > *": {
-      margin: theme.spacing(1),
-      width: "25ch",
-    },
+    width: "100%",
   },
 }));
 
 const ChatTextField = () => {
   const classes = useStyles();
 
-  return <TextField id="outlined-basic" label="Chat" variant="outlined" />;
+  return (
+    <TextField
+      id="outlined-basic"
+      label="Chat"
+      variant="outlined"
+      className={classes.root}
+    />
+  );
 };
 
 export default ChatTextField;

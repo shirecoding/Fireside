@@ -8,8 +8,6 @@ import { FixedSizeList } from "react-window";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    height: 400,
-    maxWidth: 300,
     backgroundColor: theme.palette.background.paper,
   },
 }));
@@ -30,8 +28,8 @@ const ChatWindow = ({ messages }) => {
     <div className={classes.root}>
       <FixedSizeList
         height={400}
-        width={600}
-        itemSize={46}
+        width="100%"
+        itemSize={30}
         itemCount={messages.length}
         itemData={messages}
       >

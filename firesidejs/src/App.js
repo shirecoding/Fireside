@@ -1,23 +1,23 @@
 import logo from "./logo.svg";
 import "./App.css";
 
+import Chat from "./pages/Chat";
+
+const testData = {
+  messages: [
+    "The quick brown fox jumps over the lazy dog.",
+    "The quick brown fox jumps over the lazy dog.",
+    "The quick brown fox jumps over the lazy dog.",
+    "The quick brown fox jumps over the lazy dog.",
+    "The quick brown fox jumps over the lazy dog.",
+  ],
+  users: [{ name: "Luke Skywalker" }, { name: "Han Solo" }, { name: "Leia" }],
+};
+
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Chat messages={testData.messages} users={testData.users} />
     </div>
   );
 }

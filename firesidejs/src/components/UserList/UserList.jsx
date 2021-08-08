@@ -29,8 +29,8 @@ const UserList = ({ users }) => {
     <div className={classes.root}>
       <FixedSizeList
         height={400}
-        width={600}
-        itemSize={46}
+        width="100%"
+        itemSize={30}
         itemCount={users.length}
         itemData={users}
       >
