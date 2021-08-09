@@ -8,8 +8,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ChatTextField = () => {
+const ChatTextField = (props) => {
   const classes = useStyles();
+  const { onTextInput } = props;
 
   return (
     <TextField
@@ -17,6 +18,12 @@ const ChatTextField = () => {
       label="Chat"
       variant="outlined"
       className={classes.root}
+      onKeyDown={(e) => {
+        if (e.keyCode === 13) {
+          onTextInput(e.target.value);
+          e.target.value = "";
+        }
+      }}
     />
   );
 };

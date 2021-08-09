@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Chat = (props) => {
-  const { messages, users } = props;
+  const { messages, users, onTextInput } = props;
 
   const [spacing, setSpacing] = React.useState(2);
   const classes = useStyles();
@@ -32,7 +32,7 @@ const Chat = (props) => {
           <ChatWindow messages={messages} />
         </Grid>
         <Grid item xs>
-          <ChatTextField />
+          <ChatTextField onTextInput={onTextInput} />
         </Grid>
       </Grid>
     </Grid>
