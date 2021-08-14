@@ -1,7 +1,6 @@
-from aiohttp import WSCloseCode, WSMsgType, web
-from rxpipes import Pipeline
-
+from aiohttp.web import Response
 from agents import Agent
+from aiohttp import WSMsgType
 
 
 class FiresideWeb(Agent):
@@ -47,13 +46,21 @@ class FiresideWeb(Agent):
         self.ws_route = ws_route
         self.create_webserver(host, int(port))
         self.create_route("GET", "/", self.echo)
-        self.rx, self.tx = self.create_websocket(ws_route)
-        self.disposables.append(
-            self.rx.subscribe(lambda xs: self.tx.on_next(xs[1].data))
-        )
+        self.rtx, self.connections = self.create_websocket(
+            ws_route
+        )  # Note: connections is read only, do not modify
+        self.disposables.append(self.rtx.subscribe(self.handle_message))
+
+    def handle_message(self, msg):
+
+        # broadcast message to all connections
+        for _id in self.connections.keys():
+            if msg.message.type in [WSMsgType.TEXT, WSMsgType.BINARY]:
+                self.rtx.on_next(msg.copy(connection_id=_id, request=None))
+                self.log.debug(f"sending to {msg.message.data} {_id}")
 
     async def echo(self, request):
-        return web.Response(
+        return Response(
             text=self.html.format(self.host, self.port, self.ws_route),
             content_type="text/html",
         )

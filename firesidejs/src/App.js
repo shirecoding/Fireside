@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Subject } from "rxjs";
+import { webSocket } from "rxjs/webSocket";
 
 import Chat from "./pages/Chat";
 
@@ -14,15 +14,13 @@ const initialState = {
   users: [{ name: "Luke Skywalker" }, { name: "Han Solo" }, { name: "Leia" }],
 };
 
-const subject = new Subject();
-const textEmitter = new Subject();
+const webSocketSubject = new webSocket("ws://127.0.0.1:8080/ws");
 
 function App() {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    subject.subscribe(setState);
-    textEmitter.subscribe((e) => {
+    webSocketSubject.subscribe((e) => {
       setState((state) => {
         return { ...state, messages: [...state.messages, e] };
       });
@@ -34,7 +32,7 @@ function App() {
       <Chat
         messages={state.messages}
         users={state.users}
-        onTextInput={(e) => textEmitter.next(e)}
+        onTextInput={(e) => webSocketSubject.next(e)}
       />
     </div>
   );
