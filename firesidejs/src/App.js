@@ -16,6 +16,12 @@ const initialState = {
 
 const webSocketSubject = new webSocket("ws://127.0.0.1:8080/ws");
 
+// close websocket on browser unload
+window.onbeforeunload = () => {
+  console.log("closing websocket ...");
+  webSocketSubject.complete();
+};
+
 function App() {
   const [state, setState] = useState(initialState);
 
