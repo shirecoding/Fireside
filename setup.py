@@ -7,7 +7,7 @@ setup(
     version=__version__,
     author="",
     author_email="",
-    install_requires=["PyFiglet", "clint", "rxpipes", "powerful-agents"],
+    install_requires=["PyFiglet", "clint", "rxpipes", "powerful-agents", "Django"],
     scripts=["bin/fireside"],
     url="https://github.com/shirecoding/Fireside.git",
     download_url=f"https://github.com/shirecoding/Fireside/archive/{__version__}.tar.gz",
