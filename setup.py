@@ -8,6 +8,10 @@ setup(
     author="",
     author_email="",
     install_requires=["PyFiglet", "clint", "rxpipes", "powerful-agents", "Django"],
+    extras_require={
+        "test": ["coverage"],
+        "docs": ["mkdocs", "mkdocstrings", "mkdocs-material"],
+    },
     scripts=["bin/fireside"],
     url="https://github.com/shirecoding/Fireside.git",
     download_url=f"https://github.com/shirecoding/Fireside/archive/{__version__}.tar.gz",
