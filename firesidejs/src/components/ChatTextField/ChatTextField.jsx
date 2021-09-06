@@ -17,6 +17,7 @@ const ChatTextField = (props) => {
       id="outlined-basic"
       label="Chat"
       variant="outlined"
+      size="small"
       className={classes.root}
       onKeyDown={(e) => {
         if (e.keyCode === 13) {

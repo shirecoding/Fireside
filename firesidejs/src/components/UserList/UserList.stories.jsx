@@ -7,7 +7,16 @@ export default {
   component: UserList,
 };
 
-const Template = (args) => <UserList {...args} />;
+const Template = (args) => (
+  <div
+    style={{
+      height: "100vh",
+      width: "100vw",
+    }}
+  >
+    <UserList {...args} />;
+  </div>
+);
 
 export const Primary = Template.bind({});
 Primary.args = {

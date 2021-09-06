@@ -7,7 +7,16 @@ export default {
   component: ChatWindow,
 };
 
-const Template = (args) => <ChatWindow {...args} />;
+const Template = (args) => (
+  <div
+    style={{
+      height: "100vh",
+      width: "100vw",
+    }}
+  >
+    <ChatWindow {...args} />;
+  </div>
+);
 
 export const Primary = Template.bind({});
 Primary.args = {
