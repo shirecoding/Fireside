@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("polls/", include("polls.urls")),
-    path("", include("authentication.urls")),
+    path("accounts/", include("authentication.urls")),
     path("", views.index, name="home"),  # The home page
     re_path(r"^.*\.*", views.pages, name="pages"),  # Matches any html file
 ]

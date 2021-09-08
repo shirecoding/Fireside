@@ -8,9 +8,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse
 from django import template
+from django.urls import reverse_lazy
 
 
-@login_required(login_url="/login/")
+@login_required(login_url=reverse_lazy("login"))
 def index(request):
 
     context = {}
@@ -20,7 +21,7 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 
-@login_required(login_url="/login/")
+@login_required(login_url=reverse_lazy("login"))
 def pages(request):
     context = {}
     # All resource paths end in .html.
