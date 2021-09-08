@@ -13,7 +13,7 @@ urlpatterns = [
     path("register/", register_user, name="register"),
     path(
         "logout/",
-        LogoutView.as_view(next_page=reverse_lazy("home", current_app="firesideadmin")),
+        LogoutView.as_view(next_page=reverse_lazy("home", current_app="firesideweb")),
         name="logout",
     ),
     # path('accounts/', include('django.contrib.auth.urls')),
