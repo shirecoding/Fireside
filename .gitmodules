@@ -1,0 +1,6 @@
+[submodule "deps/VeryPowerfulAgents"]
+	path = deps/VeryPowerfulAgents
+	url = git@github.com:shirecoding/VeryPowerfulAgents.git
+[submodule "deps/RxPipes"]
+	path = deps/RxPipes
+	url = git@github.com:shirecoding/RxPipes.git
