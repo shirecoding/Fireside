@@ -3,6 +3,7 @@ FROM python:slim-buster
 # copy context dir to code
 COPY ./ /code
 
-WORKDIR /code
+RUN pip install --upgrade pip
+RUN pip install -r /code/deployments/requirements.txt
 
-RUN bash /code/deployments/scripts/install_dependencies.sh
+WORKDIR /code

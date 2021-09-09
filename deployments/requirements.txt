@@ -1,0 +1,9 @@
+aiohttp
+clint
+Django
+numpy
+PyFiglet
+pyrsistent
+pyzmq
+rx
+tool
