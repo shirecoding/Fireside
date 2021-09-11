@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./deployments/Fireside.Dockerfile
     ports:
-      - "5000:5000"
+      - "8000:8000"
     volumes:
       - .:/code
-    command: bash -c "cat /code/deployments/scripts/setup_docker_env.sh > ~/.bashrc && tail -f /dev/null"
+    command: bash -c "cat /code/deployments/scripts/setup_docker_env.sh > ~/.bashrc && /code/firesideweb/manage.py runserver 0.0.0.0:8000"
