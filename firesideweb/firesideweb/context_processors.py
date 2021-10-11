@@ -10,4 +10,5 @@ def global_variables(request):
         "dashboard_icon": "/static/assets/img/dashboard_icon.png",
         "blog_icon": "/static/assets/img/news_icon.png",
         "donate_icon": "/static/assets/img/donate_icon.png",
+        "signup_wallpaper": "/static/assets/img/wallpaper.jpg",
     }
