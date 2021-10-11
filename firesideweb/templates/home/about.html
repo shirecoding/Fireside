@@ -7,13 +7,18 @@
 
 {% block content %}
 
-  <div class="container-fluid py-4">
+    <div class="container-fluid py-4">
 
-    {% include "includes/attributions" %}
+      <div class="row">
+        <h1 class="mb-3">Attributions</h1>
+        <ul>
+          <li>{% include "includes/attributions.html" %}</li>
+        </ul>
+      </div>
 
-    {% include "includes/footer.html" %}
+      {% include "includes/footer.html" %}
 
-  </div>
+    </div>
 
 {% endblock content %}
 

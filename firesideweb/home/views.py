@@ -24,18 +24,11 @@ def pages(request):
     # All resource paths end in .html.
     # Pick out the html file name from the url. And load that template.
     try:
-
         load_template = request.path.split("/")[-1]
-
-        print(f"\n\n{load_template}\n\n")
-
         if load_template == "admin":
             return HttpResponseRedirect(reverse("admin:index"))
         context["segment"] = load_template
-
         html_template = loader.get_template("home/" + load_template)
-
-        print(html_template)
         return HttpResponse(html_template.render(context, request))
 
     except template.TemplateDoesNotExist:
