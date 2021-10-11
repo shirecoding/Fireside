@@ -20,7 +20,7 @@
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link {% if 'games' in segment %} active {% endif %}" href="/">
+          <a class="nav-link {% if 'games' in segment %} active {% endif %}" href="{% url 'games' %}">
             <div class="text-center me-2 d-flex align-items-center justify-content-center">
               <img src="{{ games_icon }}" width="32px" height="32px" alt="...">
             </div>
