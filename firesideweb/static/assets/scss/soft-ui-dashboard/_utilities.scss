@@ -35,8 +35,8 @@
   min-height: $section-height-100-min-height;
 }
 
-.transform-translate-50 {
-  transform: translate(0, -50%);
+.transform-translate-50{
+  transform: translate(0,-50%)
 }
 
 .border-radius-top-start-0 {
@@ -235,7 +235,7 @@
 }
 
 // Background Sizes
-.bg-cover {
+.bg-cover{
   background-size: cover;
 }
 
@@ -929,6 +929,7 @@
   }
 }
 
+
 // XL
 @include media-breakpoint-up(xl) {
   @each $name, $value in $margins {
@@ -1130,6 +1131,7 @@
   }
 }
 
+
 @include media-breakpoint-up(lg) {
   @each $name, $value in $margins {
     .mt-lg-n#{$name} {
@@ -1197,6 +1199,7 @@
   }
 }
 
+
 // Extend Right Values - CT
 
 @each $name, $value in $end {
@@ -1245,9 +1248,10 @@
 
 // Gray Bg Colors
 
-.bg-gray {
+.bg-gray{
   background: $gray-500;
 }
+
 
 @each $name, $value in $grays {
   .bg-gray-#{$name} {

@@ -1,5 +1,5 @@
 // for social buttons
-@mixin social-buttons-color($color, $state-color) {
+@mixin social-buttons-color ($color, $state-color) {
   background-color: $color;
   color: $white;
 
@@ -31,6 +31,7 @@
       box-shadow: none !important;
     }
   }
+
 
   &.btn-neutral {
     color: $color;

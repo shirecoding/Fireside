@@ -3,8 +3,6 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from django.shortcuts import render
-
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
@@ -30,11 +28,10 @@ def login_view(request):
         else:
             msg = "Error validating the form"
 
-    return render(request, "authentication/login.html", {"form": form, "msg": msg})
+    return render(request, "accounts/login.html", {"form": form, "msg": msg})
 
 
 def register_user(request):
-
     msg = None
     success = False
 
@@ -58,6 +55,6 @@ def register_user(request):
 
     return render(
         request,
-        "authentication/register.html",
+        "accounts/register.html",
         {"form": form, "msg": msg, "success": success},
     )

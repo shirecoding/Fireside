@@ -19,7 +19,7 @@
   }
 
   @include hover {
-    &:not(.btn-icon-only) {
+    &:not(.btn-icon-only){
       box-shadow: $btn-hover-box-shadow;
       transform: $btn-hover-transform;
     }
@@ -31,12 +31,12 @@
     }
   }
 
-  &.btn-link {
+  &.btn-link{
     box-shadow: none;
     font-weight: $btn-font-weight;
 
     &:hover,
-    &:focus {
+    &:focus{
       box-shadow: none;
     }
   }
@@ -96,7 +96,7 @@
   }
 }
 
-.icon-move-left {
+.icon-move-left{
   i {
     transition: $btn-icon-transition;
   }
@@ -144,9 +144,9 @@
   .btn-outline-#{$color} {
     box-shadow: none;
     @include hover {
-      &:not(.active) {
+      &:not(.active){
         background-color: transparent;
-        opacity: 0.75;
+        opacity: .75;
         box-shadow: none;
         color: $value;
       }
@@ -154,9 +154,9 @@
   }
 }
 
-.btn-outline-white {
-  border-color: rgba($white, 0.75);
-  background: rgba($white, 0.1);
+.btn-outline-white{
+  border-color: rgba($white, .75);
+  background: rgba($white, .1);
 }
 
 @each $color, $value in $btn-font-colors {
@@ -173,7 +173,7 @@
 
 @each $color, $value in $theme-colors {
   .btn-#{$color},
-  .btn.bg-gradient-#{$color} {
+  .btn.bg-gradient-#{$color}{
     //box-shadow: $btn-box-shadow-values rgba($value, .2);
 
     @include hover {

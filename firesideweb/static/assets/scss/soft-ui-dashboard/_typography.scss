@@ -1,6 +1,6 @@
-html * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html *{
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 body {
   color: $font-color;
@@ -8,23 +8,16 @@ body {
   line-height: $p-line-height;
   background-color: $body-bg;
 }
-h1,
-.h1,
-h2,
-.h2,
-h3,
-.h3,
-h4,
-.h4,
-h5,
-.h5,
-h6,
-.h6 {
-  color: $h-color;
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+  color: $h-color
 }
 
-h1,
-.h1 {
+h1, .h1 {
   font-size: $h1-font-size;
   line-height: $h1-line-height;
   letter-spacing: $btn-letter-spacing;
@@ -34,8 +27,7 @@ h1,
   }
 }
 
-h2,
-.h2 {
+h2, .h2 {
   font-size: $h2-font-size;
   line-height: $h2-line-height;
   letter-spacing: $letter-wider;
@@ -45,8 +37,7 @@ h2,
   }
 }
 
-h3,
-.h3 {
+h3, .h3 {
   font-size: $h3-font-size;
   line-height: $h3-line-height;
 
@@ -55,8 +46,7 @@ h3,
   }
 }
 
-h4,
-.h4 {
+h4, .h4 {
   font-size: $h4-font-size;
   line-height: $h4-line-height;
 
@@ -65,8 +55,7 @@ h4,
   }
 }
 
-h5,
-.h5 {
+h5, .h5 {
   font-size: $h5-font-size;
   line-height: $h5-line-height;
 
@@ -75,14 +64,12 @@ h5,
   }
 }
 
-h6,
-.h6 {
+h6, .h6 {
   font-size: $h6-font-size;
   line-height: $h6-line-height;
 }
 
-p,
-.p {
+p, .p {
   font-size: $font-size-base;
   font-weight: $p-font-weight;
   line-height: $p-line-height;
@@ -94,32 +81,22 @@ p,
   line-height: $lead-line-height;
 }
 
-h1,
-.h1,
-h2,
-.h2,
-h3,
-.h3 {
+h1, .h1,
+h2, .h2,
+h3, .h3 {
   font-weight: $font-weight-bolder;
 }
 
-h4,
-.h4,
-h5,
-.h5,
-h6,
-.h6 {
+h4, .h4,
+h5, .h5,
+h6, .h6 {
   font-weight: $font-weight-bold;
 }
 
-h1,
-.h1,
-h2,
-.h2,
-h3,
-.h3,
-h4,
-.h4 {
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4 {
   letter-spacing: $letter-tighter;
 }
 
@@ -135,8 +112,7 @@ a {
   line-height: $text-xs-line-height;
 }
 
-p,
-.p {
+p, .p {
   @include font-size($p-font-size);
 }
 .lead {
@@ -283,11 +259,11 @@ p {
 }
 
 .text-black-50 {
-  color: rgba($black, 0.5) !important;
+  color: rgba($black, .5) !important;
 }
 
 .text-white-50 {
-  color: rgba($white, 0.5) !important;
+  color: rgba($white, .5) !important;
 }
 
 .text-decoration-none {

@@ -4,3 +4,6 @@
 [submodule "deps/RxPipes"]
 	path = deps/RxPipes
 	url = git@github.com:shirecoding/RxPipes.git
+[submodule "deps/django-soft-ui-dashboard"]
+	path = deps/django-soft-ui-dashboard
+	url = https://github.com/app-generator/django-soft-ui-dashboard.git

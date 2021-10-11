@@ -2,5 +2,7 @@ node_modules
 package-lock.json
 package.json
 templates
+static
+public
 *.min.js
 *.min.css

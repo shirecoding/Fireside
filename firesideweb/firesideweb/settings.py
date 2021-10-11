@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,9 +37,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # custom apps
-    "polls.apps.PollsConfig",
-    "games.apps.GamesConfig",
-    "authentication.apps.AuthenticationConfig",
+    "home",
+    "authentication",
+    "polls",
+    "games",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +69,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # custom processors
+                "firesideweb.context_processors.global_variables",
             ],
         },
     },
