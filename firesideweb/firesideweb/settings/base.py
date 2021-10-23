@@ -11,21 +11,48 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import io
+import environ
+from google.cloud import secretmanager
+
+#####################################################################################
+# Environment Variables
+#####################################################################################
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Read environment variables
+env = environ.Env(DEBUG=(bool, False))
+
+# Use a local secret file if provided
+if os.path.isfile(os.path.join(BASE_DIR, ".env.dev")):
+    env.read_env(os.path.join(BASE_DIR, ".env.dev"))
+elif os.path.isfile(os.path.join(BASE_DIR, ".env")):
+    env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Use Google Secret Manager if provided
+elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    client = secretmanager.SecretManagerServiceClient()
+    settings_name = os.environ.get("SETTINGS_NAME", "django_settings")
+    name = f"projects/{project_id}/secrets/{settings_name}/versions/latest"
+    payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+    env.read_env(io.StringIO(payload))
+else:
+    raise Exception("No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
+
+DEBUG = env("DEBUG")
+SECRET_KEY = env("SECRET_KEY")
+
+#####################################################################################
+# Django Project Settings
+#####################################################################################
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hbp_9--g8!rjzur!#=bk+=^#gto%q62nxun(2dz)kpcog4ddn5"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"]
+ALLOWED_HOSTS = ["*"]  # do not use * in production
 
 # Application definition
 
@@ -78,8 +105,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "firesideweb.wsgi.application"
 
-
+#####################################################################################
 # Database
+#####################################################################################
+
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
@@ -89,8 +118,28 @@ DATABASES = {
     }
 }
 
+#####################################################################################
+# Storage
+#####################################################################################
 
+# Media files
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "react-frontend" / "build" / "static",
+]
+
+#####################################################################################
 # Password validation
+#####################################################################################
+
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -109,7 +158,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+#####################################################################################
 # Internationalization
+#####################################################################################
+
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
@@ -122,19 +174,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Media files
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    BASE_DIR / "react-frontend" / "build" / "static",
-]
+#####################################################################################
+# Django Settings
+#####################################################################################
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

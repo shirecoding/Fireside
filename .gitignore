@@ -1,4 +1,13 @@
+# others
 .DS_Store
+.terraform
+
+# protected
+secret
+secrets
+*.secret
+*.secrets
+.env*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
