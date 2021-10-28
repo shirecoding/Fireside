@@ -1,6 +1,6 @@
 {% extends 'layouts/base-fullscreen.html' %}
 
-{% block title %} Sign UP {% endblock title %}
+{% block title %} Sign IN {% endblock title %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -15,7 +15,7 @@
             <div class="card card-plain mt-8">
               <div class="card-header pb-0 text-left bg-transparent">
                 <h4 class="text-info text-gradient">
-                  Register
+                  Login
                 </h4>
                 <p class="mb-0">
                     {% if msg %}
@@ -26,48 +26,43 @@
                 </p>
               </div>
               <div class="card-body">
-                <form role="form text-left" method="post" action="">
 
+                <form class="login" role="form text-left" method="post" action="{% url 'account_login' %}">
                   {% csrf_token %}
 
-                  <label>Username</label>
-                  <div class="mb-3">
-                    {{ form.username }}
-                  </div>
-                  <span class="text-error">{{ form.username.errors }}</span>
+                  {% if form.errors %}
+                  {% for error in form.non_field_errors %}
+                      <div class="alert alert-error">
+                          <strong>{{ error|escape }}</strong>
+                      </div>
+                  {% endfor %}
+                  {% endif %}
 
                   <label>Email</label>
                   <div class="mb-3">
-                    {{ form.email }}
+                    {{ form.login }}
                   </div>
-                  <span class="text-error">{{ form.email.errors }}</span>
+                  <span class="text-error">{{ form.login.errors }}</span>
 
                   <label>Password</label>
                   <div class="mb-3">
-                    {{ form.password1 }}
+                    {{ form.password }}
                   </div>
-                  <span class="text-error">{{ form.password1.errors }}</span>
-
-                  <label>Password Check</label>
-                  <div class="mb-3">
-                    {{ form.password2 }}
-                  </div>
-                  <span class="text-error">{{ form.password2.errors }}</span>
+                  <span class="text-error">{{ form.password.errors }}</span>
 
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="rememberMe" checked="">
-                    <label class="form-check-label" for="rememberMe">Terms</label>
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
                   </div>
                   <div class="text-center">
-                    <button type="submit" name="register" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign UP</button>
+                    <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign in</button>
                   </div>
                 </form>
               </div>
               <div class="card-footer text-center pt-0 px-lg-2 px-1">
                 <p class="mb-4 text-sm mx-auto">
-                  Already have an account?
-                  <a href="{% url 'login' %}"
-                     class="text-info text-gradient font-weight-bold">Sign IN</a>
+                  Don't have an account?
+                  <a href="{% url 'account_signup' %}" class="text-info text-gradient font-weight-bold">Sign UP</a>
                 </p>
               </div>
             </div>

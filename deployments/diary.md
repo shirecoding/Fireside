@@ -71,6 +71,19 @@
     gcloud app deploy
     ```
 
+11. Perform initial migrations
+
+    - Proxy database to local
+        ```bash
+        ./cloud_sql_proxy -instances=fireside-games:asia-southeast1:fireside-games-db=tcp:5432
+        ```
+    - Set *PROXY_DB=True* in *.env.dev*
+    - Migrate
+        ```bash
+        ./manage.py migrate
+        ./manage.py createsuperuser
+        ```
+
 # 10 Oct 2021
 --------------------------------------------------------------------------------------------
 

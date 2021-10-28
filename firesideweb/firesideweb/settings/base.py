@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import io
+import os
 import environ
 from google.cloud import secretmanager
 
@@ -63,6 +64,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    # all-auth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    # django-storages
+    "storages",
     # custom apps
     "home",
     "authentication",
@@ -104,6 +113,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "firesideweb.wsgi.application"
+
+SITE_ID = 1
 
 #####################################################################################
 # Database
@@ -157,6 +168,43 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#####################################################################################
+# django-allauth
+#####################################################################################
+
+# all-auth settings
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # email only
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+        },
+    }
+}
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+ACCOUNT_FORMS = {
+    "login": "firesideweb.forms.CustomLoginForm",
+    "signup": "firesideweb.forms.CustomSignupForm",
+}
 
 #####################################################################################
 # Internationalization
@@ -182,3 +230,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+#####################################################################################
+# Sendgrid
+#####################################################################################
+
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = env("SENDGRID_API_KEY")
+SENDGRID_SANDBOX_MODE_IN_DEBUG = True
+SENDGRID_ECHO_TO_STDOUT = True
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"

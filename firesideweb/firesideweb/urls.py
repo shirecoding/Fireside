@@ -9,6 +9,6 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path("admin/", admin.site.urls),
     path("games/", include("games.urls")),
     path("polls/", include("polls.urls")),
-    path("", include("authentication.urls")),
+    path("accounts/", include("allauth.urls")),
     path("", include("home.urls")),
 ]
