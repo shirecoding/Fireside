@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import io
 import os
+import sys
 import environ
 from google.cloud import secretmanager
 
@@ -22,6 +23,8 @@ from google.cloud import secretmanager
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+APPS_DIR = os.path.join(BASE_DIR, "apps")
+sys.path.insert(0, APPS_DIR)
 
 # Read environment variables
 env = environ.Env(DEBUG=(bool, False))
