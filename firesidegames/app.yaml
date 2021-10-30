@@ -10,4 +10,4 @@ handlers:
 
 
 env_variables:
-  DJANGO_SETTINGS_MODULE: firesideweb.settings.production
+  DJANGO_SETTINGS_MODULE: firesidegames.settings.production
