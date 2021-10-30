@@ -1,6 +1,7 @@
 import React from "react";
 
 import ChatTextField from "./ChatTextField";
+import { action } from '@storybook/addon-actions';
 
 export default {
   title: "Components/ChatTextField",
@@ -10,7 +11,8 @@ export default {
   },
 };
 
-const Template = (args) => <ChatTextField {...args} />;
+const Template = (args) => <ChatTextField {...args} onTextInput={action('onTextInput')} />;
 
 export const Primary = Template.bind({});
+
 Primary.args = {};

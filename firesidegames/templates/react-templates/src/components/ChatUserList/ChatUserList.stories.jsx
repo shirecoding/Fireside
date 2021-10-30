@@ -1,20 +1,15 @@
 import React from "react";
 
-import UserList from "./UserList";
+import ChatUserList from "./ChatUserList";
 
 export default {
-  title: "Components/UserList",
-  component: UserList,
+  title: "Components/ChatUserList",
+  component: ChatUserList,
 };
 
 const Template = (args) => (
-  <div className="container-fluid"
-    style={{
-      height: "100vh",
-      width: "100vw",
-    }}
-  >
-    <UserList {...args} />;
+  <div className="container-fluid h-100 w-50">
+    <ChatUserList {...args} />;
   </div>
 );
 
