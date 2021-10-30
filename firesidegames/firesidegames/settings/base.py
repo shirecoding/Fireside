@@ -22,6 +22,7 @@ from google.cloud import secretmanager
 #####################################################################################
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+PROJECT_NAME = "firesidegames"
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 APPS_DIR = os.path.join(BASE_DIR, "apps")
 sys.path.insert(0, APPS_DIR)
@@ -144,8 +145,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / PROJECT_NAME / "static",
     BASE_DIR / "react-frontend" / "build" / "static",
 ]
 
