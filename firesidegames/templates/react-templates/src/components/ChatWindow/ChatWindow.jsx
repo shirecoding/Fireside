@@ -5,8 +5,11 @@ import AutoSizer from "react-virtualized-auto-sizer";
 const renderRow = (props) => {
   const { data, index, style } = props;
   return (
-    <li className="list-group-item fs-6" style={style} key={index}>
-      {data[index]}
+    <li className="list-group-item" style={style} key={index}>
+      <div className="ms-2 me-auto">
+        <div className="fw-bold">{data[index].user}</div>
+        {data[index].message}
+      </div>
     </li>
   );
 };
@@ -27,7 +30,7 @@ const ChatWindow = ({ messages }) => {
             ref={fixedSizeListRef}
             height={height}
             width={width}
-            itemSize={42}
+            itemSize={64}
             itemCount={messages.length}
             itemData={messages}
           >
