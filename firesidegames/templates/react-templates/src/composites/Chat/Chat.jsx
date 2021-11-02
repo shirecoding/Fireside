@@ -5,7 +5,7 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 
-const Chat = ({ url, messages, users, onTextInput }) => {
+const Chat = ({ url, messages, users }) => {
 
   const [state, setState] = useState({messages: [], users: []});
 
@@ -45,6 +45,10 @@ const Chat = ({ url, messages, users, onTextInput }) => {
     }
 
   }, []);
+
+  const onTextInput = () => {
+    console.log('onTextInput')
+  }
 
   return (
     <div className="row">
