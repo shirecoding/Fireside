@@ -7,33 +7,45 @@ import ChatWindow from "../../components/ChatWindow";
 
 const Chat = ({ url, messages, users }) => {
 
-  const [state, setState] = useState({messages: [], users: []});
+  const [state, setState] = useState({
+    messages: messages,
+    users: users,
+    webSocket: new webSocket(url)
+  });
 
   useEffect(() => {
 
-    const webSocketSubject = new webSocket(url);
-
     // subscribe to web socket
-    webSocketSubject.subscribe(
+    state.webSocket.subscribe(
       // success
-      (e) => {
-        console.log('connected ...')
-        setState((state) => {
-          return { ...state, messages: [...state.messages, e] };
-        });
+      ({type, message, sender}) => {
+        if (type === 'DirectMessage') {
+          setState((state) => {
+            return {
+              ...state,
+              messages: [...state.messages, {user: sender, message: message}],
+            };
+          });
+        }
       },
       // error
       (e) => {
         console.log('failed to connect ...')
         setState((state) => {
-          return { ...state, messages: [...state.messages, {user: "connection", message: "connection failed"}] };
+          return {
+            ...state,
+            messages: [...state.messages, {user: "connection", message: "connection failed"}]
+          };
         });
       },
       // end
       (e) => {
         console.log('connection completed ...')
         setState((state) => {
-          return { ...state, messages: [...state.messages, {user: "connection", message: "connection closed"}] };
+          return {
+            ...state,
+            messages: [...state.messages, {user: "connection", message: "connection closed"}]
+          };
         });
       }
     );
@@ -41,27 +53,37 @@ const Chat = ({ url, messages, users }) => {
     // clean up
     return () => {
       console.log("closing websocket ...");
-      webSocketSubject.complete();
+      state.webSocket.complete();
     }
 
   }, []);
 
-  const onTextInput = () => {
-    console.log('onTextInput')
+  const onTextInput = (e) => {
+    if (state.webSocket) {
+      state.webSocket.next({
+        "type": "GlobalMessage",
+        "sender": {
+          "type": "User",
+          "id": "benjamin",
+          "session": "QWERTYUIO!@#$%^&"
+        },
+        "message": "Hello world"
+      })
+    }
   }
 
   return (
     <div className="row">
       <div className="col-9">
         <div className="row">
-          <ChatWindow messages={messages} />
+          <ChatWindow messages={state.messages} />
         </div>
         <div className="row">
           <ChatTextField onTextInput={onTextInput} />
         </div>
       </div>
       <div className="col-3">
-        <ChatUserList users={users} />
+        <ChatUserList users={state.users} />
       </div>
     </div>
   );

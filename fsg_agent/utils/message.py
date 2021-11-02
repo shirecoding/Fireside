@@ -65,8 +65,17 @@ class GlobalMessage(MessageMixin):
 
 class FSGMessage:
 
-    lookup = {"DirectMessage": DirectMessage, "GlobalMessage": GlobalMessage}
+    lookup = {
+        "DirectMessage": DirectMessage,
+        "GlobalMessage": GlobalMessage,
+        "User": User,
+    }
 
     @classmethod
     def parse(cls, message):
-        return cls.lookup[message["type"]](**message)
+        return cls.lookup[message["type"]](
+            **{
+                k: cls.parse(v) if isinstance(v, dict) else v
+                for k, v in message.items()
+            }
+        )

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { FixedSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 
@@ -20,7 +20,7 @@ const ChatWindow = ({ messages }) => {
     if (node !== null) {
       node.scrollToItem(messages.length - 1, "end");
     }
-  });
+  }, []);
 
   return (
     <ul className="list-group list-group-flush vh-100">
