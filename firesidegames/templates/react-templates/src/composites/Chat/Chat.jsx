@@ -5,7 +5,7 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 
-const Chat = ({ url, messages, users }) => {
+const Chat = ({ url, messages, users, onTextInput }) => {
 
   const [state, setState] = useState({
     messages: messages,
@@ -58,20 +58,6 @@ const Chat = ({ url, messages, users }) => {
 
   }, []);
 
-  const onTextInput = (e) => {
-    if (state.webSocket) {
-      state.webSocket.next({
-        "type": "GlobalMessage",
-        "sender": {
-          "type": "User",
-          "id": "benjamin",
-          "session": "QWERTYUIO!@#$%^&"
-        },
-        "message": "Hello world"
-      })
-    }
-  }
-
   return (
     <div className="row">
       <div className="col-9">
@@ -79,7 +65,7 @@ const Chat = ({ url, messages, users }) => {
           <ChatWindow messages={state.messages} />
         </div>
         <div className="row">
-          <ChatTextField onTextInput={onTextInput} />
+          <ChatTextField onTextInput={(e) => onTextInput(state, e)} />
         </div>
       </div>
       <div className="col-3">

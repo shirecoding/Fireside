@@ -1,6 +1,8 @@
 import React from "react";
 import Chat from "./Chat";
 
+import {GlobalMessage, User} from "../../fsg";
+
 export default {
   title: "Composites/Chat",
   component: Chat,
@@ -24,4 +26,11 @@ Primary.args = {
     {message: "The quick brown fox jumps over the lazy dog.", user: "eugene"},
   ],
   users: [{ name: "Luke Skywalker" }, { name: "Han Solo" }, { name: "Leia" }],
+  onTextInput: (state, e) => {
+    if (state.webSocket) {
+      const sender = new User({id: "benjamin", session: "QWERTYUIO!@#$%^&"})
+      const msg = new GlobalMessage({message: e, sender: sender})
+      state.webSocket.next(msg)
+    }
+  }
 };

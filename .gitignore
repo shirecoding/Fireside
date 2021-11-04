@@ -1,6 +1,7 @@
 # others
 .DS_Store
 .terraform
+*.ipynb
 
 # protected
 secret
