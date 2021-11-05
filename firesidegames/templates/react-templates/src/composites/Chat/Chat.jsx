@@ -59,10 +59,10 @@ const Chat = ({ url, messages, users, onTextInput }) => {
   }, []);
 
   return (
-    <div className="row">
+    <div className="row h-100">
       <div className="col-9">
-        <div className="row">
-          <ChatWindow messages={state.messages} />
+        <div className="row mb-2 h-100">
+          <ChatWindow messages={state.messages}/>
         </div>
         <div className="row">
           <ChatTextField onTextInput={(e) => onTextInput(state, e)} />

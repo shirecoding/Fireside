@@ -15,7 +15,7 @@ const Chatroom = ({users, messages, url}) => {
   }
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid" style={{height: '500px'}}>
       <Chat users={users} messages={messages} url={url} onTextInput={onTextInput}/>
     </div>
   )

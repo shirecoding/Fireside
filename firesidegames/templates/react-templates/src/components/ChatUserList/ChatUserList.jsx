@@ -5,7 +5,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 const renderRow = (props) => {
   const { data, index, style } = props;
   return (
-    <li className="list-group-item" style={style} key={index}>
+    <li className="list-group-item text-truncate border-0" style={style} key={index}>
       {data[index].name}
     </li>
   );
@@ -14,7 +14,7 @@ const renderRow = (props) => {
 const ChatUserList = ({ users }) => {
 
   return (
-    <ul className="list-group list-group-flush vh-100">
+    <ul className="list-group h-100">
       <AutoSizer>
         {({ height, width }) => (
           <FixedSizeList

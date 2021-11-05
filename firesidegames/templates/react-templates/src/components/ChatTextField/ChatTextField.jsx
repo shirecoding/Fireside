@@ -1,25 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 
-const ChatTextField = (props) => {
+const ChatTextField = ({onTextInput, selections=['Chat']}) => {
 
-  const { onTextInput } = props;
+  const [selection, setSelection] = useState(selections[0]);
 
   return (
-    <div className="input-group">
-      <button className="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</button>
-      <ul className="dropdown-menu">
-        <li><a className="dropdown-item" href="/#">Action</a></li>
-        <li><a className="dropdown-item" href="/#">Another action</a></li>
-        <li><a className="dropdown-item" href="/#">Something else here</a></li>
-        <li><hr className="dropdown-divider"/></li>
-        <li><a className="dropdown-item" href="/#">Separated link</a></li>
-      </ul>
-      <input type="text" className="form-control" placeholder="..." onKeyDown={(e) => {
-        if (e.keyCode === 13) {
-          onTextInput(e.target.value);
-          e.target.value = "";
-        }
-      }}/>
+    <div className="input-group d-flex">
+      <button className="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{selection}</button>
+      <ul className="dropdown-menu">{
+        selections.map((x) => <li key={x}><a className="dropdown-item" onClick={(v) => setSelection(v.target.text)}>{x}</a></li>)
+      }</ul>
+      <div className="mb-3 flex-fill">
+        <input type="text" className="form-control" placeholder="..." onKeyDown={(e) => {
+          if (e.keyCode === 13) {
+            onTextInput(e.target.value);
+            e.target.value = "";
+          }
+        }}/>
+      </div>
     </div>
   );
 };

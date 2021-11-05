@@ -5,7 +5,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 const renderRow = (props) => {
   const { data, index, style } = props;
   return (
-    <li className="list-group-item" style={style} key={index}>
+    <li className="list-group-item border-0" style={style} key={index}>
       <div className="ms-2 me-auto">
         <div className="fw-bold">{data[index].user}</div>
         {data[index].message}
@@ -20,10 +20,10 @@ const ChatWindow = ({ messages }) => {
     if (node !== null) {
       node.scrollToItem(messages.length - 1, "end");
     }
-  }, []);
+  }, [messages]);
 
   return (
-    <ul className="list-group list-group-flush vh-100">
+    <ul className="list-group h-100">
       <AutoSizer>
         {({ height, width }) => (
           <FixedSizeList

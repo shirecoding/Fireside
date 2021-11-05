@@ -15,4 +15,6 @@ const Template = (args) => <ChatTextField {...args} onTextInput={action('onTextI
 
 export const Primary = Template.bind({});
 
-Primary.args = {};
+Primary.args = {
+  selections: ['Chat', 'Benjamin', 'Meng Xiong']
+};
