@@ -1,0 +1,13 @@
+.chat-input {
+    border-radius: .0rem .5rem .5rem .0rem;
+    -webkit-box-shadow: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+    height: 42px;
+}
+
+.chat-input:focus {
+    -webkit-box-shadow: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+}

@@ -11,7 +11,7 @@ const ChatTextField = ({onTextInput, selections=['Chat']}) => {
         selections.map((x) => <li key={x}><a className="dropdown-item" onClick={(v) => setSelection(v.target.text)}>{x}</a></li>)
       }</ul>
       <div className="mb-3 flex-fill">
-        <input type="text" className="form-control" placeholder="..." onKeyDown={(e) => {
+        <input type="text" className="form-control chat-input" placeholder="..." onKeyDown={(e) => {
           if (e.keyCode === 13) {
             onTextInput(e.target.value);
             e.target.value = "";
