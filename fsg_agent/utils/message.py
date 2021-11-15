@@ -1,8 +1,14 @@
 __all__ = ["User", "DirectMessage", "GlobalMessage", "FSGMessage"]
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from aiohttp import WSMessage, WSMsgType
 import json
+from typing import Union
+
+
+@dataclass
+class BaseType:
+    type: str = "BaseType"
 
 
 class MessageMixin:
@@ -14,61 +20,74 @@ class MessageMixin:
 
 
 @dataclass
-class User:
+class User(BaseType):
     type: str = "User"
-    id: str = None
-    session: str = None
+    uid: str = None
 
 
 @dataclass
-class DirectMessage(MessageMixin):
+class Group(BaseType):
+    type: str = "Group"
+    uid: str = None
+
+
+@dataclass
+class BaseMessage(MessageMixin):
+    type: str = "BaseMessage"
+    sender: Union[User, Group] = None
+    receiver: Union[User, Group] = None
+
+
+@dataclass
+class ChatMessage(BaseMessage):
     """
     {
-        "type": "DirectMessage",
+        "type": "ChatMessage",
         "sender": {
             "type": "User",
-            "id": "benjamin",
-            "session": "QWERTYUIO!@#$%^&"
+            "uid": "benjamin",
         },
         "receiver": {
-            "type": "User",
-            "id": "mengxiong"
+            "type": "Group",
+            "uid": "gameroom1"
         },
         "message": "Hello world"
     }
     """
 
-    type: str = "DirectMessage"
+    type: str = "ChatMessage"
     message: str = None
-    receiver: User = None
-    sender: User = None
 
 
 @dataclass
-class GlobalMessage(MessageMixin):
+class UpdateGroup(BaseMessage):
     """
     {
-        "type": "GlobalMessage",
+        "type": "UpdateGroup",
         "sender": {
             "type": "User",
-            "id": "benjamin",
-            "session": "QWERTYUIO!@#$%^&"
+            "uid": "benjamin",
         },
-        "message": "Hello world"
+        "reeceiver": {
+            "type": "Group",
+            "uid": "gameroom1",
+        },
+        "users": ['benjamin', 'mengxiong']
     }
     """
 
-    type: str = "GlobalMessage"
-    message: str = None
-    sender: User = None
+    type: str = "UpdateGroup"
+    users: list[str] = field(default_factory=list)
 
 
 class FSGMessage:
 
     lookup = {
-        "DirectMessage": DirectMessage,
-        "GlobalMessage": GlobalMessage,
+        "UpdateGroup": UpdateGroup,
+        "ChatMessage": ChatMessage,
+        "BaseMessage": BaseMessage,
         "User": User,
+        "Group": Group,
     }
 
     @classmethod

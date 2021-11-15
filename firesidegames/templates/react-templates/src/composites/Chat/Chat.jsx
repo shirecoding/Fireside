@@ -5,7 +5,9 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 
-const Chat = ({ url, messages, users, onTextInput }) => {
+import {ChatMessage, UpdateGroup, Group, User} from "../../fsg";
+
+const Chat = ({ url, messages, user, group, users, onTextInput }) => {
 
   const [state, setState] = useState({
     messages: messages,
@@ -17,16 +19,29 @@ const Chat = ({ url, messages, users, onTextInput }) => {
 
     // subscribe to web socket
     state.webSocket.subscribe(
-      // success
-      ({type, message, sender}) => {
-        if (type === 'DirectMessage') {
+      // on message
+      (payload) => {
+
+        // ChatMessage
+        if (payload.type === 'ChatMessage') {
           setState((state) => {
             return {
               ...state,
-              messages: [...state.messages, {user: sender, message: message}],
+              messages: [...state.messages, {user: payload.sender.uid, message: payload.message}],
             };
           });
         }
+
+        // UpdateGroup
+        else if (payload.type === 'UpdateGroup') {
+          setState((state) => {
+            return {
+              ...state,
+              users: [...payload.users.map((uid) => ({name: uid})), {name: user}],
+            };
+          });
+        }
+
       },
       // error
       (e) => {
@@ -49,6 +64,16 @@ const Chat = ({ url, messages, users, onTextInput }) => {
         });
       }
     );
+
+    // send group update on load
+    const sender = new User({uid: user})
+    const receiver = new Group({uid: group})
+    const msg = new UpdateGroup({
+      sender: sender,
+      receiver: receiver,
+      users: [...users.map(({name}) => name), user]
+    })
+    state.webSocket.next(msg)
 
     // clean up
     return () => {

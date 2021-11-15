@@ -1,30 +1,38 @@
 class User {
-  constructor({id, session}) {
+  constructor({uid}) {
     this.type = "User"
-    this.id = id
-    this.session = session
+    this.uid = uid
   }
 }
 
-class GlobalMessage {
-  constructor({sender, message}) {
-    this.type = "GlobalMessage"
-    this.sender = sender
-    this.message = message
+class Group {
+  constructor({uid}) {
+    this.type = "Group"
+    this.uid = uid
   }
 }
 
-class DirectMessage {
+class ChatMessage {
   constructor({sender, receiver, message}) {
-    this.type = "DirectMessage"
+    this.type = "ChatMessage"
     this.sender = sender
     this.receiver = receiver
     this.message = message
   }
 }
 
+class UpdateGroup {
+  constructor({sender, receiver, users}) {
+    this.type = "UpdateGroup"
+    this.sender = sender
+    this.receiver = receiver
+    this.users = users
+  }
+}
+
 export {
   User,
-  GlobalMessage,
-  DirectMessage
+  Group,
+  ChatMessage,
+  UpdateGroup
 };

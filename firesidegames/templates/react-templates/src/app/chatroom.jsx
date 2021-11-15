@@ -1,22 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {GlobalMessage, User} from "../fsg";
+import {ChatMessage, Group, User} from "../fsg";
 import Chat from "../composites/Chat";
 
 
-const Chatroom = ({users, messages, url}) => {
+const Chatroom = ({user, users, group, messages, url}) => {
 
   const onTextInput = (state, e) => {
+
     if (state.webSocket) {
-      const sender = new User({id: "benjamin", session: "QWERTYUIO!@#$%^&"})
-      const msg = new GlobalMessage({message: e, sender: sender})
+      const sender = new User({uid: user})
+      const receiver = new Group({uid: group})
+      const msg = new ChatMessage({
+        sender: sender,
+        receiver: receiver,
+        message: e,
+      })
       state.webSocket.next(msg)
     }
   }
 
   return (
     <div className="container-fluid" style={{height: '500px'}}>
-      <Chat users={users} messages={messages} url={url} onTextInput={onTextInput}/>
+      <Chat user={user} users={users} group={group} messages={messages} url={url} onTextInput={onTextInput}/>
     </div>
   )
 }

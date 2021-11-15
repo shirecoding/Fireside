@@ -2,7 +2,7 @@ from agents import Agent, Message
 from aiohttp import WSMsgType
 import json
 
-from .utils.message import FSGMessage, GlobalMessage, DirectMessage, User
+from .utils.message import FSGMessage, ChatMessage, User, Group, UpdateGroup
 
 
 class FSGAgent(Agent):
@@ -16,6 +16,9 @@ class FSGAgent(Agent):
         self.user_to_connection = {}
         self.connection_to_user = {}
 
+        # map group to users
+        self.groups = {}
+
         # create webserver - required for websocket
         self.create_webserver(host, int(port))
 
@@ -28,33 +31,68 @@ class FSGAgent(Agent):
     def parse_message(self, msg):
         if msg.message.type in [WSMsgType.TEXT, WSMsgType.BINARY]:
             fsg_msg = FSGMessage.parse(json.loads(msg.message.data))
-            # update connections
-            if hasattr(fsg_msg, "sender") and isinstance(fsg_msg.sender, User):
-                self.connection_to_user[msg.connection_id] = fsg_msg.sender.id
-                self.user_to_connection[fsg_msg.sender.id] = msg.connection_id
+
+            # update connections table
+            if isinstance(fsg_msg.sender, User):
+                self.connection_to_user[msg.connection_id] = fsg_msg.sender.uid
+                self.user_to_connection[fsg_msg.sender.uid] = msg.connection_id
+
             return fsg_msg
         return None
 
-    def handle_global_message(self, message):
+    def handle_update_group(self, message):
         """
-        Broadcast message to all connections
+        Update user groups
+
+        TODO: There is a race condition if 2 message.users arrives and overwrites each other
         """
-        for connection_id, user_id in self.connection_to_user.items():
-            message_out = Message.Websocket(
-                connection_id=connection_id,
-                message=DirectMessage(
-                    message=message.message,
-                    receiver=User(id=user_id),
-                ).as_websocket(),
-                request=None,
-            )
-            self.log.debug(message_out)
-            self.rtx.on_next(message_out)
+
+        # update table
+        self.groups[message.receiver.uid] = message.users
+
+        # update all users in group
+        for user_uid in self.groups[message.receiver.uid]:
+            if user_uid in self.user_to_connection:
+                message_out = Message.Websocket(
+                    connection_id=self.user_to_connection[user_uid],
+                    message=message.as_websocket(),
+                    request=None,
+                )
+                self.log.debug(message_out)
+                self.rtx.on_next(message_out)
+
+    def handle_chat_message(self, message):
+        """
+        Relay message User or Group
+        """
+
+        receiver = message.receiver
+        to_users = []
+
+        if isinstance(receiver, User):
+            to_users.append(receiver.uid)
+
+        elif isinstance(receiver, Group) and receiver.uid in self.groups:
+            to_users += self.groups[receiver.uid]
+
+        for user_uid in to_users:
+            if user_uid in self.user_to_connection:
+                message_out = Message.Websocket(
+                    connection_id=self.user_to_connection[user_uid],
+                    message=message.as_websocket(),
+                    request=None,
+                )
+                self.log.debug(message_out)
+                self.rtx.on_next(message_out)
 
     def handle_message(self, msg):
 
         message = self.parse_message(msg)
 
-        # GlobalMessage
-        if isinstance(message, GlobalMessage):
-            self.handle_global_message(message)
+        # ChatMessage
+        if isinstance(message, ChatMessage):
+            self.handle_chat_message(message)
+
+        # UpdateGroup
+        elif isinstance(message, UpdateGroup):
+            self.handle_update_group(message)
