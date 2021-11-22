@@ -1,10 +1,13 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/app/chatroom.jsx',
+  entry: {
+    chatroom: './src/app/chatroom.jsx',
+    gameroom: './src/app/gameroom.jsx',
+  },
   output: {
     path: path.resolve(__dirname, 'dist', 'js'),
-    filename: 'chatroom.js',
+    filename: '[name].js',
   },
   devtool: 'source-map',
   module: {

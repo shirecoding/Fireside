@@ -7,7 +7,7 @@ import ChatWindow from "../../components/ChatWindow";
 
 import { UpdateGroup, User, Method } from "../../fsg";
 
-const Chat = ({ url, messages, user, group, users, onTextInput }) => {
+const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
 
   const [state, setState] = useState({
     messages: messages,
@@ -86,7 +86,10 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
   return (
     <div className="row h-100">
       <div className="col-9">
-        <div className="row mb-2 h-100">
+        <div className={children ? "row mb-2 h-50" : "row"}>
+          {children}
+        </div>
+        <div className={children ? "row mb-2 h-50" : "row mb-2 h-100"}>
           <ChatWindow messages={state.messages}/>
         </div>
         <div className="row">
