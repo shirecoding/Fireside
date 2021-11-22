@@ -9,11 +9,11 @@ export default {
 };
 
 const users = [
-  new User({uid: "benjamin"}),
-  new User({uid: "matthew"}),
-  new User({uid: "mengxiong"}),
-  new User({uid: "alfathi"}),
-  new User({uid: "winson"}),
+  User({uid: "benjamin"}),
+  User({uid: "matthew"}),
+  User({uid: "mengxiong"}),
+  User({uid: "alfathi"}),
+  User({uid: "winson"}),
 ]
 
 const Template = (args) => (

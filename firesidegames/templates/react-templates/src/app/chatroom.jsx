@@ -7,16 +7,12 @@ import Chat from "../composites/Chat";
 const Chatroom = ({user, users, group, messages, url}) => {
 
   const onTextInput = (state, e) => {
-
     if (state.webSocket) {
-      const sender = new User({uid: user})
-      const receiver = new Group({uid: group})
-      const msg = new ChatMessage({
-        sender: sender,
-        receiver: receiver,
+      state.webSocket.next(new ChatMessage({
+        sender: user,
+        receiver: group,
         message: e,
-      })
-      state.webSocket.next(msg)
+      }))
     }
   }
 

@@ -2,7 +2,7 @@ import React from "react";
 import Gameroom from "./Gameroom";
 import _ from "lodash";
 
-import { GlobalMessage, User, Group } from "../../fsg";
+import { User, Group } from "../../fsg";
 
 export default {
   title: "Composites/Gameroom",
@@ -18,14 +18,14 @@ const Template = (args) => (
 export const Primary = Template.bind({});
 
 const users = {
-  benjamin: new User({uid: "benjamin"}),
-  matthew: new User({uid: "matthew"}),
-  mengxiong: new User({uid: "mengxiong"}),
-  alfathi: new User({uid: "alfathi"}),
-  winson: new User({uid: "winson"}),
+  benjamin: User({uid: "benjamin"}),
+  matthew: User({uid: "matthew"}),
+  mengxiong: User({uid: "mengxiong"}),
+  alfathi: User({uid: "alfathi"}),
+  winson: User({uid: "winson"}),
 }
 
-const group = new Group({uid: "gameinstance_1"})
+const group = Group({uid: "gameinstance_1"})
 
 Primary.args = {
   url: "ws://127.0.0.1:8080/ws",

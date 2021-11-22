@@ -26,8 +26,8 @@ def chatroom_view(request):
             "url": "ws://127.0.0.1:8080/ws",
             "messages": [],
             "users": [],
-            "user": "benjamin",
-            "group": "gameroom1",
+            "user": {"uid": "benjamin", "type": "User"},
+            "group": {"uid": "gameinstance1", "type": "Group"},
         }
         return render(
             request, "games/chatroom.html", {"component": component, "props": props}

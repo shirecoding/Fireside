@@ -1,8 +1,9 @@
 from agents import Agent, Message
 from aiohttp import WSMsgType
+from collections import defaultdict
 import json
 
-from .utils.message import FSGMessage, ChatMessage, User, Group, UpdateGroup
+from .utils.message import FSGMessage, ChatMessage, User, Group, UpdateGroup, Method
 
 
 class FSGAgent(Agent):
@@ -17,7 +18,7 @@ class FSGAgent(Agent):
         self.connection_to_user = {}
 
         # map group to users
-        self.groups = {}
+        self.groups = defaultdict(dict)
 
         # create webserver - required for websocket
         self.create_webserver(host, int(port))
@@ -48,7 +49,14 @@ class FSGAgent(Agent):
         """
 
         # update table
-        self.groups[message.receiver.uid] = message.users
+        if message.method == Method.add:
+            self.groups[message.receiver.uid].update({x.uid: x for x in message.users})
+        else:
+            self.groups[message.receiver.uid] = {x.uid: x for x in message.users}
+
+        # update message
+        message.method = Method.none
+        message.users = list(self.groups[message.receiver.uid].values())
 
         # update all users in group
         for user_uid in self.groups[message.receiver.uid]:
@@ -73,7 +81,7 @@ class FSGAgent(Agent):
             to_users.append(receiver.uid)
 
         elif isinstance(receiver, Group) and receiver.uid in self.groups:
-            to_users += self.groups[receiver.uid]
+            to_users += self.groups[receiver.uid].keys()
 
         for user_uid in to_users:
             if user_uid in self.user_to_connection:

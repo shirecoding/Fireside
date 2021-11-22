@@ -5,7 +5,7 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 
-import { ChatMessage, UpdateGroup, Group, User } from "../../fsg";
+import { UpdateGroup, User, Method } from "../../fsg";
 
 const Chat = ({ url, messages, user, group, users, onTextInput }) => {
 
@@ -17,7 +17,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
 
   useEffect(() => {
 
-    const systemUser = new User({uid: "system"})
+    const systemUser = User({uid: "system"})
 
     // subscribe to web socket
     state.webSocket.subscribe(
@@ -29,7 +29,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
           setState((state) => {
             return {
               ...state,
-              messages: [...state.messages, {user: payload.sender.uid, message: payload.message}],
+              messages: [...state.messages, {user: payload.sender, message: payload.message}],
             };
           });
         }
@@ -39,7 +39,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
           setState((state) => {
             return {
               ...state,
-              users: [...payload.users.map((uid) => new User({uid: uid}))],
+              users: payload.users,
             };
           });
         }
@@ -68,10 +68,11 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
     );
 
     // send group update on load
-    state.webSocket.next(new UpdateGroup({
+    state.webSocket.next(UpdateGroup({
       sender: user,
       receiver: group,
-      users: [...users.map(({uid}) => uid)]
+      method: Method.add,
+      users: [user]
     }))
 
     // clean up
@@ -80,7 +81,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
       state.webSocket.complete();
     }
 
-  }, []);
+  }, [group, user, state.webSocket]);
 
   return (
     <div className="row h-100">

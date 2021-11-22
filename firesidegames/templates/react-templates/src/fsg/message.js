@@ -1,32 +1,37 @@
-class User {
-  constructor({uid}) {
-    this.type = "User"
-    this.uid = uid
+const Method = {
+  'add': 'add'
+}
+
+function User({uid}) {
+  return {
+    type: "User",
+    uid: uid,
   }
 }
 
-class Group {
-  constructor({uid}) {
-    this.type = "Group"
-    this.uid = uid
+function Group({uid}) {
+  return {
+    type: "Group",
+    uid: uid,
   }
 }
 
-class ChatMessage {
-  constructor({sender, receiver, message}) {
-    this.type = "ChatMessage"
-    this.sender = sender
-    this.receiver = receiver
-    this.message = message
+function ChatMessage({sender, receiver, message}) {
+  return {
+    type: "ChatMessage",
+    sender: sender,
+    receiver: receiver,
+    message: message,
   }
 }
 
-class UpdateGroup {
-  constructor({sender, receiver, users}) {
-    this.type = "UpdateGroup"
-    this.sender = sender
-    this.receiver = receiver
-    this.users = users
+function UpdateGroup({sender, receiver, users, method}) {
+  return {
+    type: "UpdateGroup",
+    method: method,
+    sender: sender,
+    receiver: receiver,
+    users: users,
   }
 }
 
@@ -34,5 +39,6 @@ export {
   User,
   Group,
   ChatMessage,
-  UpdateGroup
+  UpdateGroup,
+  Method
 };

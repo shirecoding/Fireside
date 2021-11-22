@@ -21,11 +21,11 @@ const Template = (args) => (
 );
 
 const users = {
-  benjamin: new User({uid: "benjamin"}),
-  matthew: new User({uid: "matthew"}),
-  mengxiong: new User({uid: "mengxiong"}),
-  alfathi: new User({uid: "alfathi"}),
-  winson: new User({uid: "winson"}),
+  benjamin: User({uid: "benjamin"}),
+  matthew: User({uid: "matthew"}),
+  mengxiong: User({uid: "mengxiong"}),
+  alfathi: User({uid: "alfathi"}),
+  winson: User({uid: "winson"}),
 }
 
 export const Primary = Template.bind({});

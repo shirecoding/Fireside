@@ -1,4 +1,4 @@
-__all__ = ["User", "DirectMessage", "GlobalMessage", "FSGMessage"]
+__all__ = ["User", "DirectMessage", "GlobalMessage", "FSGMessage", "Method"]
 
 from dataclasses import dataclass, asdict, field
 from aiohttp import WSMessage, WSMsgType
@@ -29,6 +29,11 @@ class User(BaseType):
 class Group(BaseType):
     type: str = "Group"
     uid: str = None
+
+
+class Method:
+    none = ""
+    add = "add"
 
 
 @dataclass
@@ -68,16 +73,18 @@ class UpdateGroup(BaseMessage):
             "type": "User",
             "uid": "benjamin",
         },
-        "reeceiver": {
+        "receiver": {
             "type": "Group",
             "uid": "gameroom1",
         },
+        "method": "add",
         "users": ['benjamin', 'mengxiong']
     }
     """
 
     type: str = "UpdateGroup"
     users: list[str] = field(default_factory=list)
+    method: str = ""
 
 
 class FSGMessage:
@@ -94,7 +101,11 @@ class FSGMessage:
     def parse(cls, message):
         return cls.lookup[message["type"]](
             **{
-                k: cls.parse(v) if isinstance(v, dict) else v
+                k: cls.parse(v)
+                if isinstance(v, dict)
+                else [cls.parse(x) for x in v]
+                if isinstance(v, list)
+                else v
                 for k, v in message.items()
             }
         )
