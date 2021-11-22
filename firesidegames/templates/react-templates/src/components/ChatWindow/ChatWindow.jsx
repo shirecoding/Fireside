@@ -7,7 +7,7 @@ const renderRow = (props) => {
   return (
     <li className="list-group-item border-0" style={style} key={index}>
       <div className="ms-2 me-auto">
-        <div className="fw-bold">{data[index].user}</div>
+        <div className="fw-bold">{data[index].user.uid}</div>
         {data[index].message}
       </div>
     </li>

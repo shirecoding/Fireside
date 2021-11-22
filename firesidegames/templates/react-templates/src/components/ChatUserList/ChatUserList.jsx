@@ -6,7 +6,7 @@ const renderRow = (props) => {
   const { data, index, style } = props;
   return (
     <li className="list-group-item text-truncate border-0" style={style} key={index}>
-      {data[index].name}
+      {data[index].uid}
     </li>
   );
 };

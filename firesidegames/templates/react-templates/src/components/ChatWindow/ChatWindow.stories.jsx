@@ -2,6 +2,8 @@ import React from "react";
 
 import ChatWindow from "./ChatWindow";
 
+import { User } from "../../fsg";
+
 export default {
   title: "Components/ChatWindow",
   component: ChatWindow,
@@ -18,13 +20,21 @@ const Template = (args) => (
   </div>
 );
 
+const users = {
+  benjamin: new User({uid: "benjamin"}),
+  matthew: new User({uid: "matthew"}),
+  mengxiong: new User({uid: "mengxiong"}),
+  alfathi: new User({uid: "alfathi"}),
+  winson: new User({uid: "winson"}),
+}
+
 export const Primary = Template.bind({});
 Primary.args = {
   messages: [
-    {message: "The quick brown fox jumps over the lazy dog.", user: "benjamin hon weng kiong"},
-    {message: "The quick brown fox jumps over the lazy dog.", user: "matthew"},
-    {message: "The quick brown fox jumps over the lazy dog.", user: "meng xiong"},
-    {message: "The quick brown fox jumps over the lazy dog.", user: "jansen"},
-    {message: "The quick brown fox jumps over the lazy dog.", user: "eugene"},
+    {message: "The quick brown fox jumps over the lazy dog.", user: users.benjamin},
+    {message: "The quick brown fox jumps over the lazy dog.", user: users.matthew},
+    {message: "The quick brown fox jumps over the lazy dog.", user: users.mengxiong},
+    {message: "The quick brown fox jumps over the lazy dog.", user: users.alfathi},
+    {message: "The quick brown fox jumps over the lazy dog.", user: users.winson},
   ],
 };

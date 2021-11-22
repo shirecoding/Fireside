@@ -1,16 +1,17 @@
 import React from "react";
-import Chat from "./Chat";
-import {ChatMessage, User, Group} from "../../fsg";
+import Gameroom from "./Gameroom";
 import _ from "lodash";
 
+import { GlobalMessage, User, Group } from "../../fsg";
+
 export default {
-  title: "Composites/Chat",
-  component: Chat,
+  title: "Composites/Gameroom",
+  component: Gameroom,
 };
 
 const Template = (args) => (
   <div className="container-fluid" style={{height: '500px'}}>
-    <Chat {...args}/>
+    <Gameroom {...args}/>
   </div>
 )
 
@@ -48,13 +49,4 @@ Primary.args = {
   user: users.benjamin,
   group: group,
   users: _.values(users),
-  onTextInput: (state, e) => {
-    if (state.webSocket) {
-      state.webSocket.next(new ChatMessage({
-        sender: users.benjamin,
-        receiver: group,
-        message: e,
-      }))
-    }
-  }
 };

@@ -2,11 +2,20 @@ from django.shortcuts import render
 from .models import Game
 
 
-def games_view(request):
+def index_view(request):
 
     if request.method == "GET":
         games = Game.objects.all()
         return render(request, "games/index.html", {"games": games, "segment": "games"})
+
+
+def game_view(request, game):
+
+    if request.method == "GET":
+
+        return render(
+            request, "games/game.html", {"game": Game.objects.filter(name=game).first()}
+        )
 
 
 def chatroom_view(request):

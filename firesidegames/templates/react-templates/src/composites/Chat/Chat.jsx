@@ -5,7 +5,7 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 
-import {ChatMessage, UpdateGroup, Group, User} from "../../fsg";
+import { ChatMessage, UpdateGroup, Group, User } from "../../fsg";
 
 const Chat = ({ url, messages, user, group, users, onTextInput }) => {
 
@@ -16,6 +16,8 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
   });
 
   useEffect(() => {
+
+    const systemUser = new User({uid: "system"})
 
     // subscribe to web socket
     state.webSocket.subscribe(
@@ -37,7 +39,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
           setState((state) => {
             return {
               ...state,
-              users: [...payload.users.map((uid) => ({name: uid})), {name: user}],
+              users: [...payload.users.map((uid) => new User({uid: uid}))],
             };
           });
         }
@@ -49,7 +51,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
         setState((state) => {
           return {
             ...state,
-            messages: [...state.messages, {user: "connection", message: "connection failed"}]
+            messages: [...state.messages, {user: systemUser, message: "connection failed"}]
           };
         });
       },
@@ -59,21 +61,18 @@ const Chat = ({ url, messages, user, group, users, onTextInput }) => {
         setState((state) => {
           return {
             ...state,
-            messages: [...state.messages, {user: "connection", message: "connection closed"}]
+            messages: [...state.messages, {user: systemUser, message: "connection closed"}]
           };
         });
       }
     );
 
     // send group update on load
-    const sender = new User({uid: user})
-    const receiver = new Group({uid: group})
-    const msg = new UpdateGroup({
-      sender: sender,
-      receiver: receiver,
-      users: [...users.map(({name}) => name), user]
-    })
-    state.webSocket.next(msg)
+    state.webSocket.next(new UpdateGroup({
+      sender: user,
+      receiver: group,
+      users: [...users.map(({uid}) => uid)]
+    }))
 
     // clean up
     return () => {
