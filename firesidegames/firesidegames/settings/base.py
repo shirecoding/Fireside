@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "home",
     "polls",
     "games",
+    "profile_settings",
 ]
 
 MIDDLEWARE = [
