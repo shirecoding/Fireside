@@ -26,6 +26,7 @@ class UserProfileSettings(models.Model):
         default=dict, help_text="User profile settings in JSON or YAML format."
     )
     games = models.ManyToManyField(Game, through="GameMembership")
+    connections = models.ManyToManyField("self", through="UserConnection")
 
     def __str__(self):
         return f"{self.user.email}"
@@ -48,3 +49,25 @@ class GameMembership(models.Model):
 
     def __str__(self):
         return f"{self.game}_{self.profile}"
+
+
+class UserConnection(models.Model):
+    user_profile = models.ForeignKey(
+        UserProfileSettings, related_name="user_connections", on_delete=models.CASCADE
+    )
+    other_profile = models.ForeignKey(UserProfileSettings, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(
+        default=datetime.utcnow,
+        help_text="The datetime this connection was created.",
+    )
+    connection_type = models.CharField(
+        default="", max_length=256, help_text="Type of the connection (Friend, ...)"
+    )
+    connection_state = models.CharField(
+        default="",
+        max_length=256,
+        help_text="State of the connection (Accepted, Request, ...)",
+    )
+
+    def __str__(self):
+        return f"{self.user_profile}_{self.other_profile}"

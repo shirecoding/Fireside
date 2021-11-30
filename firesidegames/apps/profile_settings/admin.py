@@ -9,12 +9,16 @@ class GameMembershipInline(admin.TabularInline):
     extra = 0
 
 
+class UserConnectionsInline(admin.TabularInline):
+    model = UserProfileSettings.connections.through
+    fk_name = "other_profile"
+    extra = 0
+
+
 class UserProfileSettingsAdmin(admin.ModelAdmin):
     formfield_overrides = {JSONField: {"widget": YAMLWidget}}
-    inlines = [
-        GameMembershipInline,
-    ]
-    exclude = ("games",)
+    inlines = [GameMembershipInline, UserConnectionsInline]
+    exclude = ("games", "connections")
 
 
 admin.site.register(UserProfileSettings, UserProfileSettingsAdmin)
