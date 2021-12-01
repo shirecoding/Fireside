@@ -36,6 +36,7 @@ class UserProfileSettings(models.Model):
             if not k.startswith("__")
         ),
     )
+    mail = models.ManyToManyField("Mail")
 
     def __str__(self):
         return f"{self.user.email}"
@@ -92,3 +93,27 @@ class UserConnection(models.Model):
 
     def __str__(self):
         return f"{self.user_profile}_{self.other_profile}"
+
+
+class Mail(models.Model):
+    user_profile = models.ForeignKey(
+        UserProfileSettings,
+        related_name="received_mail",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    from_user = models.ForeignKey(
+        django.contrib.auth.get_user_model(),
+        related_name="sent_mail",
+        on_delete=models.CASCADE,
+    )
+    date_created = models.DateTimeField(
+        default=datetime.utcnow,
+        help_text="The datetime this mail was created.",
+    )
+    title = models.CharField(max_length=128, default="")
+    content = models.TextField(max_length=4096, default="")
+
+    def __str__(self):
+        return f"{self.from_user}_{self.title}"
