@@ -3,7 +3,7 @@ import django.contrib.auth
 from games.models import Game
 from datetime import datetime
 
-DEFAULT_TITLE = "Initiate"
+from profile_settings.utils import Constants
 
 
 class UserProfileSettings(models.Model):
@@ -16,7 +16,7 @@ class UserProfileSettings(models.Model):
         verbose_name_plural = "user profile settings"
 
     about = models.TextField(max_length=4096, default="")
-    title = models.CharField(max_length=256, default="Initiate")
+    title = models.CharField(max_length=256, default=Constants.UserTitles.initiate)
     user = models.ForeignKey(
         django.contrib.auth.get_user_model(),
         on_delete=models.CASCADE,
@@ -27,6 +27,15 @@ class UserProfileSettings(models.Model):
     )
     games = models.ManyToManyField(Game, through="GameMembership")
     connections = models.ManyToManyField("self", through="UserConnection")
+    color_theme = models.CharField(
+        max_length=16,
+        default=Constants.ColorTheme.p1_darkblue,
+        choices=(
+            (v, k)
+            for k, v in Constants.ColorTheme.__dict__.items()
+            if not k.startswith("__")
+        ),
+    )
 
     def __str__(self):
         return f"{self.user.email}"
@@ -61,10 +70,22 @@ class UserConnection(models.Model):
         help_text="The datetime this connection was created.",
     )
     connection_type = models.CharField(
-        default="", max_length=256, help_text="Type of the connection (Friend, ...)"
+        default=Constants.UserConnectionType.friend,
+        choices=(
+            (v, v)
+            for k, v in Constants.UserConnectionType.__dict__.items()
+            if not k.startswith("__")
+        ),
+        max_length=256,
+        help_text="Type of the connection (Friend, ...)",
     )
     connection_state = models.CharField(
-        default="",
+        default=Constants.UserConnectionState.request,
+        choices=(
+            (v, v)
+            for k, v in Constants.UserConnectionState.__dict__.items()
+            if not k.startswith("__")
+        ),
         max_length=256,
         help_text="State of the connection (Accepted, Request, ...)",
     )
