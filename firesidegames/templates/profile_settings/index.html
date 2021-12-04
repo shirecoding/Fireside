@@ -127,8 +127,10 @@
               </div>
               <div class="col-md-4 text-right">
                 <a href="javascript:;">
-                  <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Profile"></i>
+                  <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#aboutme" data-bs-placement="top" title="About Me"></i>
                 </a>
+                {% url 'profile_settings:index' as index %}
+                {% include "includes/modal.html" with accept="Save" cancel="Cancel" title="About Me" target="aboutme" form=forms.aboutme name="aboutme" action="/profile_settings/" %}
               </div>
             </div>
           </div>
