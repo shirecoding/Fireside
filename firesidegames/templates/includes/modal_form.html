@@ -8,7 +8,7 @@
       <div class="modal-body">
         <form method="post" action="{{ action }}" id="form_{{ name }}">
           {% csrf_token %}
-          {{ form }}
+          {% include "includes/render_form.html" with form=form %}
         </form>
       </div>
       <div class="modal-footer">

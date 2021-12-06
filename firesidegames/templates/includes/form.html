@@ -1,0 +1,6 @@
+<form method="post" action="{{ action }}" id="form_{{ name }}">
+  {% csrf_token %}
+  {% include "includes/render_form.html" with form=form %}
+  {% if cancel %}<button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">{{ cancel }}</button>{% endif %}
+  {% if accept %}<input class="btn btn-primary mt-3" name="{{ name }}" value="{{ accept }}" type="submit" form="form_{{ name }}"/>{% endif %}
+</form>

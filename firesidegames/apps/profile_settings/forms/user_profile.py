@@ -1,6 +1,6 @@
 __all__ = ["UserProfileForm"]
 
-from django.forms import ModelForm, TextInput
+from django.forms import ModelForm, Textarea
 
 from profile_settings.models import UserProfileSettings
 
@@ -10,10 +10,9 @@ class UserProfileForm(ModelForm):
         model = UserProfileSettings
         fields = ["about"]
         widgets = {
-            "about": TextInput(
+            "about": Textarea(
                 attrs={
                     "class": "form-control",
-                    # 'style': 'max-width: 300px;',
                     "placeholder": "Tell me about yourself!",
                 }
             )

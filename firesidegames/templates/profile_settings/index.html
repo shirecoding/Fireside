@@ -102,19 +102,8 @@
             <h6 class="mb-0">Settings</h6>
           </div>
           <div class="card-body p-3">
-            {% for category, settings in profile.settings.items %}
-              <h6 class="text-uppercase text-body text-xs font-weight-bolder">{{ category }}</h6>
-              <ul class="list-group">
-                {% for _, s in settings.items %}
-                  <li class="list-group-item border-0 px-0">
-                    <div class="form-check form-switch ps-0">
-                      <input class="form-check-input ms-auto" type="checkbox" id="flexSwitchCheckDefault" {% if s.value %} checked {% endif %}>
-                      <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0" for="flexSwitchCheckDefault">{{ s.display }}</label>
-                    </div>
-                  </li>
-                {% endfor %}
-              </ul>
-            {% endfor %}
+            {% url 'profile_settings:index' as index %}
+            {% include "includes/form.html" with form=forms.user_settings accept="Save" name="user_settings" action=index %}
           </div>
         </div>
       </div>
@@ -130,7 +119,7 @@
                   <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#aboutme" data-bs-placement="top" title="About Me"></i>
                 </a>
                 {% url 'profile_settings:index' as index %}
-                {% include "includes/modal.html" with accept="Save" cancel="Cancel" title="About Me" target="aboutme" form=forms.aboutme name="aboutme" action="/profile_settings/" %}
+                {% include "includes/modal_form.html" with accept="Save" cancel="Cancel" title="About Me" target="aboutme" form=forms.aboutme name="aboutme" action=index %}
               </div>
             </div>
           </div>

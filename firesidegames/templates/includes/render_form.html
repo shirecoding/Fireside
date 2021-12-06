@@ -1,0 +1,11 @@
+{% for field in form %}
+  {% if field.field.widget.input_type == "checkbox" %}
+    <div class="form-check form-switch ps-0">
+      {{ field }}
+      <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0" for="{{ field.auto_id }}">{{ field.label }}</label>
+    </div>
+  {% else %}
+    {{ field }}
+    <label class="form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+  {% endif %}
+{% endfor %}
