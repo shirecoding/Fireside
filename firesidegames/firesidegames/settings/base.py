@@ -91,6 +91,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # custom - update UserSession.last_updated
+    "profile_settings.middleware.SetUserSessionLastUpdated",
 ]
 
 ROOT_URLCONF = "firesidegames.urls"

@@ -55,5 +55,6 @@ def index_view(request):
                 "user_settings": settings_form,
                 "reply_mail": ReplyMailForm(),
             },
+            "segment": "profile",
         }
         return render(request, "profile_settings/index.html", context)

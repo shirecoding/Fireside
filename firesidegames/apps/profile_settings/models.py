@@ -2,8 +2,25 @@ from django.db import models
 import django.contrib.auth
 from games.models import Game
 from django.utils import timezone
-
 from profile_settings.utils import Constants
+from django.contrib.sessions.models import Session
+from datetime import timedelta
+
+
+class UserSession(models.Model):
+    user = models.ForeignKey(
+        django.contrib.auth.get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="session",
+    )
+    session = models.ForeignKey(Session, null=True, on_delete=models.SET_NULL)
+    last_updated = models.DateTimeField(
+        default=timezone.now, help_text="The last datetime the session was updated."
+    )
+
+    @property
+    def is_online(self):
+        return timezone.now() - self.last_updated < timedelta(minutes=15)
 
 
 class UserProfileSettings(models.Model):
