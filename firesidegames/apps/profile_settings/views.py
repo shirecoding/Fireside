@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from .forms import UserProfileForm
+from .forms import UserProfileForm, ReplyMailForm
+from .models import Mail
 from firesidegames.forms.settings import create_settings_form
 
 
@@ -29,6 +30,20 @@ def index_view(request):
                 profile.save(update_fields=["settings"])
                 return HttpResponseRedirect(reverse("profile_settings:index"))
 
+        # reply_mail
+        elif "reply_mail" in request.POST:
+            profile = request.user.profile.first()
+            form = ReplyMailForm(request.POST)
+            if form.is_valid():
+                m = Mail.objects.get(pk=form.cleaned_data["mail_id"])
+                Mail.objects.create(
+                    title=form.cleaned_data["title"],
+                    content=form.cleaned_data["content"],
+                    from_user=m.user_profile.user,
+                    user_profile=m.from_user.profile.first(),
+                )
+                return HttpResponseRedirect(reverse("profile_settings:index"))
+
     # index
     elif request.method == "GET":
         profile = request.user.profile.first()
@@ -38,6 +53,7 @@ def index_view(request):
             "forms": {
                 "aboutme": UserProfileForm(instance=profile),
                 "user_settings": settings_form,
+                "reply_mail": ReplyMailForm(),
             },
         }
         return render(request, "profile_settings/index.html", context)

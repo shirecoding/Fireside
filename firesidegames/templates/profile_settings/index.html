@@ -152,10 +152,21 @@
                     <p class="mb-0 text-xs font-italic">{{ m.title }}</p>
                     <p class="mb-0 text-xs">{{ m.content }}</p>
                   </div>
-                  <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
+                  <!-- open reply mail modal -->
+                  <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" data-bs-toggle="modal" data-bs-target="#reply_mail" href="javascript:;" onclick="PrefillReplyMailForm('{{ m.from_user.username }}', '{{ m.title }}', '{{ m.id }}')">Reply</a>
                 </li>
               {% endfor %}
             </ul>
+            <!-- reply mail modal -->
+            {% url 'profile_settings:index' as index %}
+            {% include "includes/modal_form.html" with accept="Reply" cancel="Cancel" title="Mail" target="reply_mail" form=forms.reply_mail name="reply_mail" action=index %}
+            <script type="text/javascript">
+              function PrefillReplyMailForm(replyTo, title, mailID) {
+                document.getElementById("id_reply_to").value = replyTo;
+                document.getElementById("id_title").value = "Re: " + title;
+                document.getElementById("id_mail_id").value = mailID;
+              }
+            </script>
           </div>
         </div>
       </div>

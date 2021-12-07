@@ -1,7 +1,7 @@
 from django.db import models
 import django.contrib.auth
 from games.models import Game
-from datetime import datetime
+from django.utils import timezone
 
 from profile_settings.utils import Constants
 
@@ -50,11 +50,11 @@ class GameMembership(models.Model):
         Game, related_name="game_memberships", on_delete=models.CASCADE
     )
     date_created = models.DateTimeField(
-        default=datetime.utcnow,
+        default=timezone.now,
         help_text="The datetime the user created an account for the game.",
     )
     last_updated = models.DateTimeField(
-        default=datetime.utcnow, help_text="The last datetime the user played the game."
+        default=timezone.now, help_text="The last datetime the user played the game."
     )
 
     def __str__(self):
@@ -67,7 +67,7 @@ class UserConnection(models.Model):
     )
     other_profile = models.ForeignKey(UserProfileSettings, on_delete=models.CASCADE)
     date_created = models.DateTimeField(
-        default=datetime.utcnow,
+        default=timezone.now,
         help_text="The datetime this connection was created.",
     )
     connection_type = models.CharField(
@@ -109,7 +109,7 @@ class Mail(models.Model):
         on_delete=models.CASCADE,
     )
     date_created = models.DateTimeField(
-        default=datetime.utcnow,
+        default=timezone.now,
         help_text="The datetime this mail was created.",
     )
     title = models.CharField(max_length=128, default="")
