@@ -16,6 +16,16 @@ const users = [
   User({uid: "winson"}),
 ]
 
+const friends = [
+  User({uid: "mengxiong"}),
+  User({uid: "alfathi"}),
+]
+
+const moderators = [
+  User({uid: "alex"}),
+  User({uid: "jansen"}),
+]
+
 const Template = (args) => (
   <div
     style={{
@@ -30,4 +40,6 @@ const Template = (args) => (
 export const Primary = Template.bind({});
 Primary.args = {
   users: users,
+  friends: friends,
+  moderators: moderators
 };
