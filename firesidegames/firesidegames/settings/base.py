@@ -76,11 +76,14 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # django-storages
     "storages",
+    # rest_framework
+    "rest_framework",
     # custom apps
     "home",
     "polls",
     "games",
     "profile_settings",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -180,6 +183,7 @@ AUTH_PASSWORD_VALIDATORS = [
 #####################################################################################
 
 # all-auth settings
+LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATION_METHOD = "email"  # email only
 ACCOUNT_USERNAME_REQUIRED = False
@@ -237,6 +241,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+APPEND_SLASH = True
+
+#####################################################################################
+# Django REST Framework
+#####################################################################################
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
+    ]
+}
 
 #####################################################################################
 # Sendgrid

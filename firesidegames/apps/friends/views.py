@@ -4,7 +4,7 @@ from profile_settings.models import UserProfileSettings
 from profile_settings.utils import Constants as ProfileSettingsConstants
 
 
-@login_required(login_url="accounts/login/")
+@login_required()
 def index_view(request):
 
     # index

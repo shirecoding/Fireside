@@ -7,7 +7,7 @@ from .models import Mail
 from firesidegames.forms.settings import create_settings_form
 
 
-@login_required(login_url="accounts/login/")
+@login_required(login_url="")
 def index_view(request):
 
     # process forms
