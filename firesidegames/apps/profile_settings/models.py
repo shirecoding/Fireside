@@ -8,6 +8,10 @@ from datetime import timedelta
 
 
 class UserSession(models.Model):
+    """
+    Link django session to user
+    """
+
     user = models.ForeignKey(
         django.contrib.auth.get_user_model(),
         on_delete=models.CASCADE,
