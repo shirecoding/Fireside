@@ -9,10 +9,10 @@ def index_view(request):
 
     # index
     if request.method == "GET":
-        profile = request.user.profile.first()
+        profile = request.user.profile
         friends = UserProfile.objects.filter(
-            user_connections__relationship_type=ProfileSettingsConstants.UserRelationshipType.friend,
-            user_connections__other_profile=profile,
+            user_relationships__relationship_type=ProfileSettingsConstants.UserRelationshipType.friend,
+            user_relationships__other_profile=profile,
         )
 
         context = {

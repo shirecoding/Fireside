@@ -15,7 +15,7 @@ def index_view(request):
 
         # aboutme
         if "aboutme" in request.POST:
-            profile = request.user.profile.first()
+            profile = request.user.profile
             form = UserProfileForm(request.POST, instance=profile)
             if form.is_valid():
                 form.save()
@@ -23,7 +23,7 @@ def index_view(request):
 
         # user_settings
         elif "user_settings" in request.POST:
-            profile = request.user.profile.first()
+            profile = request.user.profile
             form = create_settings_form(profile.settings)(request.POST)
             if form.is_valid():
                 profile.settings = form.settings
@@ -32,7 +32,7 @@ def index_view(request):
 
         # reply_mail
         elif "reply_mail" in request.POST:
-            profile = request.user.profile.first()
+            profile = request.user.profile
             form = ReplyMailForm(request.POST)
             if form.is_valid():
                 m = Mail.objects.get(pk=form.cleaned_data["mail_id"])
@@ -40,13 +40,13 @@ def index_view(request):
                     title=form.cleaned_data["title"],
                     content=form.cleaned_data["content"],
                     from_user=m.user_profile.user,
-                    user_profile=m.from_user.profile.first(),
+                    user_profile=m.from_user.profile,
                 )
                 return HttpResponseRedirect(reverse("user_profile:index"))
 
     # index
     elif request.method == "GET":
-        profile = request.user.profile.first()
+        profile = request.user.profile
         settings_form = create_settings_form(profile.settings)(None)
         context = {
             "profile": profile,

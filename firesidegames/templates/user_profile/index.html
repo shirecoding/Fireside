@@ -144,7 +144,7 @@
             <ul class="list-group">
               {% for m in profile.received_mail.all %}
                 <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                  <div class="avatar me-3 avatar-circle-small" style="--color: {{ m.from_user.profile.first.color_theme }};">
+                  <div class="avatar me-3 avatar-circle-small" style="--color: {{ m.from_user.profile.color_theme }};">
                     <span class="initials">{{ m.from_user.username|capfirst|slice:":2" }}</span>
                   </div>
                   <div class="d-flex align-items-start flex-column justify-content-center">

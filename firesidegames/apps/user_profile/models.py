@@ -14,7 +14,10 @@ class UserProfile(models.Model):
     """
 
     user = models.OneToOneField(
-        django.contrib.auth.get_user_model(), on_delete=models.CASCADE, primary_key=True
+        django.contrib.auth.get_user_model(),
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="profile",
     )
     session = models.ForeignKey(Session, null=True, on_delete=models.SET_NULL)
     last_updated = models.DateTimeField(
@@ -53,7 +56,7 @@ class UserProfile(models.Model):
 
 class GameMembership(models.Model):
     profile = models.ForeignKey(
-        UserProfile, related_name="memberships", on_delete=models.CASCADE
+        UserProfile, related_name="game_memberships", on_delete=models.CASCADE
     )
     game = models.ForeignKey(Game, related_name="memberships", on_delete=models.CASCADE)
     date_created = models.DateTimeField(
