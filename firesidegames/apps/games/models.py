@@ -3,7 +3,7 @@ import uuid
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=64, unique=True, primary_key=True)
 
     class Meta:
         verbose_name_plural = "categories"
@@ -11,28 +11,22 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def uid(self):
-        return self.name
-
 
 class Game(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-    categories = models.ManyToManyField(Category)
-    short_description = models.CharField(max_length=64)
-    long_description = models.TextField(max_length=4096)
-    image = models.ImageField(blank=True)
+    name = models.CharField(max_length=64, unique=True, primary_key=True)
+    categories = models.ManyToManyField(Category, null=True, blank=True)
+    short_description = models.CharField(max_length=64, default="", blank=True)
+    long_description = models.TextField(max_length=4096, default="", blank=True)
+    image = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.name
 
-    @property
-    def uid(self):
-        return self.name
-
 
 class GameInstance(models.Model):
-    uid = models.CharField(default=uuid.uuid4, max_length=64, unique=True)
+    uid = models.CharField(
+        default=uuid.uuid4, max_length=64, unique=True, primary_key=True
+    )
     game = models.ForeignKey(Game, related_name="instances", on_delete=models.CASCADE)
 
     def __str__(self):

@@ -2,12 +2,12 @@ __all__ = ["UserProfileForm"]
 
 from django.forms import ModelForm, Textarea
 
-from profile_settings.models import UserProfileSettings
+from user_profile.models import UserProfile
 
 
 class UserProfileForm(ModelForm):
     class Meta:
-        model = UserProfileSettings
+        model = UserProfile
         fields = ["about"]
         widgets = {
             "about": Textarea(

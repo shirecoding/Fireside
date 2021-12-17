@@ -5,9 +5,6 @@
 
 ## UserProfile
 
-- Created when a user is created (see *profile_settings/signals/handlers.py*)
-
-## UserSession
-
-- Created/Updated when user logs in (see *profile_settings/signals/handlers.py*)
-- *last_updated* shows the last datetime of activity of the user (see *profile_settings/middleware/SetUserSessionLastUpdated*)
+- Created when a user is created (see *user_profile/signals/handlers.py*)
+- Stores the session which ties django session to a user
+- Session is updated on every request via middleware (see *user_profile/middleware/UpdateUserProfileMiddleware*)

@@ -2,7 +2,7 @@ __all__ = ["ReplyMailForm"]
 
 from django.forms import ModelForm, Textarea, TextInput, CharField, HiddenInput
 
-from profile_settings.models import Mail
+from user_profile.models import Mail
 
 
 class ReplyMailForm(ModelForm):

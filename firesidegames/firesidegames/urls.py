@@ -13,7 +13,7 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path("games/", include("games.urls")),
     path("polls/", include("polls.urls")),
     path("accounts/", include("allauth.urls")),
-    path("profile_settings/", include("profile_settings.urls")),
+    path("user_profile/", include("user_profile.urls")),
     path("friends/", include("friends.urls")),
     path("", include("home.urls")),
 ]

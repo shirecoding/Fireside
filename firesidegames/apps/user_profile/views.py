@@ -19,7 +19,7 @@ def index_view(request):
             form = UserProfileForm(request.POST, instance=profile)
             if form.is_valid():
                 form.save()
-                return HttpResponseRedirect(reverse("profile_settings:index"))
+                return HttpResponseRedirect(reverse("user_profile:index"))
 
         # user_settings
         elif "user_settings" in request.POST:
@@ -28,7 +28,7 @@ def index_view(request):
             if form.is_valid():
                 profile.settings = form.settings
                 profile.save(update_fields=["settings"])
-                return HttpResponseRedirect(reverse("profile_settings:index"))
+                return HttpResponseRedirect(reverse("user_profile:index"))
 
         # reply_mail
         elif "reply_mail" in request.POST:
@@ -42,7 +42,7 @@ def index_view(request):
                     from_user=m.user_profile.user,
                     user_profile=m.from_user.profile.first(),
                 )
-                return HttpResponseRedirect(reverse("profile_settings:index"))
+                return HttpResponseRedirect(reverse("user_profile:index"))
 
     # index
     elif request.method == "GET":
@@ -57,4 +57,4 @@ def index_view(request):
             },
             "segment": "profile",
         }
-        return render(request, "profile_settings/index.html", context)
+        return render(request, "user_profile/index.html", context)

@@ -12,13 +12,9 @@ from django.urls import reverse_lazy
 
 @login_required(login_url=reverse_lazy("login"))
 def index(request):
-
     context = {}
     context["segment"] = "index"
-
-    html_template = loader.get_template("index.html")  # django softui index.html
-    # html_template = loader.get_template("build/index.html")  # react chat index.html
-
+    html_template = loader.get_template("index.html")
     return HttpResponse(html_template.render(context, request))
 
 

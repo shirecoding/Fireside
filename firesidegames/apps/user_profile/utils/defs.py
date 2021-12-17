@@ -2,11 +2,11 @@ __all__ = ["Constants"]
 
 
 class Constants:
-    class UserConnectionState:
+    class UserRelationshipState:
         request = "Request"
         accepted = "Accepted"
 
-    class UserConnectionType:
+    class UserRelationshipType:
         friend = "Friend"
 
     class UserTitles:

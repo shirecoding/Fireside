@@ -2,52 +2,32 @@ from django.db import models
 import django.contrib.auth
 from games.models import Game
 from django.utils import timezone
-from profile_settings.utils import Constants
+from user_profile.utils import Constants
 from django.contrib.sessions.models import Session
 from datetime import timedelta
 
 
-class UserSession(models.Model):
+class UserProfile(models.Model):
     """
-    Link django session to user
+    Notes:
+        - Created during user registration (see signals/handlers.py)
     """
 
-    user = models.ForeignKey(
-        django.contrib.auth.get_user_model(),
-        on_delete=models.CASCADE,
-        related_name="session",
+    user = models.OneToOneField(
+        django.contrib.auth.get_user_model(), on_delete=models.CASCADE, primary_key=True
     )
     session = models.ForeignKey(Session, null=True, on_delete=models.SET_NULL)
     last_updated = models.DateTimeField(
-        default=timezone.now, help_text="The last datetime the session was updated."
+        default=timezone.now, help_text="The last datetime of any user activity."
     )
 
-    @property
-    def is_online(self):
-        return timezone.now() - self.last_updated < timedelta(minutes=15)
-
-
-class UserProfileSettings(models.Model):
-    """
-    Notes:
-        - Create and link UserProfileSettings during user registration (see signals/handlers.py)
-    """
-
-    class Meta:
-        verbose_name_plural = "user profile settings"
-
-    about = models.TextField(max_length=4096, default="")
+    about = models.TextField(max_length=4096, default="", blank=True)
     title = models.CharField(max_length=256, default=Constants.UserTitles.initiate)
-    user = models.ForeignKey(
-        django.contrib.auth.get_user_model(),
-        on_delete=models.CASCADE,
-        related_name="profile",
-    )
     settings = models.JSONField(
-        default=dict, help_text="User profile settings in JSON or YAML format."
+        default=dict, help_text="User profile in JSON or YAML format.", blank=True
     )
     games = models.ManyToManyField(Game, through="GameMembership")
-    connections = models.ManyToManyField("self", through="UserConnection")
+    relationships = models.ManyToManyField("self", through="UserRelationship")
     color_theme = models.CharField(
         max_length=16,
         default=Constants.ColorTheme.p1_darkblue,
@@ -60,16 +40,22 @@ class UserProfileSettings(models.Model):
     mail = models.ManyToManyField("Mail")
 
     def __str__(self):
-        return f"{self.user.email}"
+        return f"{self.user.username}"
+
+    @property
+    def is_online(self):
+        return timezone.now() - self.last_updated < timedelta(minutes=15)
+
+    def save(self, *args, **kwargs):
+        self.last_updated = timezone.now()
+        super().save(*args, **kwargs)
 
 
 class GameMembership(models.Model):
     profile = models.ForeignKey(
-        UserProfileSettings, related_name="game_memberships", on_delete=models.CASCADE
+        UserProfile, related_name="memberships", on_delete=models.CASCADE
     )
-    game = models.ForeignKey(
-        Game, related_name="game_memberships", on_delete=models.CASCADE
-    )
+    game = models.ForeignKey(Game, related_name="memberships", on_delete=models.CASCADE)
     date_created = models.DateTimeField(
         default=timezone.now,
         help_text="The datetime the user created an account for the game.",
@@ -81,31 +67,35 @@ class GameMembership(models.Model):
     def __str__(self):
         return f"{self.game}_{self.profile}"
 
+    @property
+    def is_online(self):
+        return timezone.now() - self.last_updated < timedelta(minutes=15)
 
-class UserConnection(models.Model):
+
+class UserRelationship(models.Model):
     user_profile = models.ForeignKey(
-        UserProfileSettings, related_name="user_connections", on_delete=models.CASCADE
+        UserProfile, related_name="user_relationships", on_delete=models.CASCADE
     )
-    other_profile = models.ForeignKey(UserProfileSettings, on_delete=models.CASCADE)
+    other_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     date_created = models.DateTimeField(
         default=timezone.now,
         help_text="The datetime this connection was created.",
     )
-    connection_type = models.CharField(
-        default=Constants.UserConnectionType.friend,
+    relationship_type = models.CharField(
+        default=Constants.UserRelationshipType.friend,
         choices=(
             (v, v)
-            for k, v in Constants.UserConnectionType.__dict__.items()
+            for k, v in Constants.UserRelationshipType.__dict__.items()
             if not k.startswith("__")
         ),
         max_length=256,
         help_text="Type of the connection (Friend, ...)",
     )
-    connection_state = models.CharField(
-        default=Constants.UserConnectionState.request,
+    relationship_state = models.CharField(
+        default=Constants.UserRelationshipState.request,
         choices=(
             (v, v)
-            for k, v in Constants.UserConnectionState.__dict__.items()
+            for k, v in Constants.UserRelationshipState.__dict__.items()
             if not k.startswith("__")
         ),
         max_length=256,
@@ -118,7 +108,7 @@ class UserConnection(models.Model):
 
 class Mail(models.Model):
     user_profile = models.ForeignKey(
-        UserProfileSettings,
+        UserProfile,
         related_name="received_mail",
         on_delete=models.CASCADE,
         blank=True,

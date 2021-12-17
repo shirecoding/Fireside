@@ -82,7 +82,7 @@ INSTALLED_APPS = [
     "home",
     "polls",
     "games",
-    "profile_settings",
+    "user_profile",
     "api",
 ]
 
@@ -94,8 +94,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # custom - update UserSession.last_updated
-    "profile_settings.middleware.SetUserSessionLastUpdated",
+    # custom
+    "user_profile.middleware.UpdateUserProfileMiddleware",
 ]
 
 ROOT_URLCONF = "firesidegames.urls"
