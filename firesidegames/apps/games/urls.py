@@ -1,11 +1,10 @@
 from django.urls import path
 
-from .views import index_view, chatroom_view, game_view
+from .views import index_view, game_view
 
 app_name = "games"  # namespace for {% url 'games:index' %} etc..
 
 urlpatterns = [
-    path("chatroom/", chatroom_view, name="chatroom"),
     path("game/<str:game>", game_view, name="game"),
     path("", index_view, name="index"),
 ]

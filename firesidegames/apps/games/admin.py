@@ -24,7 +24,7 @@ class GameInstanceInline(admin.TabularInline):
 class GameAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Game", {"fields": ["name", "short_description", "long_description"]}),
-        ("Properties", {"fields": ["categories", "image"]}),
+        ("Properties", {"fields": ["categories", "image", "websocket"]}),
     ]
     inlines = [
         GameInstanceInline,

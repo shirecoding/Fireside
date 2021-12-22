@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from fsg_agent.utils.message import User, Group
 from .models import Game
+from dataclasses import asdict
 
 
 def index_view(request):
@@ -15,35 +17,15 @@ def game_view(request, game):
 
         game = Game.objects.filter(name=game).first()
         props = {
-            "url": "ws://127.0.0.1:8080/ws",
+            "url": game.websocket,
             "messages": [],
             "users": [],
-            "user": {
-                "uid": "benjamin",
-                "type": "User",
-            },  # TODO: Better way to make dict representation, replace with read data
-            "group": {"uid": "gameinstance1", "type": "Group"},
+            "user": asdict(User(uid=request.user.username)),
+            "group": asdict(Group(uid=game.name)),
             "rooms": [{"uid": x.uid} for x in game.instances.all()],
         }
         return render(
             request,
             "games/react_mount.html",
             {"component": "js/gameroom.js", "props": props},
-        )
-
-
-def chatroom_view(request):
-
-    if request.method == "GET":
-        props = {
-            "url": "ws://127.0.0.1:8080/ws",
-            "messages": [],
-            "users": [],
-            "user": {"uid": "benjamin", "type": "User"},
-            "group": {"uid": "gameinstance1", "type": "Group"},
-        }
-        return render(
-            request,
-            "games/react_mount.html",
-            {"component": "js/chatroom.js", "props": props},
         )

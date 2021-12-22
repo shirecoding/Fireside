@@ -83,10 +83,13 @@ const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
 
   }, [group, user, state.webSocket]);
 
+  const friends = []
+  const moderators = []
+
   return (
-    <div className="row h-100">
+    <div className="row vh-100">
       <div className="col-9">
-        <div className={children ? "row mb-2 h-50" : "row"}>
+        <div className="row overflow-scroll" style={children ? {height: "25rem"} : {}}>
           {children}
         </div>
         <div className={children ? "row mb-2 h-50" : "row mb-2 h-100"}>
@@ -97,7 +100,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
         </div>
       </div>
       <div className="col-3">
-        <ChatUserList users={state.users} />
+        <ChatUserList users={state.users} friends={friends} moderators={moderators} />
       </div>
     </div>
   );
