@@ -36,6 +36,9 @@ const rooms = [
   {uid: "gameinstance_6"},
   {uid: "gameinstance_7"},
   {uid: "gameinstance_8"},
+  {uid: "gameinstance_9"},
+  {uid: "gameinstance_10"},
+  {uid: "gameinstance_11"},
 ]
 
 Primary.args = {

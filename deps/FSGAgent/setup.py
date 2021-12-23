@@ -10,6 +10,7 @@ setup(
     author_email="shirecoding@gmail.com",
     install_requires=["powerful-agents"],
     extras_require={},
+    scripts=["bin/fsg_agent"],
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     classifiers=[

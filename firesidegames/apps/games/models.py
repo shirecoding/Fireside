@@ -18,7 +18,9 @@ class Game(models.Model):
     short_description = models.CharField(max_length=64, default="", blank=True)
     long_description = models.TextField(max_length=4096, default="", blank=True)
     image = models.ImageField(null=True, blank=True)
-    websocket = models.CharField(max_length=512, blank=True, null=True)
+    websocket = models.CharField(
+        max_length=512, blank=True, null=True, help_text="eg. ws://127.0.0.1:8080/ws"
+    )
 
     def __str__(self):
         return self.name

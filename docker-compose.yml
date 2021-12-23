@@ -1,5 +1,7 @@
 version: "3.9"
 services:
+
+  # django server
   web:
     build:
       context: .
@@ -7,5 +9,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/code
-    command: bash -c "cat /code/deployments/scripts/setup_docker_env.sh > ~/.bashrc && /code/firesideweb/manage.py runserver 0.0.0.0:8000"
+      - ./deps:/deps
+      - ./firesidegames:/firesidegames
+      - ./deployments/scripts:/deployments/scripts
+    # command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && /firesidegames/manage.py runserver 0.0.0.0:8000"
+    command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && tail -f"
+
+  # fsg agent
+  fsg_agent:
+    build:
+      context: .
+      dockerfile: ./deployments/FiresideAgent.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+        - ./deps:/deps
+        - ./deployments/scripts:/deployments/scripts
+    command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && fsg_agent --host '0.0.0.0' --port '8080' --route '/ws'"

@@ -1,4 +1,5 @@
 set -e
 
-pip install --no-dependencies /code/deps/RxPipes
-pip install --no-dependencies /code/deps/VeryPowerfulAgents
+pip install -U /deps/RxPipes
+pip install -U /deps/VeryPowerfulAgents
+pip install -U /deps/FSGAgent
