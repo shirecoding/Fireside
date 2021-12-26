@@ -31,3 +31,32 @@
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
 }
+
+.square-10-rem {
+  height: 10rem;
+  width: 10rem;
+}
+
+.btn-circle-small {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0px 0px;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+}
+
+.btn-circle {
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  padding: 0px 0px;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+}

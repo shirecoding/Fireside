@@ -8,7 +8,7 @@ setup(
     version=__version__,
     author="shirecoding",
     author_email="shirecoding@gmail.com",
-    install_requires=["powerful-agents"],
+    install_requires=["powerful-agents", "requests"],
     extras_require={},
     scripts=["bin/fsg_agent"],
     long_description=open("README.md").read(),

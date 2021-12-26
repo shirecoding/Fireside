@@ -33,6 +33,7 @@ Primary.args = {
   messages: [
     {message: "The quick brown fox jumps over the lazy dog.", user: users.benjamin},
     {message: "The quick brown fox jumps over the lazy dog.", user: users.matthew},
+    {message: "A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long sentence", user: users.matthew},
     {message: "The quick brown fox jumps over the lazy dog.", user: users.mengxiong},
     {message: "The quick brown fox jumps over the lazy dog.", user: users.alfathi},
     {message: "The quick brown fox jumps over the lazy dog.", user: users.winson},

@@ -2,16 +2,19 @@ from agents import Agent, Message
 from aiohttp import WSMsgType
 from collections import defaultdict
 import json
-
+import requests
 from .utils.message import FSGMessage, ChatMessage, User, Group, UpdateGroup, Method
 
 
 class FSGAgent(Agent):
-    def setup(self, host="0.0.0.0", port="8080", ws_route="/ws"):
+    def setup(
+        self, host="0.0.0.0", port="8080", ws_route="/ws", auth_url="0.0.0.0:8080/auth"
+    ):
 
         self.host = host
         self.port = port
         self.ws_route = ws_route
+        self.auth_url = auth_url
 
         # map connection to user and vice versa
         self.user_to_connection = {}
@@ -23,22 +26,31 @@ class FSGAgent(Agent):
         # create webserver - required for websocket
         self.create_webserver(host, int(port))
 
-        # create websocket and subscribe
+        # create websocket and subscribe (Note: connections map connection_id to websockets it is read only, do not modify)
         self.rtx, self.connections = self.create_websocket(
-            ws_route
-        )  # Note: connections map connection_id to websockets it is read only, do not modify
+            ws_route, authenticate=self.authenticate
+        )
+
         self.disposables.append(self.rtx.subscribe(self.handle_message))
+
+    def authenticate(self, request):
+        """
+        Forwards authentication from websocket to external authentication server
+
+        - query params from the request is forwarded via post body
+        """
+        return (
+            requests.post(self.auth_url, data=request.rel_url.query).status_code == 200
+        )
+
+    def update_connections_table(self, msg, fsg_msg):
+        if isinstance(fsg_msg.sender, User):
+            self.connection_to_user[msg.connection_id] = fsg_msg.sender.uid
+            self.user_to_connection[fsg_msg.sender.uid] = msg.connection_id
 
     def parse_message(self, msg):
         if msg.message.type in [WSMsgType.TEXT, WSMsgType.BINARY]:
-            fsg_msg = FSGMessage.parse(json.loads(msg.message.data))
-
-            # update connections table
-            if isinstance(fsg_msg.sender, User):
-                self.connection_to_user[msg.connection_id] = fsg_msg.sender.uid
-                self.user_to_connection[fsg_msg.sender.uid] = msg.connection_id
-
-            return fsg_msg
+            return FSGMessage.parse(json.loads(msg.message.data))
         return None
 
     def handle_update_group(self, message):
@@ -95,12 +107,16 @@ class FSGAgent(Agent):
 
     def handle_message(self, msg):
 
-        message = self.parse_message(msg)
+        # parse raw message to fsg message
+        fsg_msg = self.parse_message(msg)
+
+        # update connections table
+        self.update_connections_table(msg, fsg_msg)
 
         # ChatMessage
-        if isinstance(message, ChatMessage):
-            self.handle_chat_message(message)
+        if isinstance(fsg_msg, ChatMessage):
+            self.handle_chat_message(fsg_msg)
 
         # UpdateGroup
-        elif isinstance(message, UpdateGroup):
-            self.handle_update_group(message)
+        elif isinstance(fsg_msg, UpdateGroup):
+            self.handle_update_group(fsg_msg)

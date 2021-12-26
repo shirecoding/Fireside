@@ -1,5 +1,5 @@
 import React from "react";
-import { FixedSizeList, VariableSizeList } from "react-window";
+import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 
 const ROW_HEIGHT_WITH_HEADER = 36
@@ -11,7 +11,7 @@ const renderRow = (props) => {
   if (data[index].type === "header") {
     return (
       <li className="d-flex align-items-end justify-content-between list-group-item text-truncate border-top-0 border-start-0 border-end-0 py-0 my-0" style={style} key={index}>
-        <div>{data[index].left}</div>
+        <div className="fw-bold">{data[index].left}</div>
         <div>{data[index].right}</div>
       </li>
     );

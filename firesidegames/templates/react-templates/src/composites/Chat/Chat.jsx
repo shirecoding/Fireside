@@ -8,11 +8,15 @@ import ChatWindow from "../../components/ChatWindow";
 import { UpdateGroup, User, Method } from "../../fsg";
 
 const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
+  /*
+
+    - Opens a websocket connection to url using user.uid and cookies.sessionid as query params
+  */
 
   const [state, setState] = useState({
     messages: messages,
     users: users,
-    webSocket: new webSocket(url)
+    webSocket: new webSocket(`${url}?username=${user.uid}&session=${document.cookie.sessionid}`)
   });
 
   useEffect(() => {
@@ -21,7 +25,7 @@ const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
 
     // subscribe to web socket
     state.webSocket.subscribe(
-      // on message
+      // success
       (payload) => {
 
         // ChatMessage
@@ -89,14 +93,16 @@ const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
   return (
     <div className="row vh-100">
       <div className="col-9">
-        <div className="row overflow-scroll" style={children ? {height: "25rem"} : {}}>
-          {children}
-        </div>
-        <div className={children ? "row mb-2 h-50" : "row mb-2 h-100"}>
-          <ChatWindow messages={state.messages}/>
-        </div>
-        <div className="row">
-          <ChatTextField onTextInput={(e) => onTextInput(state, e)} />
+        <div className="d-flex flex-column" style={{height: "calc(100% - 100px)"}}>
+          <div className="flex-column overflow-scroll" style={{height: "20rem"}}>
+            {children}
+          </div>
+          <div className="flex-column flex-grow-1 my-2">
+            <ChatWindow messages={state.messages}/>
+          </div>
+          <div className="flex-column">
+            <ChatTextField onTextInput={(e) => onTextInput(state, e)} />
+          </div>
         </div>
       </div>
       <div className="col-3">

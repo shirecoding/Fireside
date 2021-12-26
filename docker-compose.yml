@@ -7,13 +7,11 @@ services:
       context: .
       dockerfile: ./deployments/Fireside.Dockerfile
     ports:
-      - "8000:8000"
+      - "${WEB_PORT}:${WEB_PORT}"
     volumes:
       - ./deps:/deps
       - ./firesidegames:/firesidegames
-      - ./deployments/scripts:/deployments/scripts
-    # command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && /firesidegames/manage.py runserver 0.0.0.0:8000"
-    command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && tail -f"
+    command: bash -c "/firesidegames/manage.py runserver ${WEB_HOST}:${WEB_PORT}"
 
   # fsg agent
   fsg_agent:
@@ -21,8 +19,12 @@ services:
       context: .
       dockerfile: ./deployments/FiresideAgent.Dockerfile
     ports:
-      - "8080:8080"
+      - "${FSGAGENT_PORT}:${FSGAGENT_PORT}"
     volumes:
-        - ./deps:/deps
-        - ./deployments/scripts:/deployments/scripts
-    command: bash -c "cat /deployments/scripts/setup_docker_env.sh > ~/.bashrc && fsg_agent --host '0.0.0.0' --port '8080' --route '/ws'"
+      - ./deps:/deps
+    environment:
+      FSGAGENT_HOST: ${FSGAGENT_HOST}
+      FSGAGENT_PORT: ${FSGAGENT_PORT}
+      FSGAGENT_ROUTE: ${FSGAGENT_ROUTE}
+      FSGAGENT_AUTH_URL: ${FSGAGENT_AUTH_URL}
+    command: bash -c "fsg_agent"
