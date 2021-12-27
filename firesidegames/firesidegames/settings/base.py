@@ -50,6 +50,12 @@ else:
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 
+print(
+    f"""
+    Debug: {DEBUG}
+"""
+)
+
 #####################################################################################
 # Django Project Settings
 #####################################################################################
@@ -257,6 +263,52 @@ REST_FRAMEWORK = {
 }
 
 #####################################################################################
+# Logging
+#####################################################################################
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    # "formatters": {
+    #     "detailed_string": {
+    #         "format": "%(asctime)-15s [%(name)s] %(levelname)s: %(message)s",
+    #         "datefmt": "%Y-%m-%dT%H:%M:%SZ",
+    #     },
+    #     "colored_formatter": {
+    #         "()": ColoredFormatter,
+    #         "format": "%(asctime)-15s [%(cyan)s%(name)s%(reset)s] %(log_color)s%(levelname)s%(reset)s: %(message)s",
+    #         "datefmt": "%Y-%m-%dT%H:%M:%SZ",
+    #         "log_colors": {
+    #             "DEBUG": "white",
+    #             "INFO": "green",
+    #             "WARNING": "yellow",
+    #             "ERROR": "bold_red",
+    #             "CRITICAL": "bold_red",
+    #         },
+    #     },
+    # },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            # "formatter": "colored_formatter" if DEBUG else "detailed_string",
+            # 'level': 'DEBUG' if DEBUG else 'WARNING',
+        }
+    },
+    # "loggers": {
+    #     "": {
+    #         "handlers": ["console"],
+    #         "level": "DEBUG" if DEBUG else "WARNING",
+    #         'propagate': True,
+    #     }
+    # },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+        # "level": "DEBUG" if DEBUG else "WARNING",
+    },
+}
+
+#####################################################################################
 # Sendgrid
 #####################################################################################
 
@@ -267,3 +319,9 @@ SENDGRID_ECHO_TO_STDOUT = True
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
+#####################################################################################
+# Custom Authentication
+#####################################################################################
+
+FSG_JWT_SECRET = env("FSG_JWT_SECRET")

@@ -39,8 +39,12 @@ class FSGAgent(Agent):
 
         - query params from the request is forwarded via post body
         """
+
         return (
-            requests.post(self.auth_url, data=request.rel_url.query).status_code == 200
+            requests.post(
+                self.auth_url, data=request.rel_url.query, timeout=3
+            ).status_code
+            == 200
         )
 
     def update_connections_table(self, msg, fsg_msg):

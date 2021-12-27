@@ -10,13 +10,15 @@ parser = argparse.ArgumentParser(description="FSGAgent")
 parser.add_argument("--host", help="web socket host", default="0.0.0.0")
 parser.add_argument("--port", help="web socket port", default="8080")
 parser.add_argument("--route", help="web socket route", default="/ws")
-parser.add_argument("--auth-url", help="web socket auth url", default="http://0.0.0.0:8080/auth")
+parser.add_argument(
+    "--auth-url", help="web socket auth url", default="http://0.0.0.0:8080/auth"
+)
 
 args = parser.parse_args()
 
-host = os.getenv('FSGAGENT_HOST', args.host)
-port = os.getenv('FSGAGENT_PORT', args.port)
-route = os.getenv('FSGAGENT_ROUTE', args.route)
-auth_url = os.getenv('FSGAGENT_AUTH_URL', args.auth_url)
+host = os.getenv("FSGAGENT_HOST", args.host)
+port = os.getenv("FSGAGENT_PORT", args.port)
+route = os.getenv("FSGAGENT_ROUTE", args.route)
+auth_url = os.getenv("FSGAGENT_AUTH_URL", args.auth_url)
 
 FSGAgent(host=host, port=int(port), ws_route=route, auth_url=auth_url)

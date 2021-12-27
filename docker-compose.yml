@@ -27,4 +27,4 @@ services:
       FSGAGENT_PORT: ${FSGAGENT_PORT}
       FSGAGENT_ROUTE: ${FSGAGENT_ROUTE}
       FSGAGENT_AUTH_URL: ${FSGAGENT_AUTH_URL}
-    command: bash -c "fsg_agent"
+    command: bash -c "find /deps/FSGAgent/ /deps/VeryPowerfulAgents/ /deps/RxPipes/ | entr -r fsg_agent"

@@ -4,7 +4,7 @@ import {ChatMessage, Group, User} from "../fsg";
 import Chat from "../composites/Chat";
 
 
-const Chatroom = ({user, users, group, messages, url}) => {
+const Chatroom = ({user, users, group, messages, url, jwt}) => {
 
   const onTextInput = (state, e) => {
     if (state.webSocket) {
@@ -18,7 +18,7 @@ const Chatroom = ({user, users, group, messages, url}) => {
 
   return (
     <div className="container-fluid" style={{height: '500px'}}>
-      <Chat user={user} users={users} group={group} messages={messages} url={url} onTextInput={onTextInput}/>
+      <Chat user={user} users={users} group={group} messages={messages} url={url} onTextInput={onTextInput} jwt={jwt}/>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import React from "react";
 import Chat from "../Chat";
 import { ChatMessage } from "../../fsg";
 
-const Gameroom = ({ url, messages, user, group, users, rooms }) => {
+const Gameroom = ({ url, messages, user, group, users, rooms, jwt }) => {
 
   const onTextInput = (chatState, e) => {
     if (chatState.webSocket) {
@@ -17,7 +17,7 @@ const Gameroom = ({ url, messages, user, group, users, rooms }) => {
   }
 
   return (
-    <Chat url={url} messages={messages} user={user} group={group} users={users} onTextInput={onTextInput}>
+    <Chat url={url} messages={messages} user={user} group={group} users={users} jwt={jwt} onTextInput={onTextInput}>
       <div className="d-flex align-content-start flex-wrap">
         {
           rooms.map(({uid}) => (

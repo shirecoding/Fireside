@@ -7,16 +7,15 @@ import ChatWindow from "../../components/ChatWindow";
 
 import { UpdateGroup, User, Method } from "../../fsg";
 
-const Chat = ({ url, messages, user, group, users, onTextInput, children }) => {
+const Chat = ({ url, messages, user, group, users, onTextInput, jwt, children }) => {
   /*
-
-    - Opens a websocket connection to url using user.uid and cookies.sessionid as query params
+    Opens a websocket connection to url using user.uid and cookies.sessionid as query params
   */
 
   const [state, setState] = useState({
     messages: messages,
     users: users,
-    webSocket: new webSocket(`${url}?username=${user.uid}&session=${document.cookie.sessionid}`)
+    webSocket: new webSocket(`${url}?jwt=${jwt}`)
   });
 
   useEffect(() => {

@@ -1,30 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from user_profile.models import UserProfile
-from django.utils import timezone
-from rest_framework.exceptions import AuthenticationFailed
+from api.utils import JWTAuthentication
 
 
 class AuthenticateUser(APIView):
     """
-    Session authentication for external services
+    JWT authentication for external services
 
-    POST {
-        username:
-        session:
-    }
+    - post data should include jwt in the body
     """
 
-    authentication_classes = []
+    authentication_classes = [JWTAuthentication]
     permission_classes = []
 
-    def post(self, request, format=None):
-
-        if UserProfile.objects.filter(
-            user__username=request.data["username"],
-            session__session_key=request.data["session"],
-            session__expire_date__gte=timezone.now(),
-        ).exists():
-            return Response(request.data)
-        else:
-            raise AuthenticationFailed(detail=request.data)
+    def post(self, request):
+        return Response(request.data)

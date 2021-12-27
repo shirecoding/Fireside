@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 import Gameroom from "../composites/Gameroom";
 
 
-const Root = ({user, users, group, messages, url, rooms}) => {
+const Root = ({user, users, group, messages, url, rooms, jwt}) => {
 
   return (
     <div className="container-fluid" style={{height: '500px'}}>
-      <Gameroom user={user} users={users} group={group} messages={messages} url={url} rooms={rooms}/>
+      <Gameroom user={user} users={users} group={group} messages={messages} url={url} rooms={rooms} jwt={jwt}/>
     </div>
   )
 }
