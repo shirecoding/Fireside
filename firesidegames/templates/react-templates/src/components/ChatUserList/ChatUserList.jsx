@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDom from "react-dom"
 import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -19,7 +19,7 @@ const renderRow = (props, onClickUser) => {
   } else {
     return (
       <button className="list-group-item list-group-item-action text-truncate border-0 py-0 my-0"
-      style={style} key={index} onClick={() => onClickUser(data[index].uid)}>
+      style={style} key={index} onClick={(e) => onClickUser(e, data[index].uid)}>
         {data[index].uid}
       </button>
     );
@@ -27,31 +27,32 @@ const renderRow = (props, onClickUser) => {
 };
 
 
-class UserPopup extends React.Component {
+const UserPopup = ({open, onClose, children}) => {
 
-  constructor(props) {
-    super(props);
-    this.el = document.createElement('div');
-  }
+  const [el, setEl] = useState(document.createElement('div'))
 
-  componentDidMount() {
-    document.body.appendChild(this.el);
-  }
-
-  componentWillUnmount() {
-    document.body.removeChild(this.el);
-  }
-
-  render() {
-    if (!this.props.open) {
-      return null
-    } else {
-      return ReactDom.createPortal(this.props.children, this.el)
+  const handleClick = (e) => {
+    if (open && !el.contains(e.target)) {
+      onClose()
     }
   }
 
-}
+  useEffect(() => {
+    document.body.appendChild(el);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.body.removeChild(el);
+    }
+  }, [open])
 
+  if (!open) {
+    return null
+  } else {
+    return ReactDom.createPortal(children, el)
+  }
+
+}
 
 const ChatUserList = ({ users, friends, moderators }) => {
   /*
@@ -61,7 +62,7 @@ const ChatUserList = ({ users, friends, moderators }) => {
     moderators: [{uid}]
   */
 
-  const [state, setState] = useState({isUserPopupOpen: false, selectedUser: null})
+  const [state, setState] = useState({isUserPopupOpen: false, selectedUser: null, popupPos: [0, 0]})
 
   const headers = {
     "total": {"type": "header", "left": "TOTAL PLAYERS", "right": users.length},
@@ -76,8 +77,8 @@ const ChatUserList = ({ users, friends, moderators }) => {
     return rows[index].type === "header" ? ROW_HEIGHT_WITH_HEADER : ROW_HEIGHT
   }
 
-  const onClickUser = (uid) => {
-    setState({...state, isUserPopupOpen: true, selectedUser: uid})
+  const onClickUser = (e, uid) => {
+    setState({...state, isUserPopupOpen: true, selectedUser: uid, popupPos: [e.clientX, e.clientY]})
   }
 
   return (
@@ -98,11 +99,11 @@ const ChatUserList = ({ users, friends, moderators }) => {
         </AutoSizer>
       </ul>
       <UserPopup open={state.isUserPopupOpen} onClose={() => setState({...state, isUserPopupOpen: false})}>
-        <ul className="list-group">
-          <li className="list-group-item active">{state.selectedUser}</li>
-          <li className="list-group-item list-group-item-action"><i className="far fa-comment me-2"></i>Message</li>
-          <li className="list-group-item list-group-item-action"><i className="far fa-envelope me-2"></i>Mail</li>
-          <li className="list-group-item list-group-item-action"><i className="far fa-user me-2"></i>Friend Request</li>
+        <ul className="list-group" style={{width: "200px", position: "fixed", left: state.popupPos[0], top: state.popupPos[1]}}>
+          <li className="list-group-item active py-1">{state.selectedUser}</li>
+          <li className="list-group-item list-group-item-action py-1"><i className="far fa-comment me-2"></i>Message</li>
+          <li className="list-group-item list-group-item-action py-1"><i className="far fa-envelope me-2"></i>Mail</li>
+          <li className="list-group-item list-group-item-action py-1"><i className="far fa-user me-2"></i>Friend Request</li>
         </ul>
       </UserPopup>
     </div>
