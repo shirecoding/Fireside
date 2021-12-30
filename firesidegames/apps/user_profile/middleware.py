@@ -8,7 +8,7 @@ class UpdateUserProfileMiddleware(object):
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            user_profile = UserProfile.objects.get(user=request.user)
+            user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
             # update last_updated
             user_profile.last_updated = timezone.now()

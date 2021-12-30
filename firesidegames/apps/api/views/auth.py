@@ -7,7 +7,9 @@ class AuthenticateUser(APIView):
     """
     JWT authentication for external services
 
-    - post data should include jwt in the body
+    * expects a valid JWT in post.data
+    * JWT data must contain user/username key
+    * JWT should have a valid expire time
     """
 
     authentication_classes = [JWTAuthentication]

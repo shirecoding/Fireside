@@ -5,6 +5,9 @@ from django.utils import timezone
 from user_profile.utils import Constants
 from django.contrib.sessions.models import Session
 from datetime import timedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UserProfile(models.Model):
@@ -30,7 +33,11 @@ class UserProfile(models.Model):
         default=dict, help_text="User profile in JSON or YAML format.", blank=True
     )
     games = models.ManyToManyField(Game, through="GameMembership")
-    relationships = models.ManyToManyField("self", through="UserRelationship")
+    relationships = models.ManyToManyField(
+        "self",
+        through="UserRelationship",
+        through_fields=("user_profile", "other_profile"),
+    )
     color_theme = models.CharField(
         max_length=16,
         default=Constants.ColorTheme.p1_darkblue,
@@ -107,6 +114,28 @@ class UserRelationship(models.Model):
 
     def __str__(self):
         return f"{self.user_profile}_{self.other_profile}"
+
+    def is_synced(self, obj):
+        return (
+            obj.relationship_type == self.relationship_type
+            and obj.relationship_state == self.relationship_state
+        )
+
+    def sync_other(self, obj):
+        if not self.is_synced(obj):
+            obj.relationship_type = self.relationship_type
+            obj.relationship_state = self.relationship_state
+            obj.save()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # synchronize the relationship from both ends (make sure there is no infinite recursion)
+        try:
+            self.sync_other(
+                UserRelationship.objects.get(user_profile=self.other_profile)
+            )
+        except Exception:
+            logger.exception("Failed to sync user relationships")
 
 
 class Mail(models.Model):
