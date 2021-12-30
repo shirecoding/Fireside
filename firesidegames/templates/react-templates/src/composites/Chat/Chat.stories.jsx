@@ -1,6 +1,6 @@
 import React from "react";
 import Chat from "./Chat";
-import {ChatMessage, User, Group} from "../../fsg";
+import {ChatMessage, User, Group, AppContext} from "../../fsg";
 import _ from "lodash";
 
 export default {
@@ -9,9 +9,18 @@ export default {
 };
 
 const Template = (args) => (
-  <div className="container-fluid" style={{height: '500px'}}>
-    <Chat {...args}/>
-  </div>
+  <AppContext.Provider
+    value={{
+      user: args.user,
+      jwt: args.jwt,
+      url: args.url,
+      api: args.api,
+    }}
+  >
+    <div className="container-fluid" style={{height: '500px'}}>
+      <Chat {...args}/>
+    </div>
+  </AppContext.Provider>
 )
 
 export const Primary = Template.bind({});
@@ -59,8 +68,4 @@ Primary.args = {
   user: users.benjamin,
   group: group,
   users: _.values(users),
-  onTextInput: onTextInput,
-  onFriendRequest: (uid) => console.log(`onFriendRequest ${uid}`),
-  onMessage: (uid) => console.log(`onMessage ${uid}`),
-  onMail: (uid) => console.log(`onMail ${uid}`)
 };

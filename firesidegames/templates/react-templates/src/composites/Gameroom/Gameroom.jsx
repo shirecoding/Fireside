@@ -1,36 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import Chat from "../Chat";
-import { ChatMessage } from "../../fsg";
+import { ChatMessage, AppContext } from "../../fsg";
 
-const Gameroom = ({ url, messages, user, group, users, rooms, jwt }) => {
+const Gameroom = ({ messages, group, users, rooms }) => {
 
-  const onTextInput = (chatState, e) => {
-    if (chatState.webSocket) {
-      chatState.webSocket.next(
-        ChatMessage({
-          message: e,
-          sender: user,
-          receiver: group
-        })
-      )
-    }
-  }
-
-  const onFriendRequest = (uid) => {
-    console.log(`onFriendRequest: ${uid}`)
-  }
-
-  const onMail = (uid) => {
-    console.log(`onMail: ${uid}`)
-  }
-
-  const onMessage = (uid) => {
-    console.log(`onMessage: ${uid}`)
-  }
+  const { url, user, jwt, api } = useContext(AppContext)
 
   return (
-    <Chat url={url} messages={messages} user={user} group={group} users={users} jwt={jwt}
-    onTextInput={onTextInput} onFriendRequest={onFriendRequest} onMail={onMail} onMessage={onMessage}>
+    <Chat messages={messages} group={group} users={users}>
       <div className="d-flex align-content-start flex-wrap">
         {
           rooms.map(({uid}) => (

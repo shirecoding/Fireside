@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { webSocket } from "rxjs/webSocket";
-
 import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
+import { UpdateGroup, User, Method, AppContext, ChatMessage } from "../../fsg";
 
-import { UpdateGroup, User, Method } from "../../fsg";
 
-const Chat = ({ url, messages, user, group, users, onTextInput, onFriendRequest, onMail, onMessage, jwt, children }) => {
+const Chat = ({ messages, group, users, children }) => {
   /*
     Opens a websocket connection to url using user.uid and cookies.sessionid as query params
   */
+
+  const { url, user, jwt, api } = useContext(AppContext)
 
   const [state, setState] = useState({
     messages: messages,
@@ -89,6 +90,30 @@ const Chat = ({ url, messages, user, group, users, onTextInput, onFriendRequest,
   const friends = []
   const moderators = []
 
+  const onFriendRequest = (uid) => {
+    console.log(`onFriendRequest: ${uid}`)
+  }
+
+  const onMail = (uid) => {
+    console.log(`onMail: ${uid}`)
+  }
+
+  const onMessage = (uid) => {
+    console.log(`onMessage: ${uid}`)
+  }
+
+  const onTextInput = (e) => {
+    if (state.webSocket) {
+      state.webSocket.next(
+        ChatMessage({
+          message: e,
+          sender: user,
+          receiver: group
+        })
+      )
+    }
+  }
+
   return (
     <div className="row vh-100">
       <div className="col-9">
@@ -100,13 +125,13 @@ const Chat = ({ url, messages, user, group, users, onTextInput, onFriendRequest,
             <ChatWindow messages={state.messages}/>
           </div>
           <div className="flex-column">
-            <ChatTextField onTextInput={(e) => onTextInput(state, e)} />
+            <ChatTextField onTextInput={onTextInput} />
           </div>
         </div>
       </div>
       <div className="col-3">
         <ChatUserList users={state.users} friends={friends} moderators={moderators}
-        onFriendRequest={onFriendRequest} onMessage={onMessage} onMail={onMail} />
+        onFriendRequest={onFriendRequest} onMessage={onMessage} onMail={onMail}/>
       </div>
     </div>
   );

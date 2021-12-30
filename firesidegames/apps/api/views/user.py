@@ -59,5 +59,4 @@ def friend_request(request):
             relationship_state=UserProfileConstants.UserRelationshipState.request,
         )
 
-    logger.debug(f"friend_request: {request} {user_profile} -> {other_profile}")
     return Response(request.data)

@@ -2,7 +2,7 @@ import React from "react";
 import Gameroom from "./Gameroom";
 import _ from "lodash";
 
-import { User, Group } from "../../fsg";
+import { User, Group, AppContext } from "../../fsg";
 
 export default {
   title: "Composites/Gameroom",
@@ -10,9 +10,18 @@ export default {
 };
 
 const Template = (args) => (
-  <div className="container-fluid" style={{height: '500px'}}>
-    <Gameroom {...args}/>
-  </div>
+  <AppContext.Provider
+    value={{
+      user: args.user,
+      jwt: args.jwt,
+      url: args.url,
+      api: args.api,
+    }}
+  >
+    <div className="container-fluid" style={{height: '500px'}}>
+      <Gameroom {...args}/>
+    </div>
+  </AppContext.Provider>
 )
 
 export const Primary = Template.bind({});

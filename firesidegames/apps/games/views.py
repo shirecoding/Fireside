@@ -4,6 +4,7 @@ from .models import Game
 from dataclasses import asdict
 import jwt
 from django.conf import settings
+from django.urls import reverse
 
 
 def index_view(request):
@@ -19,10 +20,8 @@ def game_view(request, game):
 
         game = Game.objects.filter(name=game).first()
         props = {
-            "url": game.websocket,
             "messages": [],
             "users": [],
-            "user": asdict(User(uid=request.user.username)),
             "group": asdict(Group(uid=game.name)),
             "rooms": [
                 {
@@ -30,6 +29,9 @@ def game_view(request, game):
                 }
                 for x in game.instances.all()
             ],
+            # context variables
+            "url": game.websocket,
+            "user": asdict(User(uid=request.user.username)),
             "jwt": jwt.encode(
                 {
                     "user": request.user.username,
@@ -38,6 +40,12 @@ def game_view(request, game):
                 settings.FSG_JWT_SECRET,
                 algorithm="HS256",
             ),
+            "api": {
+                "websocket": game.websocket,
+                "friend_request": request.build_absolute_uri(
+                    reverse("api:friend_request")
+                ),
+            },
         }
         return render(
             request,

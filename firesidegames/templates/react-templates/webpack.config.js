@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    chatroom: './src/app/chatroom.jsx',
+    // chatroom: './src/app/chatroom.jsx',
     gameroom: './src/app/gameroom.jsx',
   },
   output: {

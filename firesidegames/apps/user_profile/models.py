@@ -122,20 +122,19 @@ class UserRelationship(models.Model):
         )
 
     def sync_other(self, obj):
-        if not self.is_synced(obj):
+        """
+        Synchronize the relationship from both ends (make sure there is no infinite recursion)
+        """
+        if not self._state.adding and not self.is_synced(obj):
             obj.relationship_type = self.relationship_type
             obj.relationship_state = self.relationship_state
             obj.save()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # synchronize the relationship from both ends (make sure there is no infinite recursion)
-        try:
-            self.sync_other(
-                UserRelationship.objects.get(user_profile=self.other_profile)
-            )
-        except Exception:
-            logger.exception("Failed to sync user relationships")
+        qs = UserRelationship.objects.filter(user_profile=self.other_profile)
+        if qs.exists():
+            self.sync_other(qs.first())
 
 
 class Mail(models.Model):

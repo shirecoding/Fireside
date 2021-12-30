@@ -1,14 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Gameroom from "../composites/Gameroom";
+import { AppContext } from "../fsg";
 
-
-const Root = ({user, users, group, messages, url, rooms, jwt}) => {
+const Root = ({user, users, group, messages, url, rooms, jwt, api}) => {
 
   return (
-    <div className="container-fluid" style={{height: '500px'}}>
-      <Gameroom user={user} users={users} group={group} messages={messages} url={url} rooms={rooms} jwt={jwt}/>
-    </div>
+    <AppContext.Provider
+      value={{
+        user: user,
+        jwt: jwt,
+        url: url,
+        api: api
+      }}
+    >
+      <div className="container-fluid" style={{height: '500px'}}>
+        <Gameroom users={users} group={group} messages={messages} rooms={rooms}/>
+      </div>
+    </AppContext.Provider>
   )
 }
 
