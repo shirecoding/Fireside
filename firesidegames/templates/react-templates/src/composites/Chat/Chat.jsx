@@ -7,7 +7,7 @@ import ChatWindow from "../../components/ChatWindow";
 
 import { UpdateGroup, User, Method } from "../../fsg";
 
-const Chat = ({ url, messages, user, group, users, onTextInput, jwt, children }) => {
+const Chat = ({ url, messages, user, group, users, onTextInput, onFriendRequest, onMail, onMessage, jwt, children }) => {
   /*
     Opens a websocket connection to url using user.uid and cookies.sessionid as query params
   */
@@ -105,7 +105,8 @@ const Chat = ({ url, messages, user, group, users, onTextInput, jwt, children })
         </div>
       </div>
       <div className="col-3">
-        <ChatUserList users={state.users} friends={friends} moderators={moderators} />
+        <ChatUserList users={state.users} friends={friends} moderators={moderators}
+        onFriendRequest={onFriendRequest} onMessage={onMessage} onMail={onMail} />
       </div>
     </div>
   );

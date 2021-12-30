@@ -54,12 +54,15 @@ const UserPopup = ({open, onClose, children}) => {
 
 }
 
-const ChatUserList = ({ users, friends, moderators }) => {
+const ChatUserList = ({ users, friends, moderators, onFriendRequest, onMail, onMessage}) => {
   /*
   Props:
     users: [{uid}]
     friends: [{uid}]
     moderators: [{uid}]
+    onFriendRequest: Callback on friend request
+    onMail: Callback on mail request
+    onMessage: Callback on message request
   */
 
   const [state, setState] = useState({isUserPopupOpen: false, selectedUser: null, popupPos: [0, 0]})
@@ -79,6 +82,11 @@ const ChatUserList = ({ users, friends, moderators }) => {
 
   const onClickUser = (e, uid) => {
     setState({...state, isUserPopupOpen: true, selectedUser: uid, popupPos: [e.clientX, e.clientY]})
+  }
+
+  const onSelect = (handler, ...args) => {
+    handler(...args)
+    setState({...state, isUserPopupOpen: false})
   }
 
   return (
@@ -101,9 +109,9 @@ const ChatUserList = ({ users, friends, moderators }) => {
       <UserPopup open={state.isUserPopupOpen} onClose={() => setState({...state, isUserPopupOpen: false})}>
         <ul className="list-group" style={{width: "200px", position: "fixed", left: state.popupPos[0], top: state.popupPos[1]}}>
           <li className="list-group-item active py-1">{state.selectedUser}</li>
-          <li className="list-group-item list-group-item-action py-1"><i className="far fa-comment me-2"></i>Message</li>
-          <li className="list-group-item list-group-item-action py-1"><i className="far fa-envelope me-2"></i>Mail</li>
-          <li className="list-group-item list-group-item-action py-1"><i className="far fa-user me-2"></i>Friend Request</li>
+          <li className="list-group-item list-group-item-action py-1" onClick={() => onSelect(onMessage, state.selectedUser)}><i className="far fa-comment me-2"></i>Message</li>
+          <li className="list-group-item list-group-item-action py-1" onClick={() => onSelect(onMail, state.selectedUser)}><i className="far fa-envelope me-2"></i>Mail</li>
+          <li className="list-group-item list-group-item-action py-1" onClick={() => onSelect(onFriendRequest, state.selectedUser)}><i className="far fa-user me-2"></i>Friend Request</li>
         </ul>
       </UserPopup>
     </div>

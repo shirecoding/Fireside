@@ -41,5 +41,8 @@ export const Primary = Template.bind({});
 Primary.args = {
   users: users,
   friends: friends,
-  moderators: moderators
+  moderators: moderators,
+  onFriendRequest: (uid) => console.log(`onFriendRequest ${uid}`),
+  onMessage: (uid) => console.log(`onMessage ${uid}`),
+  onMail: (uid) => console.log(`onMail ${uid}`)
 };

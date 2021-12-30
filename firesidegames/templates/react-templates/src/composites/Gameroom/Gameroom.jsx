@@ -16,8 +16,21 @@ const Gameroom = ({ url, messages, user, group, users, rooms, jwt }) => {
     }
   }
 
+  const onFriendRequest = (uid) => {
+    console.log(`onFriendRequest: ${uid}`)
+  }
+
+  const onMail = (uid) => {
+    console.log(`onMail: ${uid}`)
+  }
+
+  const onMessage = (uid) => {
+    console.log(`onMessage: ${uid}`)
+  }
+
   return (
-    <Chat url={url} messages={messages} user={user} group={group} users={users} jwt={jwt} onTextInput={onTextInput}>
+    <Chat url={url} messages={messages} user={user} group={group} users={users} jwt={jwt}
+    onTextInput={onTextInput} onFriendRequest={onFriendRequest} onMail={onMail} onMessage={onMessage}>
       <div className="d-flex align-content-start flex-wrap">
         {
           rooms.map(({uid}) => (

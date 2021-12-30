@@ -59,5 +59,8 @@ Primary.args = {
   user: users.benjamin,
   group: group,
   users: _.values(users),
-  onTextInput: onTextInput
+  onTextInput: onTextInput,
+  onFriendRequest: (uid) => console.log(`onFriendRequest ${uid}`),
+  onMessage: (uid) => console.log(`onMessage ${uid}`),
+  onMail: (uid) => console.log(`onMail ${uid}`)
 };
