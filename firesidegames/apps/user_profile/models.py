@@ -5,6 +5,7 @@ from django.utils import timezone
 from user_profile.utils import Constants
 from django.contrib.sessions.models import Session
 from datetime import timedelta
+from user_profile.utils import Constants as UserProfileConstants
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,42 @@ class UserProfile(models.Model):
     def is_online(self):
         return timezone.now() - self.last_updated < timedelta(minutes=15)
 
+    def request_user_relationship(self, other_profile, relationship_type):
+        if (
+            not UserRelationship.objects.filter(
+                user_profile=self,
+                other_profile=other_profile,
+                relationship_type=relationship_type,
+            ).exists()
+            and self != other_profile
+        ):
+            UserRelationship.objects.create(
+                user_profile=self,
+                other_profile=other_profile,
+                relationship_type=relationship_type,
+                relationship_state=UserProfileConstants.UserRelationshipState.request,
+            )
+
+    def accept_user_relationship(self, other_profile, relationship_type):
+        if self != other_profile:
+            UserRelationship.objects.update_or_create(
+                user_profile=self,
+                other_profile=other_profile,
+                defaults={
+                    "relationship_type": relationship_type,
+                    "relationship_state": UserProfileConstants.UserRelationshipState.accepted,
+                },
+            )
+
+    def reject_user_relationship(self, other_profile, relationship_type):
+        qs = UserRelationship.objects.filter(
+            user_profile=self,
+            other_profile=other_profile,
+            relationship_type=relationship_type,
+        )
+        if qs.exists():
+            qs.first().delete()
+
     def save(self, *args, **kwargs):
         self.last_updated = timezone.now()
         super().save(*args, **kwargs)
@@ -84,9 +121,14 @@ class GameMembership(models.Model):
 
 class UserRelationship(models.Model):
     user_profile = models.ForeignKey(
-        UserProfile, related_name="user_relationships", on_delete=models.CASCADE
+        UserProfile,
+        related_name="user_relationships",
+        on_delete=models.CASCADE,
+        blank=False,
     )
-    other_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    other_profile = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, blank=False
+    )
     date_created = models.DateTimeField(
         default=timezone.now,
         help_text="The datetime this connection was created.",
@@ -113,34 +155,57 @@ class UserRelationship(models.Model):
     )
 
     class Meta:
-        unique_together = (
-            "user_profile",
-            "other_profile",
-        )
+        unique_together = ("user_profile", "other_profile", "relationship_type")
 
     def __str__(self):
         return f"{self.user_profile}_{self.other_profile}"
 
     def is_synced(self, obj):
-        return (
-            obj.relationship_type == self.relationship_type
-            and obj.relationship_state == self.relationship_state
-        )
+        return obj.relationship_state == self.relationship_state
 
-    def sync_other(self, obj):
+    def sync_profile(self, other_profile, relationship_type):
         """
-        Synchronize the relationship from both ends (make sure there is no infinite recursion)
+        Synchronize other_profile with this profile
         """
-        if not self._state.adding and not self.is_synced(obj):
-            obj.relationship_type = self.relationship_type
-            obj.relationship_state = self.relationship_state
-            obj.save()
+
+        qs = UserRelationship.objects.filter(
+            user_profile=other_profile, relationship_type=relationship_type
+        )
+        instance = qs.first() if qs.exists() else None
+        if instance and not self.is_synced(instance):
+            instance.relationship_state = self.relationship_state
+            instance.save()
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        qs = UserRelationship.objects.filter(user_profile=self.other_profile)
+
+        # create
+        if self._state.adding:
+            super().save(*args, **kwargs)
+
+            # create symmetrical relationship
+            UserRelationship.objects.update_or_create(
+                user_profile=self.other_profile,
+                other_profile=self.user_profile,
+                relationship_type=self.relationship_type,
+                defaults={
+                    "relationship_state": self.relationship_state,
+                },
+            )
+
+        # update
+        else:
+            super().save(*args, **kwargs)
+            self.sync_profile(self.other_profile, self.relationship_type)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        qs = UserRelationship.objects.filter(
+            user_profile=self.other_profile,
+            other_profile=self.user_profile,
+            relationship_type=self.relationship_type,
+        )
         if qs.exists():
-            self.sync_other(qs.first())
+            qs.first().delete()
 
 
 class Mail(models.Model):

@@ -11,7 +11,7 @@ from rest_framework.decorators import (
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 import logging
-from user_profile.models import UserRelationship, UserProfile
+from user_profile.models import UserProfile
 from user_profile.utils import Constants as UserProfileConstants
 from django.utils.http import is_safe_url
 from django.http import HttpResponseRedirect
@@ -43,7 +43,7 @@ def friend_request(request):
 
     data:
         uid: <user.username>
-        method: <create|accept>
+        method: <create|accept|reject>
     """
 
     uid = request.data.get("uid") or request.query_params.get("uid")
@@ -54,43 +54,21 @@ def friend_request(request):
     other_profile = UserProfile.objects.get(user__username=uid)
 
     # Create a friend request
-    if (
-        method == "create"
-        and not UserRelationship.objects.filter(
-            user_profile=user_profile, other_profile=other_profile
-        ).exists()
-        and user_profile != other_profile
-    ):
-        UserRelationship.objects.create(
-            user_profile=user_profile,
-            other_profile=other_profile,
-            relationship_type=UserProfileConstants.UserRelationshipType.friend,
-            relationship_state=UserProfileConstants.UserRelationshipState.request,
-        )
-        UserRelationship.objects.create(
-            user_profile=other_profile,
-            other_profile=user_profile,
-            relationship_type=UserProfileConstants.UserRelationshipType.friend,
-            relationship_state=UserProfileConstants.UserRelationshipState.request,
+    if method == "create":
+        user_profile.request_user_relationship(
+            other_profile, UserProfileConstants.UserRelationshipType.friend
         )
 
     # Accept a friend request
-    elif method == "accept" and user_profile != other_profile:
-        UserRelationship.objects.update_or_create(
-            user_profile=user_profile,
-            other_profile=other_profile,
-            defaults={
-                "relationship_type": UserProfileConstants.UserRelationshipType.friend,
-                "relationship_state": UserProfileConstants.UserRelationshipState.accepted,
-            },
+    elif method == "accept":
+        user_profile.accept_user_relationship(
+            other_profile, UserProfileConstants.UserRelationshipType.friend
         )
-        UserRelationship.objects.update_or_create(
-            user_profile=other_profile,
-            other_profile=user_profile,
-            defaults={
-                "relationship_type": UserProfileConstants.UserRelationshipType.friend,
-                "relationship_state": UserProfileConstants.UserRelationshipState.accepted,
-            },
+
+    # Reject a friend request
+    elif method == "reject":
+        user_profile.reject_user_relationship(
+            other_profile, UserProfileConstants.UserRelationshipType.friend
         )
 
     if redirect_url and is_safe_url(redirect_url, allowed_hosts=request.get_host()):

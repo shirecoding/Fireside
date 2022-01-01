@@ -46,7 +46,7 @@
                     <td class="align-middle text-center">
                       <div class="btn-group" role="group">
                         <a class="btn btn-success my-0" type="button" href="{% url 'api:friend_request' %}?method=accept&uid={{ f.user.username }}&next={% url 'friends:index' %}">Accept</a>
-                        <button class="btn btn-danger my-0" type="button">Reject</button>
+                        <a class="btn btn-danger my-0" type="button" href="{% url 'api:friend_request' %}?method=reject&uid={{ f.user.username }}&next={% url 'friends:index' %}">Reject</a>
                       </div>
                     </td>
                   </tr>
