@@ -93,10 +93,12 @@ const Chat = ({ messages, group, users, children }) => {
 
   const onFriendRequest = (uid) => {
     console.log(`onFriendRequest: ${uid}`)
-
     axios.post(
       api.friend_request,
-      {uid: uid},
+      {
+        uid: uid,
+        method: "create"
+      },
       {
         headers: {
           'X-CSRFToken': Cookies.get('csrftoken')
