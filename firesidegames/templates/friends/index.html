@@ -9,57 +9,6 @@
 
 <div class="container-fluid py-4">
 
-  <!-- Friend Requests -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card mb-4">
-        <div class="card-header pb-0">
-          <h6>Friend Requests</h6>
-        </div>
-        <div class="card-body px-0 pt-0 pb-2">
-          <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0">
-              <thead>
-                <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Friend</th>
-                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
-                  <th class="text-secondary opacity-7"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for f in friend_requests %}
-                  {% with last_game=f.game_memberships.all|dictsort:"last_updated"|first friend_session=f.user.session.first %}
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 py-1">
-                        <div>
-                          <div class="avatar me-3 avatar-circle-small" style="--color: {{ f.color_theme }};">
-                            <span class="initials">{{ f.user.username|capfirst|slice:":2" }}</span>
-                          </div>
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">{{ f.user.username }}</h6>
-                          <p class="text-xs text-secondary mb-0">{{ f.title }}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="align-middle text-center">
-                      <div class="btn-group" role="group">
-                        <a class="btn btn-success my-0" type="button" href="{% url 'api:friend_request' %}?method=accept&uid={{ f.user.username }}&next={% url 'friends:index' %}">Accept</a>
-                        <a class="btn btn-danger my-0" type="button" href="{% url 'api:friend_request' %}?method=reject&uid={{ f.user.username }}&next={% url 'friends:index' %}">Reject</a>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endwith %}
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Friends -->
   <div class="row">
     <div class="col-12">
@@ -79,6 +28,32 @@
                 </tr>
               </thead>
               <tbody>
+                {% for f in friend_requests %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2 py-1">
+                        <div>
+                          <div class="avatar me-3 avatar-circle-small" style="--color: {{ f.color_theme }};">
+                            <span class="initials">{{ f.user.username|capfirst|slice:":2" }}</span>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="mb-0 text-sm">{{ f.user.username }}</h6>
+                          <p class="text-xs text-secondary mb-0">{{ f.title }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td class="align-middle text-center">
+                      <div class="btn-group" role="group">
+                        <a class="btn btn-success my-0" type="button" href="{% url 'api:friend_request' %}?method=accept&uid={{ f.user.username }}&next={% url 'friends:index' %}">Accept</a>
+                        <a class="btn btn-danger my-0" type="button" href="{% url 'api:friend_request' %}?method=reject&uid={{ f.user.username }}&next={% url 'friends:index' %}">Reject</a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+
                 {% for f in friends %}
                   {% with last_game=f.game_memberships.all|dictsort:"last_updated"|first friend_session=f.user.session.first %}
                   <tr>
