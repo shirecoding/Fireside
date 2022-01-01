@@ -9,7 +9,6 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import logging
 from user_profile.models import UserRelationship, UserProfile
@@ -34,7 +33,7 @@ class UserProfileDetail(generics.RetrieveAPIView):
 
 @api_view(["POST"])
 @authentication_classes([SessionAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([])
 def friend_request(request):
     """
     Send a friend request

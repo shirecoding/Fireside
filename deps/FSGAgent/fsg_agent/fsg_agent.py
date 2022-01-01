@@ -11,6 +11,16 @@ class FSGAgent(Agent):
         self, host="0.0.0.0", port="8080", ws_route="/ws", auth_url="0.0.0.0:8080/auth"
     ):
 
+        self.log.info(
+            f"""
+        Starting FSGAgent:
+            host: {host}
+            port: {port}
+            ws_route: {ws_route}
+            auth_url: {auth_url}
+        """
+        )
+
         self.host = host
         self.port = port
         self.ws_route = ws_route

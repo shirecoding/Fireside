@@ -4,7 +4,7 @@ import ChatUserList from "../../components/ChatUserList";
 import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 import { UpdateGroup, User, Method, AppContext, ChatMessage } from "../../fsg";
-
+import axios from "axios";
 
 const Chat = ({ messages, group, users, children }) => {
   /*
@@ -92,6 +92,9 @@ const Chat = ({ messages, group, users, children }) => {
 
   const onFriendRequest = (uid) => {
     console.log(`onFriendRequest: ${uid}`)
+    axios.post(api.friend_request, {uid: uid})
+    .then((res) => console.log(res))
+    .catch((error) => console.log(error))
   }
 
   const onMail = (uid) => {
