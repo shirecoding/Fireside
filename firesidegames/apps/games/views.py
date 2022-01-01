@@ -5,6 +5,8 @@ from dataclasses import asdict
 import jwt
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
 
 def index_view(request):
@@ -36,6 +38,7 @@ def game_view(request, game):
                 {
                     "user": request.user.username,
                     "group": game.name,
+                    "exp": timezone.now() + timedelta(minutes=1),
                 },
                 settings.FSG_JWT_SECRET,
                 algorithm="HS256",
