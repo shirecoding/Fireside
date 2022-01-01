@@ -112,6 +112,12 @@ class UserRelationship(models.Model):
         help_text="State of the connection (Accepted, Request, ...)",
     )
 
+    class Meta:
+        unique_together = (
+            "user_profile",
+            "other_profile",
+        )
+
     def __str__(self):
         return f"{self.user_profile}_{self.other_profile}"
 

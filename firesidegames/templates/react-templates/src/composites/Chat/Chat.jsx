@@ -5,6 +5,7 @@ import ChatTextField from "../../components/ChatTextField";
 import ChatWindow from "../../components/ChatWindow";
 import { UpdateGroup, User, Method, AppContext, ChatMessage } from "../../fsg";
 import axios from "axios";
+import Cookies from 'js-cookie'
 
 const Chat = ({ messages, group, users, children }) => {
   /*
@@ -92,7 +93,16 @@ const Chat = ({ messages, group, users, children }) => {
 
   const onFriendRequest = (uid) => {
     console.log(`onFriendRequest: ${uid}`)
-    axios.post(api.friend_request, {uid: uid})
+
+    axios.post(
+      api.friend_request,
+      {uid: uid},
+      {
+        headers: {
+          'X-CSRFToken': Cookies.get('csrftoken')
+        }
+      }
+    )
     .then((res) => console.log(res))
     .catch((error) => console.log(error))
   }

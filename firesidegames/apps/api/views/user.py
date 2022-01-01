@@ -42,9 +42,12 @@ def friend_request(request):
     user_profile = UserProfile.objects.get(user=request.user)
     other_profile = UserProfile.objects.get(user__username=request.data.get("uid"))
 
-    if not UserRelationship.objects.filter(
-        user_profile=user_profile, other_profile=other_profile
-    ).exists():
+    if (
+        not UserRelationship.objects.filter(
+            user_profile=user_profile, other_profile=other_profile
+        ).exists()
+        and user_profile != other_profile
+    ):
         UserRelationship.objects.create(
             user_profile=user_profile,
             other_profile=other_profile,
