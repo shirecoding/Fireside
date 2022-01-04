@@ -1,15 +1,23 @@
 import React, { useState } from "react";
 
-const ChatTextField = ({onTextInput, selections=['Chat']}) => {
+const ChatTextField = ({onTextInput, selections=[]}) => {
 
   const [selection, setSelection] = useState(selections[0]);
 
   return (
     <div className="input-group d-flex">
-      <button className="btn btn-outline-secondary dropdown-toggle py-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">{selection}</button>
-      <ul className="dropdown-menu">{
-        selections.map((x) => <li key={x}><a className="dropdown-item" onClick={(v) => setSelection(v.target.text)}>{x}</a></li>)
-      }</ul>
+      {
+        selection ? (
+          <button className="btn btn-outline-secondary dropdown-toggle py-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">{selection}</button>
+        ): null
+      }
+      {
+        selection ? (
+          <ul className="dropdown-menu">{
+            selections.map((x) => <li key={x}><a className="dropdown-item" onClick={(v) => setSelection(v.target.text)}>{x}</a></li>)
+          }</ul>
+        ): null
+      }
       <div className="mb-3 flex-fill py-0">
         <input type="text" className="form-control chat-input" placeholder="..." onKeyDown={(e) => {
           if (e.keyCode === 13) {

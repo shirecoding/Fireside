@@ -140,7 +140,7 @@ const Chat = ({ messages, group, users, children }) => {
             <ChatWindow messages={state.messages}/>
           </div>
           <div className="flex-column">
-            <ChatTextField onTextInput={onTextInput} />
+            <ChatTextField onTextInput={onTextInput} selections={['Chat']}/>
           </div>
         </div>
       </div>
