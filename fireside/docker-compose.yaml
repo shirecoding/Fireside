@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - '${DB_PORT}:5432'
-    volumes: 
+    volumes:
       - db:/var/lib/postgresql/data
 
   # redis
@@ -19,7 +19,7 @@ services:
     ports:
       - '${CACHE_PORT}:6379'
     command: redis-server --save 20 1 --loglevel warning --requirepass ${CACHE_PASSWORD}
-    volumes: 
+    volumes:
       - cache:/data
 
 volumes:
