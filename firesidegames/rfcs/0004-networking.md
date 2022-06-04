@@ -15,12 +15,14 @@ client5 -> agent2 -> process/create job -> redis
 ```
 
 1. Clients send messages to agents via sockets
-    - messages may include destination
+
+   - messages may include destination
 
 2. Agents process the message
-    - via a handler
-    - may update world state
-    - may create additional jobs
+
+   - via a handler
+   - may update world state
+   - may create additional jobs
 
 3. Agents place jobs in redis
 
@@ -28,17 +30,19 @@ client5 -> agent2 -> process/create job -> redis
 
 redis -> take job -> agent1 -> client1
 redis -> take job -> agent1 -> client2
-                            -> redis
+-> redis
 redis -> take job -> agent2 -> client3
 redis -> take job -> agent2 -> client4
-                            -> redis
+-> redis
 redis -> take job -> agent2 -> client5
 
 1. Agents take jobs from redis
-    - jobs may be specific to certain agents (depending on which clients they have a connection to)
+
+   - jobs may be specific to certain agents (depending on which clients they have a connection to)
 
 2. Agents process job
-    - may update world state
+
+   - may update world state
 
 3. Agents send messages to clients
 

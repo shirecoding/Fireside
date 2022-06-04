@@ -14,8 +14,8 @@
 - Inform other players of it's events (world events)
 - Simulate received events and how it affects the world (itself)
 - World events
-    - Game start/end
-    - Things getting destroyed
+  - Game start/end
+  - Things getting destroyed
 - Mantains data of the game state
-    - kill/deaths
-    - score
+  - kill/deaths
+  - score

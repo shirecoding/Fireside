@@ -1,3 +1,11 @@
 {
-  "ignore_dirs": ["node_modules", "templates", "rfcs", "scripts", "media", "ipynb_checkpoints", "__pycache__"]
+  "ignore_dirs": [
+    "node_modules",
+    "templates",
+    "rfcs",
+    "scripts",
+    "media",
+    "ipynb_checkpoints",
+    "__pycache__"
+  ]
 }
