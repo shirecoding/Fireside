@@ -26,3 +26,12 @@ CACHES = {
         "LOCATION": f"redis://:{CACHE_PASSWORD}@{CACHE_HOST}:{CACHE_PORT}",
     }
 }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(f"redis://:{CACHE_PASSWORD}@{CACHE_HOST}:{CACHE_PORT}")],
+        },
+    },
+}
