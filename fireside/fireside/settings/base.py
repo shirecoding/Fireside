@@ -40,9 +40,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # 3rd party
-    "channels",
+    "channels",  # https://channels.readthedocs.io/
+    "guardian",  # https://django-guardian.readthedocs.io/
     # ours
     "chat.apps.ChatConfig",
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",  # default
+    "guardian.backends.ObjectPermissionBackend",  # django-guardian
 ]
 
 MIDDLEWARE = [
