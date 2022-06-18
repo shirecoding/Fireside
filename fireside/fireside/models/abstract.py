@@ -21,18 +21,24 @@ class FieldPermissionsMetaClass(ModelBase):
         klas = super().__new__(cls, name, bases, attrs)
 
         if not klas._meta.abstract:
-            # Add permissions for each field (fields has change and view)
+            # Add permissions for each field (change and view ONLY)
             for f in chain(klas._meta.fields, klas._meta.many_to_many):
                 klas._meta.permissions = (
                     *klas._meta.permissions,
-                    (f"change[{f}]", f"Can change {f}"),
-                    (f"view[{f}]", f"Can view {f}"),
+                    (f"change[{f}]", f"Can change {f.name}"),
+                    (f"view[{f}]", f"Can view {f.name}"),
                 )
 
         return klas
 
 
 class Model(models.Model, metaclass=FieldPermissionsMetaClass):
+    """
+    TODO:
+        - if user, check if any of user's group has permissions
+        - this is at object level, how to add perms to all instances ?? or will has_perm do it for you
+    """
+
     class Meta:
         abstract = True
 

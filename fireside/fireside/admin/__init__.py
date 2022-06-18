@@ -1,1 +1,2 @@
-from .model_admin import *
+from .abstract import *
+from .permissions import *

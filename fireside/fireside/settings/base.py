@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # 3rd party
     "channels",  # https://channels.readthedocs.io/
     "guardian",  # https://django-guardian.readthedocs.io/
+    "django_extensions",  # https://django-extensions.readthedocs.io/
     # ours
     "chat.apps.ChatConfig",
 ]
