@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # 3rd party
     "channels",  # https://channels.readthedocs.io/
+    "rest_framework",  # https://www.django-rest-framework.org/
     "guardian",  # https://django-guardian.readthedocs.io/
     "django_extensions",  # https://django-extensions.readthedocs.io/
     # ours
     "chat.apps.ChatConfig",
+    "utils.apps.UtilsConfig",
 ]
 
 AUTHENTICATION_BACKENDS = [

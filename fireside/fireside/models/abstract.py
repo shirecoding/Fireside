@@ -10,7 +10,7 @@ from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
 from typing import Literal
 from typing import get_args
-
+import uuid
 
 FIELD_OPERATIONS_T = Literal["change", "view"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
@@ -38,6 +38,8 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         - if user, check if any of user's group has permissions
         - this is at object level, how to add perms to all instances ?? or will has_perm do it for you
     """
+
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         abstract = True

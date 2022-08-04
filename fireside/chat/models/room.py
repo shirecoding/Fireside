@@ -1,4 +1,3 @@
-import uuid
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -6,7 +5,6 @@ from fireside.models import Model
 
 
 class Room(Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
     users = models.ManyToManyField(to=User, blank=True)
 
