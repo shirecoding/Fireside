@@ -22,6 +22,8 @@ class ModelAdmin(GuardedModelAdmin):
         - Restrict for all fields not only readonly
     """
 
+    save_on_top = True
+
     def get_list_display(self, request, *args, **kwargs):
         return ["olp"] + super().get_list_display(request, *args, **kwargs)
 

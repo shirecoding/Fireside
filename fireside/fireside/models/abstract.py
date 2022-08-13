@@ -17,16 +17,26 @@ FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
 
 
 class FieldPermissionsMetaClass(ModelBase):
-    def __new__(cls, name, bases, attrs):
-        klas = super().__new__(cls, name, bases, attrs)
+    """
+    Adds 2 new `field` level permissions (`change[field]`, `view[field]`) for each `field` in the model
+
+    Make sure to update permissions by running:
+
+    ```
+    ./manage.py update_permissions
+    ./manage.py remove_stale_contenttypes
+    ```
+    """
+
+    def __new__(cls, name, *args, **kwargs):
+        klas = super().__new__(cls, name, *args, **kwargs)
 
         if not klas._meta.abstract:
-            # Add permissions for each field (change and view ONLY)
             for f in chain(klas._meta.fields, klas._meta.many_to_many):
                 klas._meta.permissions = (
                     *klas._meta.permissions,
-                    (f"change[{f}]", f"Can change {f.name}"),
-                    (f"view[{f}]", f"Can view {f.name}"),
+                    (f"change[{f}]", f"Can change {klas._meta.model_name}[{f.name}]"),
+                    (f"view[{f}]", f"Can view {klas._meta.model_name}[{f.name}]"),
                 )
 
         return klas
@@ -34,9 +44,17 @@ class FieldPermissionsMetaClass(ModelBase):
 
 class Model(models.Model, metaclass=FieldPermissionsMetaClass):
     """
+    This `abstract` model adds extra features to the default model such as
+
+        - uid
+        - Field level permissions
+
+    Use with fireside.admin.ModelAdmin to access these extra features
+
     TODO:
-        - if user, check if any of user's group has permissions
-        - this is at object level, how to add perms to all instances ?? or will has_perm do it for you
+        - Add unit tests, documentation for has/assign/remove field permissions
+        - has/assign/remove_field_perm should auto add the model name
+            eg. (Room.has_field_perm(user, 'change'))
     """
 
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

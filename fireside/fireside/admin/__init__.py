@@ -1,2 +1,2 @@
 from .abstract import *
-from .permissions import *
+from .groups import *
