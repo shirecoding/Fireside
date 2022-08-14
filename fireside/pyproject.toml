@@ -19,6 +19,7 @@ Markdown = "^3.4.1"
 django-filter = "^22.1"
 djangorestframework = "^3.13.1"
 toolz = "^0.12.0"
+pytest-django = "^4.5.2"
 
 [tool.poetry.dev-dependencies]
 

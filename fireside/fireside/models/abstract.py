@@ -44,9 +44,8 @@ class FieldPermissionsMetaClass(ModelBase):
 
 class Model(models.Model, metaclass=FieldPermissionsMetaClass):
     """
-    This `abstract` model adds extra features to the default model such as
-
-        - uid
+    This `abstract` model adds extra features to the default model such as:
+        - UID
         - Field level permissions
 
     Use with fireside.admin.ModelAdmin to access these extra features
