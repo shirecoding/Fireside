@@ -18,7 +18,7 @@ FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
 
 class FieldPermissionsMetaClass(ModelBase):
     """
-    Adds 2 new `field` level permissions (`change[field]`, `view[field]`) for each `field` in the model
+    Adds 2 new `field` level permissions (`change_{model}_{field}`, `view_{model}_{field}`) for each `field` in the model
 
     Make sure to update permissions by running:
 
@@ -35,8 +35,14 @@ class FieldPermissionsMetaClass(ModelBase):
             for f in chain(klas._meta.fields, klas._meta.many_to_many):
                 klas._meta.permissions = (
                     *klas._meta.permissions,
-                    (f"change[{f}]", f"Can change {klas._meta.model_name}[{f.name}]"),
-                    (f"view[{f}]", f"Can view {klas._meta.model_name}[{f.name}]"),
+                    (
+                        f"change_{klas._meta.model_name}_{f.name}",
+                        f"Can change {klas._meta.verbose_name} [{f.name}]",
+                    ),
+                    (
+                        f"view_{klas._meta.model_name}_{f.name}",
+                        f"Can view {klas._meta.verbose_name} [{f.name}]",
+                    ),
                 )
 
         return klas
@@ -65,16 +71,18 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
     ) -> bool:
         assert operation in FIELD_OPERATIONS
-        return user_or_group.has_perm(f"{operation}[{field}]", self)
+        return user_or_group.has_perm(
+            f"{operation}_{self._meta.model_name}_{field}", self
+        )
 
     def assign_field_perm(
         self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
     ):
         assert operation in FIELD_OPERATIONS
-        assign_perm(f"{operation}[{field}]", user_or_group, self)
+        assign_perm(f"{operation}_{self._meta.model_name}_{field}", user_or_group, self)
 
     def remove_field_perm(
         self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
     ):
         assert operation in FIELD_OPERATIONS
-        remove_perm(f"{operation}[{field}]", user_or_group, self)
+        remove_perm(f"{operation}_{self._meta.model_name}_{field}", user_or_group, self)
