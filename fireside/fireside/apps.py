@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class UtilsConfig(AppConfig):
+class FiresideConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "utils"
+    name = "fireside"

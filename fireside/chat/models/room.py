@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from fireside.models import Model
+from core.models import Model
 
 
 class Room(Model):

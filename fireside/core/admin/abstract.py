@@ -1,22 +1,22 @@
 __all__ = ["ModelAdmin"]
 
 from guardian.admin import GuardedModelAdmin
-from fireside.models import Model
+from core.models import Model
 from django.utils.html import format_html
 from django.urls import reverse
 from django.templatetags.static import static
 from django.contrib import admin
 
-shield_svg = static("utils/img/fa-shield-halved.svg")
+shield_svg = static("fireside/img/fa-shield-halved.svg")
 shield_svg_style = "float: right; height: 1em; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);"
 
 
 class ModelAdmin(GuardedModelAdmin):
     """
-    To be used with fireside.models.Model
+    To be used with core.models.Model
 
     - Adds object level permissions (groups, users) via django-guardian
-    - Handle field level permissions (requires the model to be instance of fireside.Model)
+    - Handle field level permissions (requires the model to be instance of core.Model)
 
     TODO:
         - Restrict for all fields not only readonly

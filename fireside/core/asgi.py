@@ -1,5 +1,5 @@
 """
-ASGI config for fireside project.
+ASGI config for core project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -15,7 +15,7 @@ from channels.auth import AuthMiddlewareStack
 
 import chat.routing
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fireside.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
 application = ProtocolTypeRouter(
     {

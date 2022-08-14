@@ -48,7 +48,7 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         - UID
         - Field level permissions
 
-    Use with fireside.admin.ModelAdmin to access these extra features
+    Use with core.admin.ModelAdmin to access these extra features
 
     TODO:
         - Add unit tests, documentation for has/assign/remove field permissions

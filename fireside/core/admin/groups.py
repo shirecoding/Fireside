@@ -7,12 +7,19 @@ from django.contrib.auth.models import Permission
 from fireside.utils.forms import HorizontalFilterField
 from toolz import dissoc
 from itertools import chain
+from functools import lru_cache
 
-app_labels = sorted(
-    Permission.objects.values_list("content_type__app_label", flat=True)
-    .distinct()
-    .order_by()
-)
+
+@lru_cache
+def app_labels():
+    """
+    Cached app_labels to avoid `makemigrations` throwing error
+    """
+    return sorted(
+        Permission.objects.values_list("content_type__app_label", flat=True)
+        .distinct()
+        .order_by()
+    )
 
 
 class PermissionsForm(ModelForm):
@@ -26,22 +33,24 @@ class PermissionsForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for app in app_labels:
+        for app in app_labels():
             self.fields[app] = HorizontalFilterField(
                 app,
                 queryset=Permission.objects.filter(content_type__app_label=app),
                 required=False,
             )
-            self.initial[app] = self.instance.permissions.all()
+            if self.instance.id is not None:  # check empty instance
+                self.initial[app] = self.instance.permissions.all()
 
     def _save_m2m(self):
         super()._save_m2m()
-        self.instance.permissions.set(
-            chain.from_iterable(
-                v for k, v in self.cleaned_data.items() if k in app_labels
+        if self.instance.id is not None:
+            self.instance.permissions.set(
+                chain.from_iterable(
+                    v for k, v in self.cleaned_data.items() if k in app_labels()
+                )
             )
-        )
-        self.instance.save()
+            self.instance.save()
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -64,7 +73,7 @@ class GroupAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj: Group = None):
         return [
             *super().get_fieldsets(request, obj),
-            ["Application Permissions", {"fields": list(app_labels)}],
+            ["Application Permissions", {"fields": app_labels()}],
         ]
 
 
