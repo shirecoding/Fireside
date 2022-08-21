@@ -117,6 +117,9 @@ def test_object_permissions(bsg, discovery, humans, starbuck, adama):
     discovery.assign_perm(read_basicshipmodel_name, adama)
     adama = get_object_or_404(User, pk=adama.id)  # refetch
     assert adama.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == True
+    assert discovery.has_perm(read_basicshipmodel_name, adama) == True
+    assert discovery.has_perm("fireside_tests.read_basicshipmodel_name", adama) == True
+
     assert (
         starbuck.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
     )
@@ -124,6 +127,7 @@ def test_object_permissions(bsg, discovery, humans, starbuck, adama):
     discovery.remove_perm(read_basicshipmodel_name, adama)
     adama = get_object_or_404(User, pk=adama.id)  # refetch
     assert adama.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
+    assert discovery.has_perm(read_basicshipmodel_name, adama) == False
     assert (
         starbuck.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
     )

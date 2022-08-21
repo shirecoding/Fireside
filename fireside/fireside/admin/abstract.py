@@ -44,10 +44,7 @@ class ModelAdmin(GuardedModelAdmin):
                     f
                     for f in fields
                     if hasattr(obj, f)
-                    and (
-                        obj.has_field_perm(request.user, "view", getattr(obj, f))
-                        or obj.has_field_perm(request.user, "change", getattr(obj, f))
-                    )
+                    and obj.has_perm(obj.get_field_permission(f, "read"))
                 )
         return self.readonly_fields
 

@@ -92,6 +92,14 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         """
         return remove_perm(perm, user_or_group, self)
 
+    def has_perm(self, perm: Permission | str, user_or_group: User | Group) -> bool:
+        return user_or_group.has_perm(
+            ".".join(perm.natural_key()[:2][::-1])
+            if isinstance(perm, Permission)
+            else perm,
+            self,
+        )
+
     # def has_field_perm(
     #     self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
     # ) -> bool:
