@@ -10,6 +10,9 @@ import uuid
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from django.db.models.query_utils import DeferredAttribute
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
+from django.contrib.auth.models import User, Group
 
 FIELD_OPERATIONS_T = Literal["read", "write"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
@@ -74,6 +77,20 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
             codename=f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}",
             content_type=ContentType.objects.get_for_model(cls),
         )
+
+    def assign_perm(
+        self, perm: Permission | str, user_or_group: User | Group
+    ) -> Permission:
+        """
+        Assign permission to this object instance
+        """
+        return assign_perm(perm, user_or_group, self)
+
+    def remove_perm(self, perm: Permission | str, user_or_group: User | Group):
+        """
+        Remove permission from this object instance
+        """
+        return remove_perm(perm, user_or_group, self)
 
     # def has_field_perm(
     #     self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
