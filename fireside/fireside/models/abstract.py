@@ -78,6 +78,12 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
             content_type=ContentType.objects.get_for_model(cls),
         )
 
+    @classmethod
+    def get_field_permission_codename(
+        cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T
+    ) -> str:
+        return f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}"
+
     def assign_perm(
         self, perm: Permission | str, user_or_group: User | Group
     ) -> Permission:
@@ -99,23 +105,3 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
             else perm,
             self,
         )
-
-    # def has_field_perm(
-    #     self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
-    # ) -> bool:
-    #     assert operation in FIELD_OPERATIONS
-    #     return user_or_group.has_perm(
-    #         f"{operation}_{self._meta.model_name}_{field}", self
-    #     )
-
-    # def assign_field_perm(
-    #     self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
-    # ):
-    #     assert operation in FIELD_OPERATIONS
-    #     assign_perm(f"{operation}_{self._meta.model_name}_{field}", user_or_group, self)
-
-    # def remove_field_perm(
-    #     self, user_or_group: User | Group, operation: FIELD_OPERATIONS_T, field: Field
-    # ):
-    #     assert operation in FIELD_OPERATIONS
-    #     remove_perm(f"{operation}_{self._meta.model_name}_{field}", user_or_group, self)
