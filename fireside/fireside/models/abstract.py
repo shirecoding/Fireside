@@ -22,6 +22,9 @@ class FieldPermissionsMetaClass(ModelBase):
     """
     Adds read and write field permissions
 
+    TODO:
+        Add `can view all instances`
+
     Update permissions by running:
         ```
         ./manage.py update_permissions
@@ -56,6 +59,9 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         - Field level permissions
 
     Use with fireside.admin.ModelAdmin to access these extra features
+
+    TODO:
+        Add created_by for OLP
     """
 
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
