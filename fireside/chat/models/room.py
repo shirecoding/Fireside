@@ -6,6 +6,7 @@ from fireside.models import Model
 
 class Room(Model):
     name = models.CharField(max_length=128)
+    description = models.TextField(default="")
     users = models.ManyToManyField(to=User, blank=True)
 
     def user_count(self):

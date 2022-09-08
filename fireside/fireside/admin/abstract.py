@@ -10,6 +10,7 @@ from itertools import chain
 from django.contrib.auth import get_permission_codename
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 from functools import lru_cache
+from cachetools.func import ttl_cache
 
 shield_svg = static("fireside/img/fa-shield-halved.svg")
 shield_svg_style = "float: right; height: 1em; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);"
@@ -50,7 +51,7 @@ class ModelAdmin(GuardedModelAdmin):
 
     save_on_top = True
 
-    @lru_cache(maxsize=128)
+    @lru_cache
     def permission_from_op(self, op: str, field: str | None = None, include_app_label: bool = True):
         s = (
             f"{self.opts.app_label}.{get_permission_codename(op, self.opts)}"
@@ -61,17 +62,21 @@ class ModelAdmin(GuardedModelAdmin):
             return f"{s}_{field}"
         return s
 
+    @lru_cache
+    def get_perms_for_model(self, fields: tuple[str] | None = None):
+        fields = fields or tuple()
+        return [
+            *get_perms_for_model(self.model).values_list("codename", flat=True),
+            *(self.permission_from_op("read", field=f, include_app_label=False) for f in fields),
+            *(self.permission_from_op("write", field=f, include_app_label=False) for f in fields),
+        ]
+
     def get_user_objects(self, request, perms: list[str] | str = "", any_perm: bool = False):
         fields = self.get_fields(request)
         return (
             get_objects_for_user(
                 request.user,
-                perms
-                or [
-                    *get_perms_for_model(self.model).values_list("codename", flat=True),
-                    *[self.permission_from_op("read", field=f, include_app_label=False) for f in fields],
-                    *[self.permission_from_op("write", field=f, include_app_label=False) for f in fields],
-                ],
+                perms or self.get_perms_for_model(tuple(fields)),
                 klass=self.model,
                 any_perm=any_perm,
             )
@@ -131,45 +136,61 @@ class ModelAdmin(GuardedModelAdmin):
             )
         return super().has_view_permission(request, obj) or fields
 
+    @ttl_cache(ttl=60)
+    def filter_fields_for_obj(self, user, obj, fields: tuple[str], readonly: bool = False) -> list[str]:
+        if readonly:
+            return list(
+                dict.fromkeys(
+                    f
+                    for f in fields
+                    if user.has_perm(self.permission_from_op("read", field=f), obj)
+                    and not user.has_perm(self.permission_from_op("write", field=f), obj)
+                )
+            )
+
+        return [
+            f
+            for f in fields
+            if user.has_perm(self.permission_from_op("view"))
+            or user.has_perm(self.permission_from_op("change"))
+            or user.has_perm(self.permission_from_op("read", field=f))
+            or user.has_perm(self.permission_from_op("write", field=f))
+            or user.has_perm(self.permission_from_op("read", field=f), obj)
+            or user.has_perm(self.permission_from_op("write", field=f), obj)
+        ]
+
     def get_fields(self, request, obj=None) -> tuple[str] | list[str]:
         fields = super().get_fields(request, obj)
         if obj is None:
             return fields
 
-        # further filter with field level permissions in change form
+        # filter FLP
+        return self.filter_fields_for_obj(request.user, obj, tuple(fields))
+
+    def get_fieldsets(self, request, obj=None):
+        fields = self.get_fields(request, obj)
         return [
-            f
-            for f in fields
-            if request.user.has_perm(self.permission_from_op("view"))
-            or request.user.has_perm(self.permission_from_op("change"))
-            or request.user.has_perm(self.permission_from_op("read", field=f))
-            or request.user.has_perm(self.permission_from_op("write", field=f))
-            or request.user.has_perm(self.permission_from_op("read", field=f), obj)
-            or request.user.has_perm(self.permission_from_op("write", field=f), obj)
+            (x, {**d, "fields": fs})
+            for x, d in super().get_fieldsets(request, obj)
+            if (fs := [f for f in d.get("fields", []) if f in fields])
         ]
+
+    @lru_cache
+    def _editable_fields(self) -> tuple[str]:
+        return [f.name for f in chain(self.opts.fields, self.opts.many_to_many) if f.editable]
 
     def get_readonly_fields(self, request, obj: Model | None = None) -> tuple[str] | list[str]:
         """
         FLP behaviour:
-            readonly if write == True && read == False
-
-        TODO:
-            TOO SLOW, add all these permissions in request context so that its only done once?
+            readonly: write and !read
         """
         readonly_fields = super().get_readonly_fields(request, obj)
         if request.user.is_superuser:
             return readonly_fields
 
         # move fields without FLP into readonly
-        fields = self.fields or [f.name for f in chain(self.opts.fields, self.opts.many_to_many) if f.editable]
-        return list(
-            {
-                f
-                for f in fields
-                if request.user.has_perm(self.permission_from_op("read", field=f), obj)
-                and not request.user.has_perm(self.permission_from_op("write", field=f), obj) * readonly_fields
-            }
-        )
+        fields = self.fields or self._editable_fields()
+        return tuple({*readonly_fields, *self.filter_fields_for_obj(request.user, obj, tuple(fields), readonly=True)})
 
     def get_list_display(self, request, *args, **kwargs):
         return ["shortcuts"] + super().get_list_display(request, *args, **kwargs)
