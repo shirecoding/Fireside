@@ -16,7 +16,7 @@ class ChatRoomAdmin(ModelAdmin):
                 "fields": ["name", "description"],
             },
         ),
-        ("Details", {"fields": ["user_count", "users", "chat_room_link", "uid"]}),
+        ("Details", {"fields": [("user_count", "users"), "chat_room_link", "uid"]}),
     ]
 
     def chat_room_link(self, obj: Room) -> str:

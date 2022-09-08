@@ -172,7 +172,12 @@ class ModelAdmin(GuardedModelAdmin):
         return [
             (x, {**d, "fields": fs})
             for x, d in super().get_fieldsets(request, obj)
-            if (fs := [f for f in d.get("fields", []) if f in fields])
+            if (
+                fs := [
+                    f if isinstance(f, str) and f in fields else tuple(t for t in f if t in fields)
+                    for f in d.get("fields", [])
+                ]
+            )
         ]
 
     @lru_cache
