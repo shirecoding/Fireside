@@ -140,12 +140,7 @@ class ModelAdmin(GuardedModelAdmin):
     def filter_fields_for_obj(self, user, obj, fields: tuple[str], readonly: bool = False) -> list[str]:
         if readonly:
             return list(
-                dict.fromkeys(
-                    f
-                    for f in fields
-                    if user.has_perm(self.permission_from_op("read", field=f), obj)
-                    and not user.has_perm(self.permission_from_op("write", field=f), obj)
-                )
+                dict.fromkeys(f for f in fields if not user.has_perm(self.permission_from_op("write", field=f), obj))
             )
 
         return [
@@ -195,6 +190,7 @@ class ModelAdmin(GuardedModelAdmin):
 
         # move fields without FLP into readonly
         fields = self.fields or self._editable_fields()
+        print("ALL FIELDS", fields, "readonly_fields", readonly_fields)
         return tuple({*readonly_fields, *self.filter_fields_for_obj(request.user, obj, tuple(fields), readonly=True)})
 
     def get_list_display(self, request, *args, **kwargs):
