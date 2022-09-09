@@ -5,6 +5,13 @@ from fireside.admin import ModelAdmin
 
 class TaskAdmin(ModelAdmin):
     list_display = ["name", "definition"]
+    readonly_fields = ["is_active"]
+
+    fieldsets = [
+        [None, {"fields": ("name", "description")}],
+        ["Definition", {"fields": ("definition", "inputs")}],
+        ["Activation", {"fields": ("is_active", "activate_on", "deactivate_on")}],
+    ]
 
 
 class TaskDefinitionAdmin(ModelAdmin):

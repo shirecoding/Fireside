@@ -13,7 +13,7 @@ from django.db.models.query_utils import DeferredAttribute
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
 from django.contrib.auth.models import User, Group
-from datetime import datetime
+from django.utils import timezone
 
 FIELD_OPERATIONS_T = Literal["read", "write"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
@@ -120,9 +120,10 @@ class ActivatableModel(models.Model):
 
     activate_on = models.DateTimeField(
         blank=True,
+        null=True,
         help_text="When to activate model (If not set, model is considered activate as long as `now` < `deactivate_on`)",
     )
-    deactivate_on = models.DateTimeField(blank=True, help_text="When to deactivate model.")
+    deactivate_on = models.DateTimeField(blank=True, null=True, help_text="When to deactivate model.")
 
     class Meta:
         abstract = True
@@ -130,17 +131,17 @@ class ActivatableModel(models.Model):
     def is_active(self):
         if self.activate_on:
             if self.deactivate_on:
-                return self.deactivate_on > datetime.now() > self.activate_on
+                return self.deactivate_on > timezone.now() > self.activate_on
             else:
-                return datetime.now() > self.activate_on
+                return timezone.now() > self.activate_on
         else:
             if self.deactivate_on:
-                return self.deactivate_on > datetime.now()
+                return self.deactivate_on > timezone.now()
             else:
                 return True
 
     def deactivate(self):
-        self.deactivate_on = datetime.now()
+        self.deactivate_on = timezone.now()
         self.save(update_fields=["deactivate_on"])
 
     def activate(self):

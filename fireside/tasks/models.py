@@ -1,6 +1,6 @@
 __all__ = ["Task", "TaskDefinition"]
 
-from fireside.models import Model
+from fireside.models import Model, ActivatableModel
 from django.db import models
 
 
@@ -23,7 +23,7 @@ def default_task_inputs():
     return {"args": "", "kwargs": {}}
 
 
-class Task(Model):
+class Task(Model, ActivatableModel):
     """
     TODO:
         - Replace inputs JSONField with SchemaJSONField (validate with task_definitions.<task>.schema)
