@@ -2,6 +2,7 @@ __all__ = ["Task", "TaskDefinition"]
 
 from fireside.models import Model, ActivatableModel
 from django.db import models
+import importlib
 
 
 class TaskDefinition(Model):
@@ -29,7 +30,8 @@ class Task(Model, ActivatableModel):
         - Replace inputs JSONField with SchemaJSONField (validate with task_definitions.<task>.schema)
         - Add cron
         - Display cron as readable string "every saturday 10 pm"
-        - Add deactivate_on, activate_on (mixin? with is_activated, is_deactivated)
+        - Store results, errors
+        - Add action
     """
 
     name = models.CharField(max_length=128, blank=False, null=False)
@@ -41,3 +43,8 @@ class Task(Model, ActivatableModel):
 
     def __str__(self):
         return f"{self.name}"
+
+    def run(self):
+        xs = self.definition.fpath.split(".")
+        m = importlib.import_module(".".join(xs[:-1]))
+        getattr(m, xs[-1])(*self.inputs["args"], **self.inputs["kwargs"])
