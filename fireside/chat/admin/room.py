@@ -7,8 +7,9 @@ from django.contrib import admin
 
 class ChatRoomAdmin(ModelAdmin):
 
-    list_display = ["name", "user_count", "uid", "chat_room_link"]
+    list_display = ["name", "user_count", "uid", "chat_room_link", "description"]
     readonly_fields = ["chat_room_link", "user_count", "uid"]
+    list_editable = ["description"]
     fieldsets = [
         (
             "Room",

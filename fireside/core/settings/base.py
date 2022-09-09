@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_extensions",  # https://django-extensions.readthedocs.io/
     # ours
     "fireside.apps.FiresideConfig",
+    "tasks.apps.TasksConfig",
     "chat.apps.ChatConfig",
 ]
 

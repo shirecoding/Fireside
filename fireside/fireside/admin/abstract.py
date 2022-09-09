@@ -42,11 +42,23 @@ class ModelAdmin(GuardedModelAdmin):
         fireside.ModelAdmin takes over the declaration of `fields` and `readonly_fields` automatically via field level permissions of the user.
 
     TODO:
+        - list_display permissions
+            - how to do this fast?
+            - add a seperate permission for list display?
+            - compiling user permissions from all objects would be slow
+            - make seperate table to keep track of list_permissions and update? too tedious to keep it updated
+            - or just ignore totally?
+            - current it needs global change to be able edit, else its readonly
 
-        - Write test cases for admin OLP, MLP, FLP various combinations
-        - get_fieldsets
-        - get_list_display
-        - too slow, speedup with context on request?
+        - Add test cases for all combinations
+            - global read
+            - global write
+            - global delete
+            - global none + obj read
+            - global none + obj write
+            - ...
+
+        - Try adding thousands of items and test speed of queryset
     """
 
     save_on_top = True
@@ -136,7 +148,7 @@ class ModelAdmin(GuardedModelAdmin):
             )
         return super().has_view_permission(request, obj) or fields
 
-    @ttl_cache(ttl=60)
+    @ttl_cache(ttl=10)
     def filter_fields_for_obj(self, user, obj, fields: tuple[str], readonly: bool = False) -> list[str]:
         if readonly:
             return list(
@@ -190,7 +202,6 @@ class ModelAdmin(GuardedModelAdmin):
 
         # move fields without FLP into readonly
         fields = self.fields or self._editable_fields()
-        print("ALL FIELDS", fields, "readonly_fields", readonly_fields)
         return tuple({*readonly_fields, *self.filter_fields_for_obj(request.user, obj, tuple(fields), readonly=True)})
 
     def get_list_display(self, request, *args, **kwargs):
@@ -202,7 +213,7 @@ class ModelAdmin(GuardedModelAdmin):
     @admin.display(description="")
     def shortcuts(self, obj: Model):
         """
-        Link to object level permissions admin page
+        Shortcuts column
         """
         return format_html(
             '<a href="{}" target="_blank"><img src="{}" style="{}"></a>',
