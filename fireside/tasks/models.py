@@ -46,5 +46,4 @@ class Task(Model, ActivatableModel):
 
     def run(self):
         xs = self.definition.fpath.split(".")
-        m = importlib.import_module(".".join(xs[:-1]))
-        getattr(m, xs[-1])(*self.inputs["args"], **self.inputs["kwargs"])
+        getattr(importlib.import_module(".".join(xs[:-1])), xs[-1])(*self.inputs["args"], **self.inputs["kwargs"])
