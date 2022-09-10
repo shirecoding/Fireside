@@ -21,6 +21,16 @@ services:
     volumes:
       - cache:/data
 
+  # scheduler
+  scheduler:
+    build:
+      context: .
+      dockerfile: Fireside.Dockerfile
+    restart: always
+    depends_on:
+      - cache
+    command: bash -c "rqscheduler --host cache --port ${CACHE_PORT} --password ${CACHE_PASSWORD}"
+
 volumes:
   db:
     driver: local
