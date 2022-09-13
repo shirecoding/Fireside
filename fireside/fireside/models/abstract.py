@@ -60,9 +60,6 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
         - Field level permissions
 
     Use with fireside.admin.ModelAdmin to access these extra features
-
-    TODO:
-        Add created_by for OLP
     """
 
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -105,6 +102,11 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
 
 
 class TimestampModel(models.Model):
+    """
+    TODO:
+        - write test cases
+    """
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

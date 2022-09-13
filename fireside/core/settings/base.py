@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import environ
+from colorlog import ColoredFormatter
 
 env = environ.Env(DEBUG=(bool, False))
 
@@ -126,3 +127,53 @@ STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "detailed_string": {
+            "format": "%(asctime)-15s [%(name)s] %(levelname)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%SZ",
+        },
+        "colored_formatter": {
+            "()": ColoredFormatter,
+            "format": "%(asctime)-15s [%(cyan)s%(name)s%(reset)s] %(log_color)s%(levelname)s%(reset)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%SZ",
+            "log_colors": {
+                "DEBUG": "white",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "bold_red",
+                "CRITICAL": "bold_red",
+            },
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "colored_formatter",
+            "level": "DEBUG",
+        }
+    },
+    "loggers": {
+        "core": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        },
+        "fireside": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        },
+        "tasks": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        },
+        "chat": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        },
+    },
+}
