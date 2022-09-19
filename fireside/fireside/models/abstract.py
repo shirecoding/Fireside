@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = ["Model", "TimestampModel", "ActivatableModel"]
 
 from django.db.models.base import ModelBase
