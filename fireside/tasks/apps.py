@@ -1,4 +1,6 @@
 from django.apps import AppConfig
+from fireside.utils.threading import run_in_daemon_thread
+from tasks.utils import get_scheduler, get_worker
 
 
 class TasksConfig(AppConfig):
@@ -6,4 +8,8 @@ class TasksConfig(AppConfig):
     name = "tasks"
 
     def ready(self):
-        pass
+        # start scheduler
+        run_in_daemon_thread(get_scheduler().run, forever=True)
+
+        # start worker
+        run_in_daemon_thread(get_worker().work, forever=True)

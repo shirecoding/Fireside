@@ -1,9 +1,12 @@
-__all__ = ["register_task", "get_redis_connection"]
+__all__ = ["register_task", "get_redis_connection", "get_scheduler", "get_worker"]
 
-import inspect
 from django.core.cache.backends.redis import RedisCache
 from django.core.cache import caches
 from redis.client import Redis
+from rq_scheduler import Scheduler
+from functools import lru_cache
+from fireside.utils import get_function_import_path
+from rq import Worker
 
 
 def register_task(name="", description=""):
@@ -17,12 +20,15 @@ def register_task(name="", description=""):
         - add schema based on type hints of function
     """
 
-    from tasks.models import TaskDefinition  # prevent circular imports
-
     def decorator(f):
-        TaskDefinition.objects.update_or_create(
-            fpath=f"{inspect.getmodule(f).__name__}.{f.__name__}", defaults={"name": name, "description": description}
-        )
+        from tasks.models import TaskDefinition  # prevent circular imports
+
+        fpath = get_function_import_path(f)
+
+        if fpath is None:
+            raise Exception(f"Failed to register task: import path of {f} cannot be reached")
+
+        TaskDefinition.objects.update_or_create(fpath=fpath, defaults={"name": name, "description": description})
 
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
@@ -32,8 +38,21 @@ def register_task(name="", description=""):
     return decorator
 
 
+@lru_cache
 def get_redis_connection() -> Redis:
     for obj in caches.all():
         if isinstance(obj, RedisCache):
             return obj._cache.get_client()
     raise Exception("Missing RedisCache backend")
+
+
+@lru_cache
+def get_scheduler() -> Scheduler:
+    return Scheduler(connection=get_redis_connection())
+
+
+@lru_cache
+def get_worker() -> Worker:
+    from tasks.models import TaskDefinition  # prevent circular imports
+
+    return Worker({x.queue_name for x in TaskDefinition.objects.all()}, connection=get_redis_connection())

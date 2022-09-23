@@ -5,14 +5,15 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db import models
 import importlib
-from rq_scheduler import Scheduler
-from tasks.utils import get_redis_connection
+
+from tasks.utils import get_redis_connection, get_scheduler
 from rq.queue import Queue
+from functools import cached_property
+from contextlib import suppress
 
 import logging
 
 logger = logging.getLogger(__name__)
-scheduler = Scheduler(connection=get_redis_connection())
 
 
 class TaskDefinition(Model):
@@ -29,6 +30,10 @@ class TaskDefinition(Model):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
+    @property
+    def queue_name(self) -> str:
+        return f"Task:{self.name}"  # discoverable at compile time (for worker)
+
 
 def default_task_inputs():
     return {"args": "", "kwargs": {}}
@@ -43,6 +48,7 @@ class Task(Model, ActivatableModel):
         - Store results, errors
         - Add action
         - queue_name not being used on redis (debug)?
+        - add priority
     """
 
     name = models.CharField(max_length=128, blank=False, null=False)
@@ -60,33 +66,61 @@ class Task(Model, ActivatableModel):
         return f"{self.name}"
 
     def run(self):
+        logger.info(f"Running task {self.name}")
         xs = self.definition.fpath.split(".")
         getattr(importlib.import_module(".".join(xs[:-1])), xs[-1])(*self.inputs["args"], **self.inputs["kwargs"])
+
+    @property
+    def queue_name(self) -> str:
+        return self.definition.queue_name  # discoverable at compile time (for worker)
+
+    @cached_property
+    def queue(self) -> Queue:
+        return Queue(name=self.queue_name, connection=get_redis_connection())
+
+    def start(self):
+        logger.debug(
+            f"""
+        Starting task schedule:
+            task: {self.name}
+            cron: {self.cron}
+            repeat: {self.repeat}
+        """
+        )
+        get_scheduler().cron(
+            self.cron,
+            func=self.run,
+            args=[],
+            kwargs={},
+            repeat=self.repeat,
+            queue_name=self.queue_name,
+            meta={},
+            use_local_timezone=True,
+        )
+
+    def stop(self):
+        logger.debug(
+            f"""
+            Stopping task schedule
+                task: {self.name}
+                jobs: {len(self.queue.jobs)}
+        """
+        )
+        self.queue.delete()
 
 
 @receiver(pre_save, sender=Task, dispatch_uid="pre_save_task")
 def pre_save_task(sender, instance, *args, **kwargs):
     old_instance = sender.objects.filter(uid=instance.uid).first()
     if old_instance:
-        # delete existing queue
-        queue_name = f"Task:{old_instance.name}"
-        queue = Queue(name=queue_name, connection=get_redis_connection())
-        logger.debug(f"Deleting {len(queue.jobs)} existing jobs in queue {queue_name}")
-        queue.delete()
+        # stop task
+        old_instance.stop()
 
 
 @receiver(post_save, sender=Task, dispatch_uid="post_save_task")
 def post_save_task(sender, instance, created, *args, **kwargs):
-    # reschedule jobs
-    queue_name = f"Task:{instance.name}"
-    scheduler.cron(
-        instance.cron,
-        func=instance.run,
-        args=[],
-        kwargs={},
-        repeat=instance.repeat,
-        queue_name=queue_name,
-        meta={},
-        use_local_timezone=True,
-    )
-    logger.debug(f"Scheduled {queue_name}")
+    # clear cached_property
+    with suppress(AttributeError):
+        del instance.queue
+    # start task
+    instance.start()
