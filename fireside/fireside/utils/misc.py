@@ -1,10 +1,14 @@
-__all__ = ["get_function_import_path"]
+__all__ = ["function_to_import_path", "import_path_to_function"]
 
 import inspect
+from importlib import import_module
+from typing import Callable
 
 
-def get_function_import_path(func) -> str | None:
-    m = inspect.getmodule(func)
-    if m is not None:
-        return f"{m.__name__}.{func.__name__}"
-    return None
+def function_to_import_path(func) -> str:
+    return f"{inspect.getmodule(func).__name__}.{func.__name__}"
+
+
+def import_path_to_function(fpath: str) -> Callable:
+    xs = fpath.split(".")
+    return getattr(import_module(".".join(xs[:-1])), xs[-1])

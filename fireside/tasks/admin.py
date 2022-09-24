@@ -9,7 +9,7 @@ class TaskAdmin(ModelAdmin):
 
     fieldsets = [
         [None, {"fields": ("name", "description")}],
-        ["Schedule", {"fields": ("cron", "repeat")}],
+        ["Schedule", {"fields": ("cron", "repeat", "priority")}],
         ["Definition", {"fields": ("definition", "inputs")}],
         ["Activation", {"fields": ("is_active", "activate_on", "deactivate_on")}],
     ]

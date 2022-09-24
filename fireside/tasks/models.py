@@ -1,15 +1,15 @@
-__all__ = ["Task", "TaskDefinition"]
+__all__ = ["Task", "TaskDefinition", "TaskPriority"]
 
+from typing import Any
 from fireside.models import Model, ActivatableModel
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db import models
-import importlib
 
-from tasks.utils import get_redis_connection, get_scheduler
-from rq.queue import Queue
-from functools import cached_property
+from django_rq import get_connection, get_scheduler
+from rq.job import Job
 from contextlib import suppress
+from fireside.utils import import_path_to_function
 
 import logging
 
@@ -30,9 +30,19 @@ class TaskDefinition(Model):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
-    @property
-    def queue_name(self) -> str:
-        return f"Task:{self.name}"  # discoverable at compile time (for worker)
+    def is_valid(self) -> bool:
+        # check if path to function is still valid (could have been deleted)
+        try:
+            import_path_to_function(self.fpath)
+            return True
+        except Exception:
+            return False
+
+
+class TaskPriority(models.TextChoices):
+    LOW = "low", "Low"
+    DEFAULT = "default", "Default"
+    HIGH = "high", "High"
 
 
 def default_task_inputs():
@@ -61,60 +71,50 @@ class Task(Model, ActivatableModel):
     repeat = models.IntegerField(
         blank=True, null=True, help_text="Repeat this number of times (None means repeat forever)"
     )
+    priority = models.CharField(
+        choices=TaskPriority.choices, default=TaskPriority.DEFAULT, max_length=128, help_text="Priority of the task"
+    )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}"
 
-    def run(self):
-        logger.info(f"Running task {self.name}")
-        xs = self.definition.fpath.split(".")
-        getattr(importlib.import_module(".".join(xs[:-1])), xs[-1])(*self.inputs["args"], **self.inputs["kwargs"])
-
     @property
-    def queue_name(self) -> str:
-        return self.definition.queue_name  # discoverable at compile time (for worker)
+    def job_id(self) -> str:
+        return str(self.uid)
 
-    @cached_property
-    def queue(self) -> Queue:
-        return Queue(name=self.queue_name, connection=get_redis_connection())
+    def run(self) -> Any:
+        if self.is_active():
+            logger.debug(f"Running Task:{self.name}[{self.uid}]")
+            return import_path_to_function(self.definition.fpath)(*self.inputs["args"], **self.inputs["kwargs"])
 
-    def start(self):
+    def schedule(self) -> Job:
         logger.debug(
-            f"""
-        Starting task schedule:
-            task: {self.name}
-            cron: {self.cron}
-            repeat: {self.repeat}
-        """
+            f"Schedule Task:{self.name}[{self.uid}] ({self.cron}) x {self.repeat} with {self.priority} priority"
         )
-        get_scheduler().cron(
+        return get_scheduler(self.priority).cron(
             self.cron,
+            id=self.job_id,
             func=self.run,
             args=[],
             kwargs={},
             repeat=self.repeat,
-            queue_name=self.queue_name,
+            queue_name=self.priority,
             meta={},
-            use_local_timezone=True,
+            use_local_timezone=False,
         )
 
-    def stop(self):
-        logger.debug(
-            f"""
-            Stopping task schedule
-                task: {self.name}
-                jobs: {len(self.queue.jobs)}
-        """
-        )
-        self.queue.delete()
+    def unschedule(self) -> None:
+        if self.job_id in get_scheduler():
+            Job.fetch(self.job_id, connection=get_connection()).delete()
+            logger.debug(f"Unscheduled Task:{self.name}[{self.uid}]")
 
 
 @receiver(pre_save, sender=Task, dispatch_uid="pre_save_task")
 def pre_save_task(sender, instance, *args, **kwargs):
     old_instance = sender.objects.filter(uid=instance.uid).first()
     if old_instance:
-        # stop task
-        old_instance.stop()
+        # unschedule task
+        old_instance.unschedule()
 
 
 @receiver(post_save, sender=Task, dispatch_uid="post_save_task")
@@ -122,5 +122,5 @@ def post_save_task(sender, instance, created, *args, **kwargs):
     # clear cached_property
     with suppress(AttributeError):
         del instance.queue
-    # start task
-    instance.start()
+    # schedule task
+    instance.schedule()

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",  # https://www.django-rest-framework.org/
     "guardian",  # https://django-guardian.readthedocs.io/
     "django_extensions",  # https://django-extensions.readthedocs.io/
+    "django_rq",  # https://github.com/rq/django-rq
     # ours
     "fireside.apps.FiresideConfig",
     "tasks.apps.TasksConfig",
@@ -175,5 +176,66 @@ LOGGING = {
             "level": "DEBUG",
             "handlers": ["console"],
         },
+        "rq.worker": {"handlers": ["console"], "level": "DEBUG"},
+    },
+}
+
+# Database
+# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
+    }
+}
+
+# Cache
+CACHE_PASSWORD = env("CACHE_PASSWORD")
+CACHE_HOST = env("CACHE_HOST")
+CACHE_PORT = env("CACHE_PORT")
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://:{CACHE_PASSWORD}@{CACHE_HOST}:{CACHE_PORT}",
+    }
+}
+
+# Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(f"redis://:{CACHE_PASSWORD}@{CACHE_HOST}:{CACHE_PORT}")],
+        },
+    },
+}
+
+
+# RQ
+RQ_QUEUES = {
+    "high": {
+        "HOST": CACHE_HOST,
+        "PORT": CACHE_PORT,
+        "DB": 0,
+        "PASSWORD": CACHE_PASSWORD,
+        "DEFAULT_TIMEOUT": 360,
+    },
+    "default": {
+        "HOST": CACHE_HOST,
+        "PORT": CACHE_PORT,
+        "DB": 0,
+        "PASSWORD": CACHE_PASSWORD,
+        "DEFAULT_TIMEOUT": 360,
+    },
+    "low": {
+        "HOST": CACHE_HOST,
+        "PORT": CACHE_PORT,
+        "DB": 0,
+        "PASSWORD": CACHE_PASSWORD,
+        "DEFAULT_TIMEOUT": 360,
     },
 }
