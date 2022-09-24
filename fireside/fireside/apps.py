@@ -6,4 +6,4 @@ class FiresideConfig(AppConfig):
     name = "fireside"
 
     def ready(self):
-        pass
+        import fireside.tasks  # noqa
