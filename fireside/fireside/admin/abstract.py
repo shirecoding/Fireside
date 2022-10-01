@@ -95,12 +95,6 @@ class ModelAdmin(GuardedModelAdmin):
             or self.model.objects.none()
         )
 
-    def has_add_permission(self, request):
-        return super().has_add_permission(request)
-
-    def has_module_permission(self, request):
-        return super().has_module_permission(request) or self.get_user_objects(request, any_perm=True).exists()
-
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         fields = self.get_fields(request)
@@ -113,17 +107,30 @@ class ModelAdmin(GuardedModelAdmin):
             return queryset
         return self.get_user_objects(request, any_perm=True)
 
+    def has_module_permission(self, request):
+        return super().has_module_permission(request) or self.get_user_objects(request, any_perm=True).exists()
+
+    def has_add_permission(self, request):
+        return super().has_add_permission(request)
+
     def has_change_permission(self, request, obj=None):
         fields = self.get_fields(request, obj)
         if obj is None:
             return (
                 super().has_change_permission(request)
-                or self.get_user_objects(request, perms=self.permission_from_op("change")).exists()
                 or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
+                or self.get_user_objects(
+                    request,
+                    perms=[
+                        self.permission_from_op("change"),
+                        *(self.permission_from_op("write", field=f) for f in fields),
+                    ],
+                ).exists()
             )
         return (
             super().has_change_permission(request, obj)
             or request.user.has_perm(self.permission_from_op("change"), obj)
+            or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
             or any(request.user.has_perm(self.permission_from_op("write", field=f), obj) for f in fields)
         )
 
@@ -152,7 +159,13 @@ class ModelAdmin(GuardedModelAdmin):
     def filter_fields_for_obj(self, user, obj, fields: tuple[str], readonly: bool = False) -> list[str]:
         if readonly:
             return list(
-                dict.fromkeys(f for f in fields if not user.has_perm(self.permission_from_op("write", field=f), obj))
+                dict.fromkeys(
+                    f
+                    for f in fields
+                    if not user.has_perm(self.permission_from_op("change"))
+                    and not user.has_perm(self.permission_from_op("write", field=f))
+                    and not user.has_perm(self.permission_from_op("write", field=f), obj)
+                )
             )
 
         return [

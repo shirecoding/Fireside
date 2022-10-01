@@ -118,12 +118,16 @@ class ActivatableModel(models.Model):
     """
     TODO:
         - write test cases
+        - add qs to return all activated
+
+    Activating will reset `deactivate_on` and `activate_on` to None
+    Deactivating will set `deactivate_on` to the current time
     """
 
     activate_on = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="When to activate model (If not set, model is considered activate as long as `now` < `deactivate_on`)",
+        help_text="When to activate model (If None, model is considered activate as long as `now` < `deactivate_on`)",
     )
     deactivate_on = models.DateTimeField(blank=True, null=True, help_text="When to deactivate model.")
 

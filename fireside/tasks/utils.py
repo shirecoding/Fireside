@@ -38,6 +38,9 @@ def register_task(name="", description=""):
 
 
 def remove_invalid_task_definitions():
+    """
+    Remove task definitions which are no longer importable
+    """
     from tasks.models import TaskDefinition  # prevent circular imports
 
     for td in TaskDefinition.objects.all():
