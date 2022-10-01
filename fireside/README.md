@@ -30,10 +30,34 @@ poetry shell
 ./manage.py runserver
 ```
 
-Environment variables are located at
+Environment variables are located at (needs to be created as it is not stored in the repository)
 
 - `fireside/.env`
+
+  ```bash
+  ENVIRONMENT=development
+  SECRET_KEY=REPLACE_WITH_PASSWORD
+  DB_PASSWORD=REPLACE_WITH_PASSWORD
+  DB_HOST=localhost
+  DB_PORT=5432
+  CACHE_PASSWORD=REPLACE_WITH_PASSWORD
+  CACHE_HOST=127.0.0.1
+  CACHE_PORT=6379
+  OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # M1 Max (+[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.)
+  ```
+
 - `fireside/.env.docker` (host IPs are repalced with the docker IP)
+  ```bash
+  ENVIRONMENT=development
+  SECRET_KEY=REPLACE_WITH_PASSWORD
+  DB_PASSWORD=REPLACE_WITH_PASSWORD
+  DB_HOST=db
+  DB_PORT=5432
+  CACHE_PASSWORD=REPLACE_WITH_PASSWORD
+  CACHE_HOST=cache
+  CACHE_PORT=6379
+  OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # M1 Max (+[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.)
+  ```
 
 The Dockerfile is located at
 
