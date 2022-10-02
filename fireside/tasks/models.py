@@ -6,8 +6,9 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db import models
 
-from django_rq import get_connection, get_scheduler
+from django_rq import get_connection, get_scheduler, get_queue
 from rq.job import Job
+from rq.queue import Queue
 from contextlib import suppress
 from fireside.utils import import_path_to_function
 
@@ -81,6 +82,12 @@ class Task(Model, ActivatableModel):
     @property
     def job_id(self) -> str:
         return str(self.uid)
+
+    def get_job(self) -> Job:
+        return Job.fetch(self.job_id, connection=get_connection())
+
+    def get_queue(self) -> Queue:
+        return get_queue(name=self.priority)
 
     def run(self) -> Any:
         if self.is_active():

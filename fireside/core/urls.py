@@ -28,4 +28,6 @@ urlpatterns = [
     # Django REST framework (DRF)
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
+    # Django RQ
+    path("django-rq/", include("django_rq.urls")),
 ]
