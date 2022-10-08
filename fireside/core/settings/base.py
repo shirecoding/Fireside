@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "django_rq",  # https://github.com/rq/django-rq
     # ours
     "fireside.apps.FiresideConfig",
-    "tasks.apps.TasksConfig",
     "chat.apps.ChatConfig",
 ]
 

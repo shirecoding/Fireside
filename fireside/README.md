@@ -78,15 +78,3 @@ Environment variables are located at (needs to be created as it is not stored in
 The Dockerfile is located at
 
 - `fireside/Fireside.Dockerfile`
-
-# TODOs
-
-- `fireside.tasks.apps.ready` should not reschedule tasks on management commands but only on app start
-- ACLs for list view dose not work, blank out fields? for OLP?
-- Setup integration test environment with the redis, rq scheduler, rq worker
-- move `tasks` into `fireside.tasks`
-- Task Definition change of function name should not remove it from the database, but should just update the import path, else just changing a function name will break any tasks which use the definition
-- Replace DRF with django ninja
-- OLP Change read/write to view/change
-
-- [DONE]Module level ACLs not working with Admin (cant see fields even though set)

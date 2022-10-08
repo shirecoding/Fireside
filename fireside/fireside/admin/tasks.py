@@ -1,5 +1,5 @@
 from django.contrib import admin
-from tasks.models import Task, TaskDefinition
+from fireside.models import Task, TaskDefinition
 from fireside.admin import ModelAdmin
 
 
@@ -17,7 +17,7 @@ class TaskAdmin(ModelAdmin):
 
 class TaskDefinitionAdmin(ModelAdmin):
     """
-    Use `tasks.utils.register_task` to register tasks
+    Use `fireside.utils.tasks.register_task` to register tasks
     """
 
     list_display = ["name", "fpath", "description"]

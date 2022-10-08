@@ -1,4 +1,4 @@
-from tasks.utils import register_task
+from fireside.utils import register_task
 
 import logging
 

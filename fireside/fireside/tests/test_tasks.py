@@ -1,8 +1,8 @@
 import pytest
 from fireside_tests.models import BasicShipModel
-from tasks.models import TaskDefinition
-from tasks.models import Task
-from tasks.models import TaskPriority
+from firesire.models import TaskDefinition
+from firesire.models import Task
+from firesire.models import TaskPriority
 from django_rq import get_scheduler
 
 

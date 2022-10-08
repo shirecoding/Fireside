@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class TaskDefinition(Model):
-    name = models.CharField(max_length=128, blank=False, null=False)
+    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
     description = models.TextField(max_length=256, default="")
     fpath = models.CharField(
         max_length=256,
@@ -51,14 +51,12 @@ def default_task_inputs():
 
 class Task(Model, ActivatableModel):
     """
-    TODO:
-        - Replace inputs JSONField with SchemaJSONField (validate with task_definitions.<task>.schema)
-        - Display cron as readable string "every saturday 10 pm"
-        - Store results, errors
-        - Add action
+    Run jobs on a schedule
+
+    If the `TaskDefinition` changes (function name changed) the task is no longer valid
     """
 
-    name = models.CharField(max_length=128, blank=False, null=False)
+    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
     description = models.TextField(max_length=256, default="")
     inputs = models.JSONField(
         default=default_task_inputs,

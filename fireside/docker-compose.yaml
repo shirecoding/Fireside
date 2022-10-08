@@ -34,7 +34,7 @@ services:
       - ./:/app
       - ./.env:/app/.env
     ports:
-      - "${WEB_PORT}:80"
+      - "${WEB_PORT}:8000"
     environment:
       DB_HOST: db
       CACHE_HOST: cache
