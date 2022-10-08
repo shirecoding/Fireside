@@ -64,7 +64,9 @@ class ModelAdmin(GuardedModelAdmin):
     save_on_top = True
 
     @lru_cache
-    def permission_from_op(self, op: str, field: str | None = None, include_app_label: bool = True):
+    def permission_from_op(
+        self, op: str, field: str | None = None, include_app_label: bool = True
+    ):
         s = (
             f"{self.opts.app_label}.{get_permission_codename(op, self.opts)}"
             if include_app_label
@@ -79,11 +81,19 @@ class ModelAdmin(GuardedModelAdmin):
         fields = fields or tuple()
         return [
             *get_perms_for_model(self.model).values_list("codename", flat=True),
-            *(self.permission_from_op("read", field=f, include_app_label=False) for f in fields),
-            *(self.permission_from_op("write", field=f, include_app_label=False) for f in fields),
+            *(
+                self.permission_from_op("read", field=f, include_app_label=False)
+                for f in fields
+            ),
+            *(
+                self.permission_from_op("write", field=f, include_app_label=False)
+                for f in fields
+            ),
         ]
 
-    def get_user_objects(self, request, perms: list[str] | str = "", any_perm: bool = False):
+    def get_user_objects(
+        self, request, perms: list[str] | str = "", any_perm: bool = False
+    ):
         fields = self.get_fields(request)
         return (
             get_objects_for_user(
@@ -101,14 +111,23 @@ class ModelAdmin(GuardedModelAdmin):
         if (
             super().has_view_permission(request)
             or super().has_change_permission(request)
-            or any(request.user.has_perm(self.permission_from_op("read", field=f)) for f in fields)
-            or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
+            or any(
+                request.user.has_perm(self.permission_from_op("read", field=f))
+                for f in fields
+            )
+            or any(
+                request.user.has_perm(self.permission_from_op("write", field=f))
+                for f in fields
+            )
         ):
             return queryset
         return self.get_user_objects(request, any_perm=True)
 
     def has_module_permission(self, request):
-        return super().has_module_permission(request) or self.get_user_objects(request, any_perm=True).exists()
+        return (
+            super().has_module_permission(request)
+            or self.get_user_objects(request, any_perm=True).exists()
+        )
 
     def has_add_permission(self, request):
         return super().has_add_permission(request)
@@ -118,7 +137,10 @@ class ModelAdmin(GuardedModelAdmin):
         if obj is None:
             return (
                 super().has_change_permission(request)
-                or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
+                or any(
+                    request.user.has_perm(self.permission_from_op("write", field=f))
+                    for f in fields
+                )
                 or self.get_user_objects(
                     request,
                     perms=[
@@ -130,15 +152,23 @@ class ModelAdmin(GuardedModelAdmin):
         return (
             super().has_change_permission(request, obj)
             or request.user.has_perm(self.permission_from_op("change"), obj)
-            or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
-            or any(request.user.has_perm(self.permission_from_op("write", field=f), obj) for f in fields)
+            or any(
+                request.user.has_perm(self.permission_from_op("write", field=f))
+                for f in fields
+            )
+            or any(
+                request.user.has_perm(self.permission_from_op("write", field=f), obj)
+                for f in fields
+            )
         )
 
     def has_delete_permission(self, request, obj=None):
         if obj is None:
             return (
                 super().has_delete_permission(request)
-                or self.get_user_objects(request, perms=self.permission_from_op("delete")).exists()
+                or self.get_user_objects(
+                    request, perms=self.permission_from_op("delete")
+                ).exists()
             )
         return super().has_delete_permission(request, obj) or request.user.has_perm(
             self.permission_from_op("delete"), obj
@@ -149,14 +179,22 @@ class ModelAdmin(GuardedModelAdmin):
         if obj is None:
             return (
                 super().has_view_permission(request)
-                or any(request.user.has_perm(self.permission_from_op("read", field=f)) for f in fields)
-                or any(request.user.has_perm(self.permission_from_op("write", field=f)) for f in fields)
+                or any(
+                    request.user.has_perm(self.permission_from_op("read", field=f))
+                    for f in fields
+                )
+                or any(
+                    request.user.has_perm(self.permission_from_op("write", field=f))
+                    for f in fields
+                )
                 or self.get_user_objects(request, any_perm=True).exists()
             )
         return super().has_view_permission(request, obj) or fields
 
     @ttl_cache(ttl=10)
-    def filter_fields_for_obj(self, user, obj, fields: tuple[str], readonly: bool = False) -> list[str]:
+    def filter_fields_for_obj(
+        self, user, obj, fields: tuple[str], readonly: bool = False
+    ) -> list[str]:
         if readonly:
             return list(
                 dict.fromkeys(
@@ -164,7 +202,9 @@ class ModelAdmin(GuardedModelAdmin):
                     for f in fields
                     if not user.has_perm(self.permission_from_op("change"))
                     and not user.has_perm(self.permission_from_op("write", field=f))
-                    and not user.has_perm(self.permission_from_op("write", field=f), obj)
+                    and not user.has_perm(
+                        self.permission_from_op("write", field=f), obj
+                    )
                 )
             )
 
@@ -194,7 +234,9 @@ class ModelAdmin(GuardedModelAdmin):
             for x, d in super().get_fieldsets(request, obj)
             if (
                 fs := [
-                    f if isinstance(f, str) and f in fields else tuple(t for t in f if t in fields)
+                    f
+                    if isinstance(f, str) and f in fields
+                    else tuple(t for t in f if t in fields)
                     for f in d.get("fields", [])
                 ]
             )
@@ -202,9 +244,15 @@ class ModelAdmin(GuardedModelAdmin):
 
     @lru_cache
     def _editable_fields(self) -> tuple[str]:
-        return [f.name for f in chain(self.opts.fields, self.opts.many_to_many) if f.editable]
+        return [
+            f.name
+            for f in chain(self.opts.fields, self.opts.many_to_many)
+            if f.editable
+        ]
 
-    def get_readonly_fields(self, request, obj: Model | None = None) -> tuple[str] | list[str]:
+    def get_readonly_fields(
+        self, request, obj: Model | None = None
+    ) -> tuple[str] | list[str]:
         """
         FLP behaviour:
             readonly: write and !read
@@ -215,13 +263,22 @@ class ModelAdmin(GuardedModelAdmin):
 
         # move fields without FLP into readonly
         fields = self.fields or self._editable_fields()
-        return tuple({*readonly_fields, *self.filter_fields_for_obj(request.user, obj, tuple(fields), readonly=True)})
+        return tuple(
+            {
+                *readonly_fields,
+                *self.filter_fields_for_obj(
+                    request.user, obj, tuple(fields), readonly=True
+                ),
+            }
+        )
 
     def get_list_display(self, request, *args, **kwargs):
         return ["shortcuts"] + super().get_list_display(request, *args, **kwargs)
 
     def get_list_display_links(self, request, list_display, *args, **kwargs):
-        return super().get_list_display_links(request, list_display[1:], *args, **kwargs)  # offset shortcuts
+        return super().get_list_display_links(
+            request, list_display[1:], *args, **kwargs
+        )  # offset shortcuts
 
     @admin.display(description="")
     def shortcuts(self, obj: Model):

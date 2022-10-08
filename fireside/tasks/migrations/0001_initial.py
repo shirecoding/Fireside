@@ -16,13 +16,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TaskDefinition",
             fields=[
-                ("uid", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ("name", models.CharField(help_text="Name of this task definition", max_length=128)),
+                (
+                    "uid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Name of this task definition", max_length=128
+                    ),
+                ),
                 ("description", models.TextField(default="", max_length=256)),
                 (
                     "fpath",
                     models.CharField(
-                        help_text="Path to the function to be run (eg. path.to.function)", max_length=256, unique=True
+                        help_text="Path to the function to be run (eg. path.to.function)",
+                        max_length=256,
+                        unique=True,
                     ),
                 ),
             ],
@@ -33,8 +48,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Task",
             fields=[
-                ("uid", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ("name", models.CharField(help_text="Name of this task", max_length=128)),
+                (
+                    "uid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(help_text="Name of this task", max_length=128),
+                ),
                 ("description", models.TextField(default="", max_length=256)),
                 (
                     "inputs",
@@ -45,7 +71,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "definition",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="tasks.taskdefinition"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tasks.taskdefinition",
+                    ),
                 ),
             ],
             options={

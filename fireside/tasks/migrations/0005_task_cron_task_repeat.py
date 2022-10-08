@@ -13,13 +13,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="task",
             name="cron",
-            field=models.CharField(blank=True, help_text="A cron string (e.g. '0 0 * * 0')", max_length=128, null=True),
+            field=models.CharField(
+                blank=True,
+                help_text="A cron string (e.g. '0 0 * * 0')",
+                max_length=128,
+                null=True,
+            ),
         ),
         migrations.AddField(
             model_name="task",
             name="repeat",
             field=models.IntegerField(
-                blank=True, help_text="Repeat this number of times (None means repeat forever)", null=True
+                blank=True,
+                help_text="Repeat this number of times (None means repeat forever)",
+                null=True,
             ),
         ),
     ]

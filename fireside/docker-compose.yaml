@@ -21,31 +21,31 @@ services:
     volumes:
       - cache:/data
 
-  # rq scheduler
-  scheduler:
-    build:
-      context: .
-      dockerfile: Fireside.Dockerfile
-    restart: always
-    depends_on:
-      - cache
-    volumes:
-      - ./:/app
-      - ./.env.docker:/app/.env
-    command: bash -c "/app/manage.py rqscheduler"
+  # # rq scheduler
+  # scheduler:
+  #   build:
+  #     context: .
+  #     dockerfile: Fireside.Dockerfile
+  #   restart: always
+  #   depends_on:
+  #     - cache
+  #   volumes:
+  #     - ./:/app
+  #     - ./.env:/app/.env
+  #   command: bash -c "/app/manage.py rqscheduler"
 
-  # rq worker
-  worker:
-    build:
-      context: .
-      dockerfile: Fireside.Dockerfile
-    restart: always
-    depends_on:
-      - cache
-    volumes:
-      - ./:/app
-      - ./.env.docker:/app/.env
-    command: bash -c "/app/manage.py rqworker high default low"
+  # # rq worker
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Fireside.Dockerfile
+  #   restart: always
+  #   depends_on:
+  #     - cache
+  #   volumes:
+  #     - ./:/app
+  #     - ./.env:/app/.env
+  #   command: bash -c "/app/manage.py rqworker high default low"
 
 volumes:
   db:

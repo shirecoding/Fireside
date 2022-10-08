@@ -69,20 +69,28 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
 
     @classmethod
     def get_permission_by_codename(cls, codename: str) -> Permission:
-        return Permission.objects.get(codename=codename, content_type=ContentType.objects.get_for_model(cls))
+        return Permission.objects.get(
+            codename=codename, content_type=ContentType.objects.get_for_model(cls)
+        )
 
     @classmethod
-    def get_field_permission(cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T) -> Permission:
+    def get_field_permission(
+        cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T
+    ) -> Permission:
         return Permission.objects.get(
             codename=f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}",
             content_type=ContentType.objects.get_for_model(cls),
         )
 
     @classmethod
-    def get_field_permission_codename(cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T) -> str:
+    def get_field_permission_codename(
+        cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T
+    ) -> str:
         return f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}"
 
-    def assign_perm(self, perm: Permission | str, user_or_group: User | Group) -> Permission:
+    def assign_perm(
+        self, perm: Permission | str, user_or_group: User | Group
+    ) -> Permission:
         """
         Assign permission to this object instance
         """
@@ -96,7 +104,9 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
 
     def has_perm(self, perm: Permission | str, user_or_group: User | Group) -> bool:
         return user_or_group.has_perm(
-            ".".join(perm.natural_key()[:2][::-1]) if isinstance(perm, Permission) else perm,
+            ".".join(perm.natural_key()[:2][::-1])
+            if isinstance(perm, Permission)
+            else perm,
             self,
         )
 
@@ -129,7 +139,9 @@ class ActivatableModel(models.Model):
         null=True,
         help_text="When to activate model (If None, model is considered activate as long as `now` < `deactivate_on`)",
     )
-    deactivate_on = models.DateTimeField(blank=True, null=True, help_text="When to deactivate model.")
+    deactivate_on = models.DateTimeField(
+        blank=True, null=True, help_text="When to deactivate model."
+    )
 
     class Meta:
         abstract = True

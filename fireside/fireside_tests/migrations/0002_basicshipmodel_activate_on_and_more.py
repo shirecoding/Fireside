@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="basicshipmodel",
             name="deactivate_on",
-            field=models.DateTimeField(blank=True, help_text="When to deactivate model.", null=True),
+            field=models.DateTimeField(
+                blank=True, help_text="When to deactivate model.", null=True
+            ),
         ),
     ]

@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="task",
             name="deactivate_on",
-            field=models.DateTimeField(blank=True, default=None, help_text="When to deactivate model."),
+            field=models.DateTimeField(
+                blank=True, default=None, help_text="When to deactivate model."
+            ),
             preserve_default=False,
         ),
     ]

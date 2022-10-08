@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="task",
             name="deactivate_on",
-            field=models.DateTimeField(blank=True, help_text="When to deactivate model.", null=True),
+            field=models.DateTimeField(
+                blank=True, help_text="When to deactivate model.", null=True
+            ),
         ),
     ]

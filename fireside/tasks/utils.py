@@ -24,10 +24,14 @@ def register_task(name="", description=""):
         fpath = function_to_import_path(f)
 
         if fpath is None:
-            raise Exception(f"Failed to register task: import path of {f} cannot be reached")
+            raise Exception(
+                f"Failed to register task: import path of {f} cannot be reached"
+            )
 
         logger.debug(f"Registering Task:{name} ({fpath})")
-        TaskDefinition.objects.update_or_create(fpath=fpath, defaults={"name": name, "description": description})
+        TaskDefinition.objects.update_or_create(
+            fpath=fpath, defaults={"name": name, "description": description}
+        )
 
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
