@@ -31,9 +31,6 @@ SECRET_KEY = env("SECRET_KEY")
 
 ALLOWED_HOSTS = []
 
-
-# print(f'\n\n{env("COMPOSE_PROJECT_NAME")}\n\n\n')
-
 # Application definition
 
 INSTALLED_APPS = [

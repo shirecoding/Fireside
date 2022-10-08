@@ -21,31 +21,56 @@ services:
     volumes:
       - cache:/data
 
-  # # rq scheduler
-  # scheduler:
-  #   build:
-  #     context: .
-  #     dockerfile: Fireside.Dockerfile
-  #   restart: always
-  #   depends_on:
-  #     - cache
-  #   volumes:
-  #     - ./:/app
-  #     - ./.env:/app/.env
-  #   command: bash -c "/app/manage.py rqscheduler"
+  # django
+  django:
+    build:
+      context: .
+      dockerfile: Fireside.Dockerfile
+    restart: always
+    depends_on:
+      - db
+      - cache
+    volumes:
+      - ./:/app
+      - ./.env:/app/.env
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      DB_HOST: db
+      CACHE_HOST: cache
+    command: bash -c "/app/manage.py runserver"
 
-  # # rq worker
-  # worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Fireside.Dockerfile
-  #   restart: always
-  #   depends_on:
-  #     - cache
-  #   volumes:
-  #     - ./:/app
-  #     - ./.env:/app/.env
-  #   command: bash -c "/app/manage.py rqworker high default low"
+  # rq scheduler
+  scheduler:
+    build:
+      context: .
+      dockerfile: Fireside.Dockerfile
+    restart: always
+    depends_on:
+      - cache
+    volumes:
+      - ./:/app
+      - ./.env:/app/.env
+    environment:
+      DB_HOST: db
+      CACHE_HOST: cache
+    command: bash -c "/app/manage.py rqscheduler"
+
+  # rq worker
+  worker:
+    build:
+      context: .
+      dockerfile: Fireside.Dockerfile
+    restart: always
+    depends_on:
+      - cache
+    volumes:
+      - ./:/app
+      - ./.env:/app/.env
+    environment:
+      DB_HOST: db
+      CACHE_HOST: cache
+    command: bash -c "/app/manage.py rqworker high default low"
 
 volumes:
   db:

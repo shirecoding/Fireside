@@ -1,3 +1,9 @@
+# Setting The Environment
+
+Different settings are loaded depending on the `ENVIRONMENT` variable (development(default), test, production). See
+
+- `core.settings.__init__.py`
+
 # Testing
 
 ```bash
@@ -51,15 +57,22 @@ Environment variables are located at (needs to be created as it is not stored in
 - `fireside/.env`
 
   ```bash
-  ENVIRONMENT=development
-  SECRET_KEY=REPLACE_WITH_PASSWORD
-  DB_PASSWORD=REPLACE_WITH_PASSWORD
-  DB_HOST=db
+  # Django
+  SECRET_KEY=lordoftheringsandthematrix
+  WEB_PORT=80
+
+  # Postgres
+  DB_PASSWORD=lordoftheringsandthematrix
+  DB_HOST=127.0.0.1
   DB_PORT=5432
-  CACHE_PASSWORD=REPLACE_WITH_PASSWORD
-  CACHE_HOST=cache
+
+  # Redis
+  CACHE_PASSWORD=lordoftheringsandthematrix
+  CACHE_HOST=127.0.0.1
   CACHE_PORT=6379
-  OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # M1 Max (+[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.)
+
+  # M1 Max (+[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.)
+  OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
   ```
 
 The Dockerfile is located at
