@@ -38,7 +38,7 @@ services:
     environment:
       DB_HOST: db
       CACHE_HOST: cache
-    command: bash -c "/app/manage.py runserver"
+    command: bash -c "/app/manage.py runserver 0.0.0.0:8000"
 
   # rq scheduler
   scheduler:

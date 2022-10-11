@@ -58,16 +58,16 @@ Environment variables are located at (needs to be created as it is not stored in
 
   ```bash
   # Django
-  SECRET_KEY=lordoftheringsandthematrix
-  WEB_PORT=80
+  SECRET_KEY=password
+  WEB_PORT=8000
 
   # Postgres
-  DB_PASSWORD=lordoftheringsandthematrix
+  DB_PASSWORD=password
   DB_HOST=127.0.0.1
   DB_PORT=5432
 
   # Redis
-  CACHE_PASSWORD=lordoftheringsandthematrix
+  CACHE_PASSWORD=password
   CACHE_HOST=127.0.0.1
   CACHE_PORT=6379
 

@@ -1,11 +1,11 @@
-from fireside.utils import register_task
+from fireside.utils import task
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-@register_task(name="Healthcheck", description="Performs system health check")
+@task(name="Healthcheck", description="Performs system health check")
 def healthcheck(*args, **kwargs):
     logger.debug(
         f"""

@@ -215,7 +215,6 @@ CHANNEL_LAYERS = {
 
 
 # RQ
-RQ_SHOW_ADMIN_LINK = True
 RQ_QUEUES = {
     "high": {
         "HOST": CACHE_HOST,

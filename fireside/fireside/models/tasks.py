@@ -30,6 +30,15 @@ class TaskDefinition(Model):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
+    def __call__(self, *args, **kwargs):
+        return self.run(*args, *kwargs)
+
+    def run(self, *args, **kwargs) -> Any:
+        return import_path_to_function(self.fpath)(*args, *kwargs)
+
+    def enqueue(self, priority: str, *args, **kwargs) -> Job:
+        return get_queue(name=priority).enqueue(self.run, *args, *kwargs)
+
     def is_valid(self) -> bool:
         # check if path to function is still valid (could have been deleted)
         try:
@@ -100,6 +109,12 @@ class Task(Model, ActivatableModel):
             return import_path_to_function(self.definition.fpath)(
                 *self.inputs["args"], **self.inputs["kwargs"]
             )
+
+    def __call__(self) -> Any:
+        return self.run()
+
+    def delay(self) -> Job:
+        return self.get_queue().enqueue(self.run)
 
     def schedule(self) -> Job:
         logger.debug(

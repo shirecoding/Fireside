@@ -1,11 +1,20 @@
 from django.contrib import admin
 from fireside.models import Task, TaskDefinition
 from fireside.admin import ModelAdmin
+from django.contrib import messages
+
+
+@admin.action(description="Run selected tasks immediately")
+def run_tasks(modeladmin, request, qs):
+    if qs:
+        jobs = [t.delay() for t in qs]
+        messages.add_message(request, messages.INFO, f"Queued {jobs} for running")
 
 
 class TaskAdmin(ModelAdmin):
     list_display = ["name", "definition", "cron", "repeat"]
     readonly_fields = ["is_active"]
+    actions = [run_tasks]
 
     fieldsets = [
         [None, {"fields": ("name", "description")}],
@@ -17,7 +26,7 @@ class TaskAdmin(ModelAdmin):
 
 class TaskDefinitionAdmin(ModelAdmin):
     """
-    Use `fireside.utils.tasks.register_task` to register tasks
+    Use `fireside.utils.tasks.task` to register a TaskDefinition
     """
 
     list_display = ["name", "fpath", "description"]

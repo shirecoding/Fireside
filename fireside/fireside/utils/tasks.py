@@ -1,4 +1,4 @@
-__all__ = ["register_task", "remove_invalid_task_definitions", "reschedule_all_tasks"]
+__all__ = ["task", "remove_invalid_task_definitions", "reschedule_all_tasks"]
 
 from fireside.utils import function_to_import_path
 from django_rq import get_scheduler
@@ -7,13 +7,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def register_task(name="", description=""):
+def task(name="", description=""):
     """
     Decorator used to register any function as a task.
 
     Uses type hints to create the schema for the `inputs` field.
     To ensure that tasks are discovered and registered, import tasks in AppConfig.ready.
-
     """
 
     def decorator(f):
