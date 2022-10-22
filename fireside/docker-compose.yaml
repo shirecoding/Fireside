@@ -21,25 +21,6 @@ services:
     volumes:
       - cache:/data
 
-  # django
-  django:
-    build:
-      context: .
-      dockerfile: Fireside.Dockerfile
-    restart: always
-    depends_on:
-      - db
-      - cache
-    volumes:
-      - ./:/app
-      - ./.env:/app/.env
-    ports:
-      - "${WEB_PORT}:8000"
-    environment:
-      DB_HOST: db
-      CACHE_HOST: cache
-    command: bash -c "/app/manage.py runserver 0.0.0.0:8000"
-
   # rq scheduler
   scheduler:
     build:
@@ -71,6 +52,27 @@ services:
       DB_HOST: db
       CACHE_HOST: cache
     command: bash -c "/app/manage.py rqworker high default low"
+
+  # django
+  django:
+    build:
+      context: .
+      dockerfile: Fireside.Dockerfile
+    restart: always
+    depends_on:
+      - db
+      - cache
+      - scheduler
+      - worker
+    volumes:
+      - ./:/app
+      - ./.env:/app/.env
+    ports:
+      - "${WEB_PORT}:8000"
+    environment:
+      DB_HOST: db
+      CACHE_HOST: cache
+    command: bash -c "/app/manage.py bootstrap ; /app/manage.py runserver 0.0.0.0:8000"
 
 volumes:
   db:

@@ -1,4 +1,4 @@
-__all__ = ["Task", "TaskDefinition", "TaskPriority"]
+__all__ = ["TaskSchedule", "Task", "TaskPriority"]
 
 from typing import Any
 from fireside.models import Model, ActivatableModel
@@ -16,7 +16,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class TaskDefinition(Model):
+class TaskPriority(models.TextChoices):
+    LOW = "low", "Low"
+    DEFAULT = "default", "Default"
+    HIGH = "high", "High"
+
+
+class Task(Model):
     name = models.CharField(unique=True, max_length=128, blank=False, null=False)
     description = models.TextField(max_length=256, default="")
     fpath = models.CharField(
@@ -25,6 +31,17 @@ class TaskDefinition(Model):
         blank=False,
         null=False,
         help_text="Path to the function to be run (eg. path.to.function)",
+    )
+    priority = models.CharField(
+        choices=TaskPriority.choices,
+        default=TaskPriority.DEFAULT,
+        max_length=128,
+        help_text="Priority of the task",
+    )
+    timeout = models.IntegerField(
+        blank=True,
+        null=True,
+        help_text="Timeout of the task in seconds (leave empty to use the default timeout)",
     )
 
     def __str__(self):
@@ -45,24 +62,19 @@ class TaskDefinition(Model):
             import_path_to_function(self.fpath)
             return True
         except Exception:
+            logger.exception(f"Failed to import {self}")
             return False
-
-
-class TaskPriority(models.TextChoices):
-    LOW = "low", "Low"
-    DEFAULT = "default", "Default"
-    HIGH = "high", "High"
 
 
 def default_task_inputs():
     return {"args": "", "kwargs": {}}
 
 
-class Task(Model, ActivatableModel):
+class TaskSchedule(Model, ActivatableModel):
     """
     Run jobs on a schedule
 
-    If the `TaskDefinition` changes (function name changed) the task is no longer valid
+    If the `Task` changes (function name changed) the task is no longer valid
     """
 
     name = models.CharField(unique=True, max_length=128, blank=False, null=False)
@@ -71,7 +83,7 @@ class Task(Model, ActivatableModel):
         default=default_task_inputs,
         help_text="JSON containing the `args` and `kwargs` for `task`",
     )
-    definition = models.ForeignKey("TaskDefinition", on_delete=models.CASCADE)
+    definition = models.ForeignKey("Task", on_delete=models.CASCADE)
     cron = models.CharField(
         max_length=128,
         blank=True,
@@ -87,7 +99,12 @@ class Task(Model, ActivatableModel):
         choices=TaskPriority.choices,
         default=TaskPriority.DEFAULT,
         max_length=128,
-        help_text="Priority of the task",
+        help_text="Priority of the task (overrides priority set in task)",
+    )
+    timeout = models.IntegerField(
+        blank=True,
+        null=True,
+        help_text="Timeout of the task in seconds (leave empty to use the default timeout, overrides priority set in task)",
     )
 
     def __str__(self) -> str:
@@ -105,7 +122,7 @@ class Task(Model, ActivatableModel):
 
     def run(self) -> Any:
         if self.is_active():
-            logger.debug(f"Running Task:{self.name}[{self.uid}]")
+            logger.info(f"Running Task: name={self.name} job={self.uid}")
             return import_path_to_function(self.definition.fpath)(
                 *self.inputs["args"], **self.inputs["kwargs"]
             )
@@ -117,8 +134,8 @@ class Task(Model, ActivatableModel):
         return self.get_queue().enqueue(self.run)
 
     def schedule(self) -> Job:
-        logger.debug(
-            f"Schedule Task:{self.name}[{self.uid}] ({self.cron}) x {self.repeat} with {self.priority} priority"
+        logger.info(
+            f"Schedule Task: name={self.name} job={self.uid} cron={self.cron} repeat={self.repeat} priority={self.priority} timeout={self.timeout}"
         )
         return get_scheduler(self.priority).cron(
             self.cron,
@@ -128,6 +145,7 @@ class Task(Model, ActivatableModel):
             kwargs={},
             repeat=self.repeat,
             queue_name=self.priority,
+            timeout=self.timeout,
             meta={
                 "task_uid": str(self.uid),
                 "task_name": self.name,
@@ -138,11 +156,11 @@ class Task(Model, ActivatableModel):
     def unschedule(self) -> None:
         if self.job_id in get_scheduler():
             Job.fetch(self.job_id, connection=get_connection()).delete()
-            logger.debug(f"Unscheduled Task:{self.name}[{self.uid}]")
+            logger.info(f"Unschedule task: name={self.name} job={self.uid}")
 
 
-@receiver(pre_save, sender=Task, dispatch_uid="pre_save_task")
-def pre_save_task(sender, instance, *args, **kwargs):
+@receiver(pre_save, sender=TaskSchedule, dispatch_uid="pre_save_task_schedule")
+def pre_save_task_schedule(sender, instance, *args, **kwargs):
     """
     Does the following:
         - Unschedules all jobs for this task
@@ -152,8 +170,8 @@ def pre_save_task(sender, instance, *args, **kwargs):
         old_instance.unschedule()
 
 
-@receiver(post_save, sender=Task, dispatch_uid="post_save_task")
-def post_save_task(sender, instance, created, *args, **kwargs):
+@receiver(post_save, sender=TaskSchedule, dispatch_uid="post_save_task_schedule")
+def post_save_task_schedule(sender, instance, created, *args, **kwargs):
     """
     Does the following:
         - Reschedules job for this task

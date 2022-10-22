@@ -1,5 +1,5 @@
 from django.contrib import admin
-from fireside.models import Task, TaskDefinition
+from fireside.models import TaskSchedule, Task
 from fireside.admin import ModelAdmin
 from django.contrib import messages
 
@@ -11,7 +11,7 @@ def run_tasks(modeladmin, request, qs):
         messages.add_message(request, messages.INFO, f"Queued {jobs} for running")
 
 
-class TaskAdmin(ModelAdmin):
+class TaskScheduleAdmin(ModelAdmin):
     list_display = ["name", "definition", "cron", "repeat"]
     readonly_fields = ["is_active"]
     actions = [run_tasks]
@@ -24,14 +24,21 @@ class TaskAdmin(ModelAdmin):
     ]
 
 
-class TaskDefinitionAdmin(ModelAdmin):
+class TaskAdmin(ModelAdmin):
     """
-    Use `fireside.utils.tasks.task` to register a TaskDefinition
+    Use `fireside.utils.task.task` to register a Task
     """
 
-    list_display = ["name", "fpath", "description"]
-    readonly_fields = ["name", "fpath", "description"]
+    list_display = ["name", "description", "fpath", "is_valid", "priority", "timeout"]
+    readonly_fields = [
+        "name",
+        "description",
+        "fpath",
+        "is_valid",
+        "priority",
+        "timeout",
+    ]
 
 
+admin.site.register(TaskSchedule, TaskScheduleAdmin)
 admin.site.register(Task, TaskAdmin)
-admin.site.register(TaskDefinition, TaskDefinitionAdmin)

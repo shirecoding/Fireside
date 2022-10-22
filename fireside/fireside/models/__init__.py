@@ -1,2 +1,2 @@
 from .abstract import *
-from .tasks import *
+from .task import *

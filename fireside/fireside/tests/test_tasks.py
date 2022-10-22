@@ -1,7 +1,7 @@
 import pytest
 from fireside_tests.models import BasicShipModel
-from firesire.models import TaskDefinition
 from firesire.models import Task
+from firesire.models import TaskSchedule
 from firesire.models import TaskPriority
 from django_rq import get_scheduler
 
@@ -19,11 +19,11 @@ def bsg(db) -> BasicShipModel:
 
 def test_task(bsg, task):
     # test create task definition
-    td = TaskDefinition.objects.get(name="Repair Ship")
+    td = Task.objects.get(name="Repair Ship")
     assert td.name == "Repair Ship"
 
     # test create task
-    t = Task.objects.create(
+    t = TaskSchedule.objects.create(
         name="Repair ship daily",
         description="This task performs daily repairs on a ship at 00:00 for 2 reps",
         definition=td,
@@ -35,7 +35,7 @@ def test_task(bsg, task):
             "kwargs": {},
         },
     )
-    assert Task.objects.get(name="Repair ship daily").definition == td
+    assert TaskSchedule.objects.get(name="Repair ship daily").definition == td
 
     # test queue
     assert t.get_queue().name == TaskPriority.LOW

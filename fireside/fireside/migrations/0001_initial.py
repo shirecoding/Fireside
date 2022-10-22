@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import fireside.models.tasks
+import fireside.models.task
 import uuid
 
 
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 (
                     "inputs",
                     models.JSONField(
-                        default=fireside.models.tasks.default_task_inputs,
+                        default=fireside.models.task.default_task_inputs,
                         help_text="JSON containing the `args` and `kwargs` for `task`",
                     ),
                 ),
