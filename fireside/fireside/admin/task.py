@@ -12,7 +12,7 @@ def run_tasks(modeladmin, request, qs):
 
 
 class TaskScheduleAdmin(ModelAdmin):
-    list_display = ["name", "description", "is_active"]
+    list_display = ["name", "description", "is_active", "priority", "timeout"]
     readonly_fields = ["is_active"]
     actions = [run_tasks]
 
