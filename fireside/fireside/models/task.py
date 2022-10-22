@@ -5,6 +5,7 @@ from fireside.models import Model, ActivatableModel
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db import models
+from cron_descriptor import ExpressionDescriptor
 
 from django_rq import get_connection, get_scheduler, get_queue
 from rq.job import Job
@@ -72,18 +73,14 @@ def default_task_inputs():
 
 class TaskSchedule(Model, ActivatableModel):
     """
-    Run jobs on a schedule
-
-    If the `Task` changes (function name changed) the task is no longer valid
+    Run tasks on a schedule (cron)
     """
 
-    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
-    description = models.TextField(max_length=256, default="")
+    task = models.ForeignKey("Task", on_delete=models.CASCADE)
     inputs = models.JSONField(
         default=default_task_inputs,
         help_text="JSON containing the `args` and `kwargs` for `task`",
     )
-    definition = models.ForeignKey("Task", on_delete=models.CASCADE)
     cron = models.CharField(
         max_length=128,
         blank=True,
@@ -108,7 +105,22 @@ class TaskSchedule(Model, ActivatableModel):
     )
 
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.task.name} - {self.cron_pretty} x {self.repeat or 'forever'}"
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    @property
+    def name(self) -> str:
+        return str(self)
+
+    @property
+    def description(self) -> str:
+        return self.task.description
+
+    @property
+    def cron_pretty(self) -> str:
+        return str(ExpressionDescriptor(self.cron)) if self.cron else ""
 
     @property
     def job_id(self) -> str:
@@ -122,8 +134,8 @@ class TaskSchedule(Model, ActivatableModel):
 
     def run(self) -> Any:
         if self.is_active():
-            logger.info(f"Running Task: name={self.name} job={self.uid}")
-            return import_path_to_function(self.definition.fpath)(
+            logger.debug(f"Running {self.task}")
+            return import_path_to_function(self.task.fpath)(
                 *self.inputs["args"], **self.inputs["kwargs"]
             )
 
@@ -134,9 +146,7 @@ class TaskSchedule(Model, ActivatableModel):
         return self.get_queue().enqueue(self.run)
 
     def schedule(self) -> Job:
-        logger.info(
-            f"Schedule Task: name={self.name} job={self.uid} cron={self.cron} repeat={self.repeat} priority={self.priority} timeout={self.timeout}"
-        )
+        logger.debug(f"Schedule {self}")
         return get_scheduler(self.priority).cron(
             self.cron,
             id=self.job_id,
@@ -156,7 +166,7 @@ class TaskSchedule(Model, ActivatableModel):
     def unschedule(self) -> None:
         if self.job_id in get_scheduler():
             Job.fetch(self.job_id, connection=get_connection()).delete()
-            logger.info(f"Unschedule task: name={self.name} job={self.uid}")
+            logger.debug(f"Unschedule {self}")
 
 
 @receiver(pre_save, sender=TaskSchedule, dispatch_uid="pre_save_task_schedule")

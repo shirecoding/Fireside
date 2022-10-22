@@ -21,7 +21,7 @@
 - `fireside.utils.tasks.task` Add schema based on type hints of function
 
 - Replace inputs JSONField with SchemaJSONField (validate with `task_definitions.<task>.schema`)
-- Display cron as readable string "every saturday 10 pm"
+
 - Store results, errors
 - Add is_valid and reflect on admin page (if `TaskDefinition` changes)
 
@@ -30,8 +30,10 @@
 - Task should map to rq job with kwargs like timeout and be callable in code
 - Ability to run task with args, kwargs from admin
 
-- remove name and description from TaskSchedule (use readable cron name and name/description from task)
+- Add realtime pretty cron when typing in admin
 
+- [Done] remove name and description from TaskSchedule (use readable cron name and name/description from task)
+- [Done] Display cron as readable string "every saturday 10 pm"
 - [Done] Tasks should be renamed to TaskSchedule
 - [Done] TaskDefinition should be renamed to Task
 - [DONE] Add action to run task immediately
@@ -40,4 +42,6 @@
 
 ## Utils
 
+- Add enabled/disabled mask to ActivatableModel
+- Add red/green indicator for ActivableModel in fireside admin
 - [Done] Use full path imports instead of dumping all functions in utils (reduce circular imports)
