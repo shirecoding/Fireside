@@ -2,6 +2,8 @@ from django.contrib import admin
 from fireside.models import TaskSchedule, Task
 from fireside.admin import ModelAdmin
 from django.contrib import messages
+from django.forms import ModelForm
+from fireside.utils.widgets import DynamicHelpTextInput
 
 
 @admin.action(description="Run selected tasks immediately")
@@ -11,7 +13,14 @@ def run_tasks(modeladmin, request, qs):
         messages.add_message(request, messages.INFO, f"Queued {jobs} for running")
 
 
+class TaskScheduleForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["cron"].widget = DynamicHelpTextInput()
+
+
 class TaskScheduleAdmin(ModelAdmin):
+    form = TaskScheduleForm
     list_display = [
         "task",
         "cron_pretty",
