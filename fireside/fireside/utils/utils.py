@@ -1,8 +1,9 @@
-__all__ = ["function_to_import_path", "import_path_to_function"]
+__all__ = ["function_to_import_path", "import_path_to_function", "cron_pretty"]
 
 import inspect
 from importlib import import_module
 from typing import Callable
+from cron_descriptor import ExpressionDescriptor
 
 
 def function_to_import_path(func) -> str:
@@ -12,3 +13,10 @@ def function_to_import_path(func) -> str:
 def import_path_to_function(fpath: str) -> Callable:
     xs = fpath.split(".")
     return getattr(import_module(".".join(xs[:-1])), xs[-1])
+
+
+def cron_pretty(cron: str) -> str:
+    try:
+        return str(ExpressionDescriptor(cron))
+    except:
+        return ""

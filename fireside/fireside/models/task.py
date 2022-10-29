@@ -5,12 +5,10 @@ from fireside.models import Model, ActivatableModel
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db import models
-from cron_descriptor import ExpressionDescriptor
-
 from django_rq import get_connection, get_scheduler, get_queue
 from rq.job import Job
 from rq.queue import Queue
-from fireside.utils import import_path_to_function
+from fireside.utils import import_path_to_function, cron_pretty
 
 import logging
 
@@ -120,7 +118,7 @@ class TaskSchedule(Model, ActivatableModel):
 
     @property
     def cron_pretty(self) -> str:
-        return str(ExpressionDescriptor(self.cron)) if self.cron else ""
+        return cron_pretty(self.cron)
 
     @property
     def job_id(self) -> str:

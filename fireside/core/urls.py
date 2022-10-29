@@ -15,19 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
-
-# DRF router
-router = routers.DefaultRouter()
 
 urlpatterns = [
     # Our Apps
     path("chat/", include("chat.urls")),
+    # Fireside
+    path("fireside/", include("fireside.urls")),
     # Django Admin
     path("admin/", admin.site.urls),
-    # Django REST framework (DRF)
-    path("api/", include(router.urls)),
-    path("api-auth/", include("rest_framework.urls")),
     # Django RQ
     path("django-rq/", include("django_rq.urls")),
 ]

@@ -1,8 +1,10 @@
 # TODOs
 
-## Framework
+## REST Framework
 
 - Replace DRF with django ninja
+- Handle permissions for rest end points
+- User setting to allow access to rest endpoints
 
 ## Tests
 

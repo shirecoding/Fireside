@@ -12,14 +12,21 @@ def run_tasks(modeladmin, request, qs):
 
 
 class TaskScheduleAdmin(ModelAdmin):
-    list_display = ["name", "description", "is_active", "priority", "timeout"]
+    list_display = [
+        "task",
+        "cron_pretty",
+        "repeat",
+        "description",
+        "is_active",
+        "priority",
+        "timeout",
+    ]
     readonly_fields = ["is_active"]
     actions = [run_tasks]
 
     fieldsets = [
-        [None, {"fields": ("name", "description")}],
+        ["Task", {"fields": ("task", "inputs")}],
         ["Schedule", {"fields": ("cron", "repeat", "priority")}],
-        ["Definition", {"fields": ("task", "inputs")}],
         ["Activation", {"fields": ("is_active", "activate_on", "deactivate_on")}],
     ]
 
