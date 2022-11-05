@@ -5,6 +5,7 @@
 - [x] Replace DRF with django ninja
 - Handle permissions for rest end points
 - User setting to allow access to rest endpoints
+- Create base for htmx and widgets
 
 ## Tests
 
@@ -41,3 +42,11 @@
 - Add enabled/disabled mask to ActivatableModel
 - Add red/green indicator for ActivableModel in fireside admin
 - [x] Use full path imports instead of dumping all functions in utils (reduce circular imports)
+
+## Dynamic Widgets
+
+- [x] Hook up htmx to admin
+- Rename `HintsTextInput` to `FiresideTextInput`
+- Create `HTMXWidget` from which other widgets should inherit.
+- Find a better way to get the URL instead of hardcoding `HintsTextInput(hints_url='/fireside/api/utils/cron_pretty')`
+- htmx + django ninja integration (htmx query params needs to be recognized by django ninja param name instead of hardcoding). Autogenerate ninja endpoint and context to sync the param names in the template?

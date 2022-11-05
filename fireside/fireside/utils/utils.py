@@ -16,6 +16,13 @@ def import_path_to_function(fpath: str) -> Callable:
 
 
 def cron_pretty(cron: str) -> str:
+    """Returns a human readable representation of a cron string
+
+    Args:
+        cron: Cron string (eg. * * * * *)
+    Returns:
+        Human readable representation of a cron string (eg. Every minute)
+    """
     try:
         return str(ExpressionDescriptor(cron))
     except:

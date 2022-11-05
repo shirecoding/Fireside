@@ -1,7 +1,14 @@
-__all__ = ["DynamicHelpTextInput"]
+__all__ = ["HintsTextInput"]
 
 from django.forms.widgets import TextInput
 
 
-class DynamicHelpTextInput(TextInput):
-    template_name = "fireside/widgets/dynamic_help_text_input.html"
+class HintsTextInput(TextInput):
+    template_name = "fireside/widgets/hints_text_input.html"
+
+    def __init__(self, hints_url: str | None = None, *args, **kwargs):
+        self.hints_url = hints_url
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, *args, **kwargs):
+        return {**super().get_context(*args, **kwargs), "hints_url": self.hints_url}

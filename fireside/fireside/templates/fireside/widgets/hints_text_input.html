@@ -1,0 +1,17 @@
+<!-- Reference from: django/forms/widgets/text.html -->
+<div>
+    <input
+        type="{{ widget.type }}"
+        name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% include "django/forms/widgets/attrs.html" %}
+
+        {% if hints_url %}
+        hx-trigger="load, keyup changed throttle:500ms"
+        hx-get="{{ hints_url }}"
+        hx-target="#hints"
+        hx-swap="innerHTML"
+        {% endif %}
+    >
+    <span id="hints"></span>
+</div>
