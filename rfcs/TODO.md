@@ -27,7 +27,7 @@
 - Task Definition change of function name should not remove it from the database, but should just update the import path, else just changing a function name will break any tasks which use the definition
 - Task should map to rq job with kwargs like timeout and be callable in code
 - Ability to run task with args, kwargs from admin
-- Add realtime pretty cron when typing in admin
+- [x] Add realtime pretty cron when typing in admin
 
 - [x] remove name and description from TaskSchedule (use readable cron name and name/description from task)
 - [x] Display cron as readable string "every saturday 10 pm"
@@ -46,7 +46,5 @@
 ## Dynamic Widgets
 
 - [x] Hook up htmx to admin
-- Rename `HintsTextInput` to `FiresideTextInput`
-- Create `HTMXWidget` from which other widgets should inherit.
-- Find a better way to get the URL instead of hardcoding `HintsTextInput(hints_url='/fireside/api/utils/cron_pretty')`
-- htmx + django ninja integration (htmx query params needs to be recognized by django ninja param name instead of hardcoding). Autogenerate ninja endpoint and context to sync the param names in the template?
+- [x] Rename `HintsTextInput` to `FiresideTextInput`
+- [x] Find a better way to get the URL instead of hardcoding `HintsTextInput(hints_url='/fireside/api/utils/cron_pretty')`
