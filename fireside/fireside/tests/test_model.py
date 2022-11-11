@@ -61,10 +61,10 @@ def test_model(bsg):
         content_type=ContentType.objects.get_for_model(BasicShipModel)
     )
 
-    assert any([p.codename == "write_basicshipmodel_name" for p in bsg_perms])
-    assert any([p.codename == "read_basicshipmodel_name" for p in bsg_perms])
-    assert any([p.codename == "write_basicshipmodel_type" for p in bsg_perms])
-    assert any([p.codename == "read_basicshipmodel_type" for p in bsg_perms])
+    assert any([p.codename == "change_basicshipmodel_name" for p in bsg_perms])
+    assert any([p.codename == "view_basicshipmodel_name" for p in bsg_perms])
+    assert any([p.codename == "change_basicshipmodel_type" for p in bsg_perms])
+    assert any([p.codename == "view_basicshipmodel_type" for p in bsg_perms])
 
 
 def test_field_permissions(bsg, humans, starbuck):
@@ -73,63 +73,63 @@ def test_field_permissions(bsg, humans, starbuck):
     assert bool(starbuck.get_all_permissions()) == False
 
     # test get permissions
-    write_basicshipmodel_name = BasicShipModel.get_permission_by_codename(
-        "write_basicshipmodel_name"
+    change_basicshipmodel_name = BasicShipModel.get_permission_by_codename(
+        "change_basicshipmodel_name"
     )
     assert (
-        BasicShipModel.get_field_permission(BasicShipModel.name, "write")
-        == write_basicshipmodel_name
+        BasicShipModel.get_field_permission(BasicShipModel.name, "change")
+        == change_basicshipmodel_name
     )
     assert (
-        BasicShipModel.get_field_permission(BasicShipModel.name.field, "write")
-        == write_basicshipmodel_name
+        BasicShipModel.get_field_permission(BasicShipModel.name.field, "change")
+        == change_basicshipmodel_name
     )
 
     # test add & remove user perm
-    assert starbuck.has_perm("fireside_tests.write_basicshipmodel_name") == False
-    starbuck.user_permissions.add(write_basicshipmodel_name)
+    assert starbuck.has_perm("fireside_tests.change_basicshipmodel_name") == False
+    starbuck.user_permissions.add(change_basicshipmodel_name)
     starbuck = get_object_or_404(User, pk=starbuck.id)  # refetch
-    assert starbuck.has_perm("fireside_tests.write_basicshipmodel_name") == True
+    assert starbuck.has_perm("fireside_tests.change_basicshipmodel_name") == True
 
-    starbuck.user_permissions.remove(write_basicshipmodel_name)
+    starbuck.user_permissions.remove(change_basicshipmodel_name)
     starbuck = get_object_or_404(User, pk=starbuck.id)  # refetch
-    assert starbuck.has_perm("fireside_tests.write_basicshipmodel_name") == False
+    assert starbuck.has_perm("fireside_tests.change_basicshipmodel_name") == False
 
     # test add & remove group perm
-    humans.permissions.add(write_basicshipmodel_name)
+    humans.permissions.add(change_basicshipmodel_name)
     humans.user_set.add(starbuck)
     starbuck = get_object_or_404(User, pk=starbuck.id)  # refetch
-    assert starbuck.has_perm("fireside_tests.write_basicshipmodel_name") == True
+    assert starbuck.has_perm("fireside_tests.change_basicshipmodel_name") == True
 
-    humans.permissions.remove(write_basicshipmodel_name)
+    humans.permissions.remove(change_basicshipmodel_name)
     starbuck = get_object_or_404(User, pk=starbuck.id)  # refetch
-    assert starbuck.has_perm("fireside_tests.write_basicshipmodel_name") == False
+    assert starbuck.has_perm("fireside_tests.change_basicshipmodel_name") == False
 
 
 def test_object_permissions(bsg, discovery, humans, starbuck, adama):
 
     add_basicshipmodel = BasicShipModel.get_permission_by_codename("add_basicshipmodel")
-    read_basicshipmodel_name = BasicShipModel.get_field_permission(
-        BasicShipModel.name, "read"
+    view_basicshipmodel_name = BasicShipModel.get_field_permission(
+        BasicShipModel.name, "view"
     )
 
     # test add & remove user object level permission
-    discovery.assign_perm(read_basicshipmodel_name, adama)
+    discovery.assign_perm(view_basicshipmodel_name, adama)
     adama = get_object_or_404(User, pk=adama.id)  # refetch
-    assert adama.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == True
-    assert discovery.has_perm(read_basicshipmodel_name, adama) == True
-    assert discovery.has_perm("fireside_tests.read_basicshipmodel_name", adama) == True
+    assert adama.has_perm("fireside_tests.view_basicshipmodel_name", discovery) == True
+    assert discovery.has_perm(view_basicshipmodel_name, adama) == True
+    assert discovery.has_perm("fireside_tests.view_basicshipmodel_name", adama) == True
 
     assert (
-        starbuck.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
+        starbuck.has_perm("fireside_tests.view_basicshipmodel_name", discovery) == False
     )
 
-    discovery.remove_perm(read_basicshipmodel_name, adama)
+    discovery.remove_perm(view_basicshipmodel_name, adama)
     adama = get_object_or_404(User, pk=adama.id)  # refetch
-    assert adama.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
-    assert discovery.has_perm(read_basicshipmodel_name, adama) == False
+    assert adama.has_perm("fireside_tests.view_basicshipmodel_name", discovery) == False
+    assert discovery.has_perm(view_basicshipmodel_name, adama) == False
     assert (
-        starbuck.has_perm("fireside_tests.read_basicshipmodel_name", discovery) == False
+        starbuck.has_perm("fireside_tests.view_basicshipmodel_name", discovery) == False
     )
 
     # test add & remove group object level permission

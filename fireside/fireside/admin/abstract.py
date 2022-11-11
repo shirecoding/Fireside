@@ -18,47 +18,33 @@ shield_svg_style = "float: right; height: 1em; filter: invert(45%) sepia(82%) sa
 
 class ModelAdmin(GuardedModelAdmin):
     """
-    To be used with fireside.models.Model, adds the following:
+    Used with fireside.models.Model. Adds the following:
 
-        MLP (Module Level Permissions)
-        OLP (Object Level Permissions)
-        FLP (Field Level Permissions)
+    - OLP (Object Level Permissions)
+    - FLP (Field Level Permissions)
+    - MLP (Module Level Permissions, django's default permissions)
 
-    [change, view, delete] behaviour:
-        - OLP = True and MLP = False   =>   User can only operate on his instances
-        - MLP = True                   =>   User can operate on all instances
+    Change, View, Delete Behaviour:
 
-    [add] behaviour:
-        - MLP = True                   =>   User can add new instances
+        Can operate on all instances:
+            User has relevant MLP permissions
 
-    [module] behaviour:
-        - MLP = True or OLP = True     =>   User can view module in admin
+        Can only operate on user's instances:
+            User has relevant OLP permissions ONLY (no MLP permissions)
 
-    For superusers:
-        - Additional shortcuts list field is provided
-        - `fields` and `readonly_fields` behaves as per usual
+    Add Behaviour:
 
-    For non superusers:
-        fireside.ModelAdmin takes over the declaration of `fields` and `readonly_fields` automatically via field level permissions of the user.
+        Can add instance:
+            User has add MLP permissions
 
-    TODO:
-        - list_display permissions
-            - how to do this fast?
-            - add a seperate permission for list display?
-            - compiling user permissions from all objects would be slow
-            - make seperate table to keep track of list_permissions and update? too tedious to keep it updated
-            - or just ignore totally?
-            - current it needs global change to be able edit, else its readonly
+    Module Behaviour:
 
-        - Add test cases for all combinations
-            - global read
-            - global write
-            - global delete
-            - global none + obj read
-            - global none + obj write
-            - ...
+        Can view module:
+            User has either MLP or OLP permissions
 
-        - Try adding thousands of items and test speed of queryset
+    Superuser Behaviour:
+
+        FLP is not applicable to superusers
     """
 
     save_on_top = True
@@ -82,11 +68,11 @@ class ModelAdmin(GuardedModelAdmin):
         return [
             *get_perms_for_model(self.model).values_list("codename", flat=True),
             *(
-                self.permission_from_op("read", field=f, include_app_label=False)
+                self.permission_from_op("view", field=f, include_app_label=False)
                 for f in fields
             ),
             *(
-                self.permission_from_op("write", field=f, include_app_label=False)
+                self.permission_from_op("change", field=f, include_app_label=False)
                 for f in fields
             ),
         ]
@@ -112,11 +98,11 @@ class ModelAdmin(GuardedModelAdmin):
             super().has_view_permission(request)
             or super().has_change_permission(request)
             or any(
-                request.user.has_perm(self.permission_from_op("read", field=f))
+                request.user.has_perm(self.permission_from_op("view", field=f))
                 for f in fields
             )
             or any(
-                request.user.has_perm(self.permission_from_op("write", field=f))
+                request.user.has_perm(self.permission_from_op("change", field=f))
                 for f in fields
             )
         ):
@@ -138,14 +124,14 @@ class ModelAdmin(GuardedModelAdmin):
             return (
                 super().has_change_permission(request)
                 or any(
-                    request.user.has_perm(self.permission_from_op("write", field=f))
+                    request.user.has_perm(self.permission_from_op("change", field=f))
                     for f in fields
                 )
                 or self.get_user_objects(
                     request,
                     perms=[
                         self.permission_from_op("change"),
-                        *(self.permission_from_op("write", field=f) for f in fields),
+                        *(self.permission_from_op("change", field=f) for f in fields),
                     ],
                 ).exists()
             )
@@ -153,11 +139,11 @@ class ModelAdmin(GuardedModelAdmin):
             super().has_change_permission(request, obj)
             or request.user.has_perm(self.permission_from_op("change"), obj)
             or any(
-                request.user.has_perm(self.permission_from_op("write", field=f))
+                request.user.has_perm(self.permission_from_op("change", field=f))
                 for f in fields
             )
             or any(
-                request.user.has_perm(self.permission_from_op("write", field=f), obj)
+                request.user.has_perm(self.permission_from_op("change", field=f), obj)
                 for f in fields
             )
         )
@@ -180,11 +166,11 @@ class ModelAdmin(GuardedModelAdmin):
             return (
                 super().has_view_permission(request)
                 or any(
-                    request.user.has_perm(self.permission_from_op("read", field=f))
+                    request.user.has_perm(self.permission_from_op("view", field=f))
                     for f in fields
                 )
                 or any(
-                    request.user.has_perm(self.permission_from_op("write", field=f))
+                    request.user.has_perm(self.permission_from_op("change", field=f))
                     for f in fields
                 )
                 or self.get_user_objects(request, any_perm=True).exists()
@@ -201,9 +187,9 @@ class ModelAdmin(GuardedModelAdmin):
                     f
                     for f in fields
                     if not user.has_perm(self.permission_from_op("change"))
-                    and not user.has_perm(self.permission_from_op("write", field=f))
+                    and not user.has_perm(self.permission_from_op("change", field=f))
                     and not user.has_perm(
-                        self.permission_from_op("write", field=f), obj
+                        self.permission_from_op("change", field=f), obj
                     )
                 )
             )
@@ -213,10 +199,10 @@ class ModelAdmin(GuardedModelAdmin):
             for f in fields
             if user.has_perm(self.permission_from_op("view"))
             or user.has_perm(self.permission_from_op("change"))
-            or user.has_perm(self.permission_from_op("read", field=f))
-            or user.has_perm(self.permission_from_op("write", field=f))
-            or user.has_perm(self.permission_from_op("read", field=f), obj)
-            or user.has_perm(self.permission_from_op("write", field=f), obj)
+            or user.has_perm(self.permission_from_op("view", field=f))
+            or user.has_perm(self.permission_from_op("change", field=f))
+            or user.has_perm(self.permission_from_op("view", field=f), obj)
+            or user.has_perm(self.permission_from_op("change", field=f), obj)
         ]
 
     def get_fields(self, request, obj=None) -> tuple[str] | list[str]:

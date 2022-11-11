@@ -1,5 +1,5 @@
 from fireside_tests.models import BasicShipModel
-from tasks.utils import task
+from fireside.utils.task import task
 from django.utils import timezone
 from datetime import datetime
 

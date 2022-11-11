@@ -15,13 +15,13 @@ from guardian.shortcuts import remove_perm
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
-FIELD_OPERATIONS_T = Literal["read", "write"]
+FIELD_OPERATIONS_T = Literal["view", "change"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
 
 
 class FieldPermissionsMetaClass(ModelBase):
     """
-    Adds read and write field permissions
+    Adds view and change field permissions
 
     TODO:
         Add `can view all instances`
@@ -41,12 +41,12 @@ class FieldPermissionsMetaClass(ModelBase):
                 klas._meta.permissions = (
                     *klas._meta.permissions,
                     (
-                        f"write_{klas._meta.model_name}_{f.name}",
-                        f"Can write {klas._meta.verbose_name} [{f.name}]",
+                        f"change_{klas._meta.model_name}_{f.name}",
+                        f"Can change {klas._meta.verbose_name} [{f.name}]",
                     ),
                     (
-                        f"read_{klas._meta.model_name}_{f.name}",
-                        f"Can read {klas._meta.verbose_name} [{f.name}]",
+                        f"view_{klas._meta.model_name}_{f.name}",
+                        f"Can view {klas._meta.verbose_name} [{f.name}]",
                     ),
                 )
 

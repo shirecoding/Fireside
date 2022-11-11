@@ -1,8 +1,8 @@
 import pytest
 from fireside_tests.models import BasicShipModel
-from firesire.models import Task
-from firesire.models import TaskSchedule
-from firesire.models import TaskPriority
+from fireside.models import Task
+from fireside.models import TaskSchedule
+from fireside.models import TaskPriority
 from django_rq import get_scheduler
 
 
@@ -19,14 +19,12 @@ def bsg(db) -> BasicShipModel:
 
 def test_task(bsg, task):
     # test create task definition
-    td = Task.objects.get(name="Repair Ship")
-    assert td.name == "Repair Ship"
+    task = Task.objects.get(name="Repair Ship")
+    assert task.name == "Repair Ship"
 
     # test create task
-    t = TaskSchedule.objects.create(
-        name="Repair ship daily",
-        description="This task performs daily repairs on a ship at 00:00 for 2 reps",
-        definition=td,
+    task_schedule = TaskSchedule.objects.create(
+        task=task,
         cron="* * * * *",
         repeat=2,
         priority=TaskPriority.LOW,
@@ -35,14 +33,14 @@ def test_task(bsg, task):
             "kwargs": {},
         },
     )
-    assert TaskSchedule.objects.get(name="Repair ship daily").definition == td
+    assert TaskSchedule.objects.get(task=task).task == task
 
     # test queue
-    assert t.get_queue().name == TaskPriority.LOW
+    assert task_schedule.get_queue().name == TaskPriority.LOW
 
     # test job in scheduler
     scheduler = get_scheduler()
-    assert t.job_id in scheduler
+    assert task_schedule.job_id in scheduler
 
     # test job
-    assert t.get_job().id == t.job_id
+    assert task_schedule.get_job().id == task_schedule.job_id

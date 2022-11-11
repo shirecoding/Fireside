@@ -16,6 +16,21 @@
 - OLP Change read/write to view/change
 - ACLs for list view dose not work, blank out fields? for OLP?
 - [x] Module level ACLs not working with Admin (cant see fields even though set)
+- Permissions for list display
+  - how to do this fast?
+  - add a seperate permission for list display?
+  - compiling user permissions from all objects would be slow
+  - make seperate table to keep track of list_permissions and update? too tedious to keep it updated
+  - or just ignore totally?
+  - current it needs global change to be able edit, else its readonly
+- Add test cases for all combinations
+  - global read
+  - global write
+  - global delete
+  - global none + obj read
+  - global none + obj write
+  - ...
+- Try adding thousands of items and test speed of queryset
 
 ## Tasks
 
@@ -23,7 +38,7 @@
 - `fireside.utils.tasks.task` Add schema based on type hints of function
 - Replace inputs JSONField with SchemaJSONField (validate with `task_definitions.<task>.schema`)
 - Store results, errors
-- Add is_valid and reflect on admin page (if `TaskDefinition` changes)
+- Add is_valid/is_active and reflect on admin page (if `TaskDefinition` changes) (remove from admin column)
 - Task Definition change of function name should not remove it from the database, but should just update the import path, else just changing a function name will break any tasks which use the definition
 - Task should map to rq job with kwargs like timeout and be callable in code
 - Ability to run task with args, kwargs from admin
@@ -48,3 +63,4 @@
 - [x] Hook up htmx to admin
 - [x] Rename `HintsTextInput` to `FiresideTextInput`
 - [x] Find a better way to get the URL instead of hardcoding `HintsTextInput(hints_url='/fireside/api/utils/cron_pretty')`
+- Fix htmx csrf error in `addEventListener`
