@@ -25,5 +25,5 @@ def cron_pretty(cron: str) -> str:
     """
     try:
         return str(ExpressionDescriptor(cron))
-    except:
-        return ""
+    except Exception as e:
+        return str(e)
