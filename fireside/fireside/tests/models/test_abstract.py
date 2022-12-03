@@ -13,18 +13,19 @@ def dummy_task(*args, **kwargs):
 
 
 @pytest.fixture
-def task_schedule(db) -> TaskSchedule:
-
-    assert issubclass(TaskSchedule, ActivatableModel)
-
-    # create Task
-    task = Task.objects.create(
+def task(db) -> Task:
+    return Task.objects.create(
         name="Dummy Task",
         description="Dummy Task",
         fpath=function_to_import_path(dummy_task),
     )
 
-    # create TaskSchedule
+
+@pytest.fixture
+def task_schedule(db, task) -> TaskSchedule:
+
+    assert issubclass(TaskSchedule, ActivatableModel)
+
     task_schedule = TaskSchedule.objects.create(
         task=task,
         cron="* * * * *",
@@ -83,3 +84,93 @@ def test_activatable_model(task_schedule):
     task_schedule.deactivate_on = now - timedelta(seconds=60)
     task_schedule.save()
     assert task_schedule.is_active == False
+
+
+def test_activatable_manager(db, task):
+
+    now = timezone.now()
+
+    ts1 = TaskSchedule.objects.create(
+        task=task,
+        cron="* * * * *",
+        repeat=2,
+        priority=TaskPriority.LOW,
+        inputs={},
+    )
+
+    ts2 = TaskSchedule.objects.create(
+        task=task,
+        cron="* * * * *",
+        repeat=2,
+        priority=TaskPriority.LOW,
+        inputs={},
+    )
+
+    ts3 = TaskSchedule.objects.create(
+        task=task,
+        cron="* * * * *",
+        repeat=2,
+        priority=TaskPriority.LOW,
+        inputs={},
+    )
+
+    ts1.deactivate()
+
+    # test activated
+    assert ts1 not in TaskSchedule.objects.activated()
+    assert ts2 in TaskSchedule.objects.activated()
+    assert ts3 in TaskSchedule.objects.activated()
+
+    # test deactivated
+    assert ts1 in TaskSchedule.objects.deactivated()
+    assert ts2 not in TaskSchedule.objects.deactivated()
+    assert ts3 not in TaskSchedule.objects.deactivated()
+
+    # test queryset deactivate
+    TaskSchedule.objects.filter(uid=ts2.uid).deactivate()
+    assert ts1 in TaskSchedule.objects.deactivated()
+    assert ts2 in TaskSchedule.objects.deactivated()
+    assert ts3 not in TaskSchedule.objects.deactivated()
+
+    # test queryset activate
+    TaskSchedule.objects.filter(uid=ts2.uid).activate()
+    assert ts1 in TaskSchedule.objects.deactivated()
+    assert ts2 not in TaskSchedule.objects.deactivated()
+    assert ts3 not in TaskSchedule.objects.deactivated()
+
+    ts1.activate()
+    ts2.activate()
+    ts3.activate()
+
+    # test deactivate_on
+    ts1.deactivate_on = now - timedelta(seconds=60)
+    ts1.save()
+    assert ts1 in TaskSchedule.objects.deactivated()
+    assert ts1 not in TaskSchedule.objects.activated()
+
+    # test activate_on
+    ts1.activate()
+    ts1.activate_on = now - timedelta(seconds=60)
+    ts1.save()
+    assert ts1 in TaskSchedule.objects.activated()
+    assert ts1 not in TaskSchedule.objects.deactivated()
+
+    # test deactivate_on & activate_on
+    ts1.activate()
+    ts1.activate_on = now - timedelta(seconds=60)
+    ts1.deactivate_on = now + timedelta(seconds=60)
+    ts1.save()
+    assert ts1 in TaskSchedule.objects.activated()
+    assert ts1 not in TaskSchedule.objects.deactivated()
+
+    ts1.activate_on = now + timedelta(seconds=60)
+    ts1.deactivate_on = now + timedelta(seconds=60)
+    ts1.save()
+    assert ts1 not in TaskSchedule.objects.activated()
+    assert ts1 in TaskSchedule.objects.deactivated()
+
+    ts1.activate_on = now - timedelta(seconds=60)
+    ts1.deactivate_on = now - timedelta(seconds=60)
+    ts1.save()
+    assert ts1 not in TaskSchedule.objects.activated()
+    assert ts1 in TaskSchedule.objects.deactivated()
