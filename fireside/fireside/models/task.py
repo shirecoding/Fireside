@@ -1,16 +1,17 @@
 __all__ = ["TaskSchedule", "Task", "TaskPriority"]
 
+import logging
 from typing import Any
-from fireside.models import Model, ActivatableModel
-from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
+
 from django.db import models
-from django_rq import get_connection, get_scheduler, get_queue
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from django_rq import get_connection, get_queue, get_scheduler
 from rq.job import Job
 from rq.queue import Queue
-from fireside.utils import import_path_to_function, cron_pretty
 
-import logging
+from fireside.models import ActivatableModel, Model
+from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
 

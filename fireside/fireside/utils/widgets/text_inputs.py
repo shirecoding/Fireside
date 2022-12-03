@@ -1,9 +1,11 @@
 __all__ = ["CronTextInput"]
 
-from .base import FiresideTextInput
-from .api import router
-from fireside.utils import cron_pretty as _cron_pretty
 from django.urls import reverse_lazy
+
+from fireside.utils import cron_pretty as _cron_pretty
+
+from .api import router
+from .base import FiresideTextInput
 
 
 @router.get("/cron_pretty", url_name="cron_pretty")

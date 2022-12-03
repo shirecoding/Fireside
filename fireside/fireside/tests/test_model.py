@@ -1,10 +1,9 @@
-from fireside_tests.models import BasicShipModel
-from django.contrib.auth.models import Permission
+import pytest
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
-import pytest
-from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
+from fireside_tests.models import BasicShipModel
 
 
 @pytest.fixture

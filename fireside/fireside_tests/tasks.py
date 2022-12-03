@@ -1,7 +1,9 @@
-from fireside_tests.models import BasicShipModel
-from fireside.utils.task import task
-from django.utils import timezone
 from datetime import datetime
+
+from django.utils import timezone
+from fireside_tests.models import BasicShipModel
+
+from fireside.utils.task import task
 
 
 @task(name="Repair Ship", description="Conducts repairs on ship")

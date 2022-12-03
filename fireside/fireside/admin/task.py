@@ -1,8 +1,8 @@
-from django.contrib import admin
-from fireside.models import TaskSchedule, Task
-from fireside.admin import ModelAdmin
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.forms import ModelForm
+
+from fireside.admin import ModelAdmin
+from fireside.models import Task, TaskSchedule
 from fireside.utils.widgets import CronTextInput
 
 

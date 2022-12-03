@@ -1,5 +1,7 @@
 from django.db import models
-from fireside.models import Model, ActivatableModel
+
+from fireside.models import ActivatableModel, Model
+
 
 # Create your models here.
 class BasicShipModel(Model, ActivatableModel):

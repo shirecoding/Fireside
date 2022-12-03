@@ -1,8 +1,9 @@
-from django.urls import reverse
 from chat.models import Room
-from django.utils.html import format_html
-from fireside.admin import ModelAdmin
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+
+from fireside.admin import ModelAdmin
 
 
 class ChatRoomAdmin(ModelAdmin):

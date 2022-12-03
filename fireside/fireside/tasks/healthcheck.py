@@ -1,6 +1,6 @@
-from fireside.utils.task import task
-
 import logging
+
+from fireside.utils.task import task
 
 logger = logging.getLogger(__name__)
 

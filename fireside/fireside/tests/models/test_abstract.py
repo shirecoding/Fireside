@@ -1,10 +1,9 @@
-import pytest
-from fireside.models import Task
-from fireside.models import TaskSchedule
-from fireside.models import TaskPriority
-from fireside.models import ActivatableModel
-from django.utils import timezone
 from datetime import timedelta
+
+import pytest
+from django.utils import timezone
+
+from fireside.models import ActivatableModel, Task, TaskPriority, TaskSchedule
 from fireside.utils import function_to_import_path
 
 

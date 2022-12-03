@@ -1,6 +1,5 @@
-from django.shortcuts import render
-
 from chat.models import Room
+from django.shortcuts import render
 
 
 def index_view(request):

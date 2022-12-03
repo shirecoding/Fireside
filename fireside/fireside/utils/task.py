@@ -1,9 +1,11 @@
 __all__ = ["task", "remove_invalid_tasks", "reschedule_tasks"]
 
-from fireside.utils import function_to_import_path
-from django_rq import get_scheduler
 import logging
+
+from django_rq import get_scheduler
+
 from fireside.models import TaskPriority
+from fireside.utils import function_to_import_path
 
 logger = logging.getLogger(__name__)
 

@@ -1,20 +1,17 @@
 __all__ = ["Model", "TimestampModel", "ActivatableModel"]
 
-from django.db.models.base import ModelBase
-from django.db import models
-from django.db.models import Field
-from itertools import chain
-from typing import Literal
-from typing import get_args
 import uuid
+from itertools import chain
+from typing import Literal, get_args
+
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission
+from django.db import models
+from django.db.models import Field, Q
+from django.db.models.base import ModelBase
 from django.db.models.query_utils import DeferredAttribute
-from guardian.shortcuts import assign_perm
-from guardian.shortcuts import remove_perm
-from django.contrib.auth.models import User, Group
 from django.utils import timezone
-from django.db.models import Q
+from guardian.shortcuts import assign_perm, remove_perm
 
 FIELD_OPERATIONS_T = Literal["view", "change"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))

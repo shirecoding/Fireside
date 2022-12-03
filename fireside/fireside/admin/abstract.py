@@ -1,15 +1,17 @@
 __all__ = ["ModelAdmin"]
 
-from guardian.admin import GuardedModelAdmin
-from fireside.models import Model, ActivatableModel
-from django.urls import reverse
-from django.contrib import admin
-from itertools import chain
-from django.contrib.auth import get_permission_codename
-from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 from functools import lru_cache
+from itertools import chain
+
 from cachetools.func import ttl_cache
+from django.contrib import admin
+from django.contrib.auth import get_permission_codename
 from django.template.loader import render_to_string
+from django.urls import reverse
+from guardian.admin import GuardedModelAdmin
+from guardian.shortcuts import get_objects_for_user, get_perms_for_model
+
+from fireside.models import ActivatableModel, Model
 
 
 class ModelAdmin(GuardedModelAdmin):

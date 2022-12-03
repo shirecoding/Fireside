@@ -1,2 +1,2 @@
-from .room import *
 from .message import *
+from .room import *

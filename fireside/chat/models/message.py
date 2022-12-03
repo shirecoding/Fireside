@@ -1,8 +1,9 @@
 import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 
-from chat.models import Room
+from .room import Room
 
 
 class Message(models.Model):

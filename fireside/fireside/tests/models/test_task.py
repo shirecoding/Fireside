@@ -1,8 +1,7 @@
 import pytest
-from fireside.models import Task
-from fireside.models import TaskSchedule
-from fireside.models import TaskPriority
 from django_rq import get_scheduler
+
+from fireside.models import Task, TaskPriority, TaskSchedule
 from fireside.utils import function_to_import_path
 
 

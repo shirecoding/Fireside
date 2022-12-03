@@ -3,6 +3,7 @@ __all__ = ["function_to_import_path", "import_path_to_function", "cron_pretty"]
 import inspect
 from importlib import import_module
 from typing import Callable
+
 from cron_descriptor import ExpressionDescriptor
 
 

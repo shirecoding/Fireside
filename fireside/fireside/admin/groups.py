@@ -1,13 +1,13 @@
-from django.contrib.auth.models import Group
+from functools import lru_cache
+from itertools import chain
+
 from django.contrib import admin
-from django.forms import ModelForm
 from django.contrib.admin.utils import flatten_fieldsets
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
+from django.forms import ModelForm
+from toolz import dissoc
 
 from fireside.utils.forms import HorizontalFilterField
-from toolz import dissoc
-from itertools import chain
-from functools import lru_cache
 
 
 @lru_cache
