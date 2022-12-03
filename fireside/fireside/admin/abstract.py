@@ -43,9 +43,14 @@ class ModelAdmin(GuardedModelAdmin):
     Superuser Behaviour:
 
         FLP is not applicable to superusers
+
+    Activate/Deactivate Behaviour:
+
+        User has MLP change permissions
     """
 
     save_on_top = True
+    actions = ["activate", "deactivate"]
 
     @lru_cache
     def permission_from_op(
@@ -259,6 +264,26 @@ class ModelAdmin(GuardedModelAdmin):
         return super().get_list_display_links(
             request, list_display[1:], *args, **kwargs
         )  # offset shortcuts
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not issubclass(self.model, ActivatableModel):
+            for a in ["activate", "deactivate"]:
+                if a in actions:
+                    del actions[a]
+        return actions
+
+    @admin.action(
+        description="Activate selected task schedules", permissions=["change"]
+    )
+    def activate(self, request, qs):
+        qs.activate()
+
+    @admin.action(
+        description="Deactivate selected task schedules", permissions=["change"]
+    )
+    def deactivate(self, request, qs):
+        qs.deactivate()
 
     @admin.display(description="")
     def shortcuts(self, obj):

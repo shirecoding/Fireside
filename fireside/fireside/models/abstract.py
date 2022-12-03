@@ -14,6 +14,7 @@ from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
+from django.db.models import Q
 
 FIELD_OPERATIONS_T = Literal["view", "change"]
 FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
@@ -124,6 +125,40 @@ class TimestampModel(models.Model):
         abstract = True
 
 
+class ActivatableModelQuerySet(models.QuerySet):
+    """
+    Note: save signals are not triggered on activate/deactivate queryset update
+    """
+
+    def activate(self):
+        self.update(deactivate_on=None, activate_on=None)
+
+    def deactivate(self):
+        self.update(deactivate_on=timezone.now())
+
+
+class ActivatableModelManager(models.Manager):
+    def get_queryset(self):
+        return ActivatableModelQuerySet(self.model, using=self._db)
+
+    def is_active_query(self):
+        now = timezone.now()
+        return Q(activate_on__isnull=False) & (
+            Q(deactivate_on__isnull=True) & Q(activate_on__lt=now)
+            | Q(deactivate_on__isnull=False)
+            & Q(activate_on__lt=now)
+            & Q(deactivate_on__gt=now)
+        ) | Q(activate_on__isnull=True) & (
+            Q(deactivate_on__isnull=True) | Q(deactivate_on__gt=now)
+        )
+
+    def activated(self):
+        return self.filter(self.is_active_query())
+
+    def deactivated(self):
+        return self.filter(~self.is_active_query())
+
+
 class ActivatableModel(models.Model):
     """
     activate() will reset `deactivate_on` and `activate_on` to None
@@ -138,6 +173,8 @@ class ActivatableModel(models.Model):
     deactivate_on = models.DateTimeField(
         blank=True, null=True, help_text="When the model is considered deactivated."
     )
+
+    objects = ActivatableModelManager()
 
     class Meta:
         abstract = True
