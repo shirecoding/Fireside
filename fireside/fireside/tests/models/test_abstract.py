@@ -5,7 +5,6 @@ from fireside.models import TaskPriority
 from fireside.models import ActivatableModel
 from django.utils import timezone
 from datetime import timedelta
-
 from fireside.utils import function_to_import_path
 
 
