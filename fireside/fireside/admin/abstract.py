@@ -297,7 +297,7 @@ class ModelAdmin(GuardedModelAdmin):
         }
 
         if isinstance(obj, ActivatableModel):
-            context["is_active"] = obj.is_active()
+            context["is_active"] = obj.is_active
 
         if isinstance(obj, Model):
             context["olp_link"] = reverse(

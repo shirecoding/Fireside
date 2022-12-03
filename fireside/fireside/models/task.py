@@ -131,7 +131,7 @@ class TaskSchedule(Model, ActivatableModel):
         return get_queue(name=self.priority)
 
     def run(self) -> Any:
-        if self.is_active():
+        if self.is_active:
             logger.debug(f"Running {self.task}")
             return import_path_to_function(self.task.fpath)(
                 *self.inputs["args"], **self.inputs["kwargs"]

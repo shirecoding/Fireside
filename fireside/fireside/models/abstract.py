@@ -179,6 +179,7 @@ class ActivatableModel(models.Model):
     class Meta:
         abstract = True
 
+    @property
     def is_active(self):
         if self.activate_on:
             if self.deactivate_on:

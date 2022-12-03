@@ -74,3 +74,9 @@
 - [x] Rename `HintsTextInput` to `FiresideTextInput`
 - [x] Find a better way to get the URL instead of hardcoding `HintsTextInput(hints_url='/fireside/api/utils/cron_pretty')`
 - [ ] Fix htmx csrf error in `addEventListener`
+- [ ] Prettify `FiresideTextInput` hints
+
+## Event System
+
+- [ ] Write RFC (integrate with django channels)
+- [ ] Create Producer
