@@ -1,24 +1,22 @@
 __all__ = ["ModelAdmin"]
 
 from guardian.admin import GuardedModelAdmin
-from fireside.models import Model
-from django.utils.html import format_html
+from fireside.models import Model, ActivatableModel
 from django.urls import reverse
-from django.templatetags.static import static
 from django.contrib import admin
 from itertools import chain
 from django.contrib.auth import get_permission_codename
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 from functools import lru_cache
 from cachetools.func import ttl_cache
-
-shield_svg = static("fireside/img/fa-shield-halved.svg")
-shield_svg_style = "float: right; height: 1em; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);"
+from django.template.loader import render_to_string
 
 
 class ModelAdmin(GuardedModelAdmin):
     """
-    Used with fireside.models.Model. Adds the following:
+    Used with `fireside.models.Model`, `fireside.models.ActivatableModel`.
+
+    Adds the following:
 
     - OLP (Object Level Permissions)
     - FLP (Field Level Permissions)
@@ -239,10 +237,6 @@ class ModelAdmin(GuardedModelAdmin):
     def get_readonly_fields(
         self, request, obj: Model | None = None
     ) -> tuple[str] | list[str]:
-        """
-        FLP behaviour:
-            readonly: write and !read
-        """
         readonly_fields = super().get_readonly_fields(request, obj)
         if request.user.is_superuser:
             return readonly_fields
@@ -267,16 +261,23 @@ class ModelAdmin(GuardedModelAdmin):
         )  # offset shortcuts
 
     @admin.display(description="")
-    def shortcuts(self, obj: Model):
+    def shortcuts(self, obj):
         """
         Shortcuts column
         """
-        return format_html(
-            '<a href="{}" target="_blank"><img src="{}" style="{}"></a>',
-            reverse(
+
+        context = {
+            "is_active": None,
+            "olp_link": None,
+        }
+
+        if isinstance(obj, ActivatableModel):
+            context["is_active"] = obj.is_active()
+
+        if isinstance(obj, Model):
+            context["olp_link"] = reverse(
                 f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_permissions",
                 args=[obj.uid],
-            ),
-            shield_svg,
-            shield_svg_style,
-        )
+            )
+
+        return render_to_string("fireside/admin/shortcuts.html", context)

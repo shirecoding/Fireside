@@ -1,0 +1,12 @@
+{% load static %}
+
+<div>
+  {% if is_active != None %}
+    <span>{% if is_active %}🟢{% else %}🔴{% endif %}</span>
+  {% endif %}
+  {% if olp_link %}
+    <a href="{{olp_link}}" target="_blank">
+      <img src="{% static 'fireside/img/fa-shield-halved.svg' %}" style="float: right; height: 1em; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
+    </a>
+  {% endif %}
+</div>

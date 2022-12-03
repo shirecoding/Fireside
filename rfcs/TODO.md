@@ -1,5 +1,7 @@
 # TODOs
 
+- enable print statement
+
 ## REST Framework
 
 - [x] Replace DRF with django ninja
@@ -10,10 +12,11 @@
 ## Tests
 
 - Setup integration test environment with the redis, rq scheduler, rq worker
+- Remove fireside_tests, make chat/tasks a core app + example and use that for the integration testing
 
 ## Permissions & ACLs
 
-- OLP Change read/write to view/change
+- [x] OLP Change read/write to view/change
 - ACLs for list view dose not work, blank out fields? for OLP?
 - [x] Module level ACLs not working with Admin (cant see fields even though set)
 - Permissions for list display
@@ -55,8 +58,10 @@
 ## Utils
 
 - Add enabled/disabled mask to ActivatableModel
-- Add red/green indicator for ActivableModel in fireside admin
+- [x] Add red/green indicator for ActivableModel in fireside admin
 - [x] Use full path imports instead of dumping all functions in utils (reduce circular imports)
+- Write `ActivatableModel` object manager with active qs
+- Write test cases for `ActivatableModel` object manager with active qs
 
 ## Dynamic Widgets
 
