@@ -2,19 +2,16 @@ __all__ = ["Model", "TimestampModel", "ActivatableModel"]
 
 import uuid
 from itertools import chain
-from typing import Literal, get_args
 
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Field, Q
+from django.db.models import Q
 from django.db.models.base import ModelBase
-from django.db.models.query_utils import DeferredAttribute
 from django.utils import timezone
 from guardian.shortcuts import assign_perm, remove_perm
 
-FIELD_OPERATIONS_T = Literal["view", "change"]
-FIELD_OPERATIONS = set(get_args(FIELD_OPERATIONS_T))
+from fireside.utils.field import FIELD_OPERATIONS_T, FIELD_T, get_field_name
 
 
 class FieldPermissionsMetaClass(ModelBase):
@@ -73,18 +70,18 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
 
     @classmethod
     def get_field_permission(
-        cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T
+        cls, field: FIELD_T, operation: FIELD_OPERATIONS_T
     ) -> Permission:
         return Permission.objects.get(
-            codename=f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}",
+            codename=f"{operation}_{cls._meta.model_name}_{get_field_name(field)}",
             content_type=ContentType.objects.get_for_model(cls),
         )
 
     @classmethod
     def get_field_permission_codename(
-        cls, field: Field | DeferredAttribute, operation: FIELD_OPERATIONS_T
+        cls, field: FIELD_T, operation: FIELD_OPERATIONS_T
     ) -> str:
-        return f"{operation}_{cls._meta.model_name}_{field.field.name if isinstance(field, DeferredAttribute) else field.name}"
+        return f"{operation}_{cls._meta.model_name}_{get_field_name(field)}"
 
     def assign_perm(
         self, perm: Permission | str, user_or_group: User | Group

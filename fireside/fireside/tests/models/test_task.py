@@ -3,6 +3,7 @@ from django_rq import get_scheduler
 
 from fireside.models import Task, TaskPriority, TaskSchedule
 from fireside.utils import function_to_import_path
+from fireside.utils.task import task as task_decorator
 
 
 def dummy_task(*args, **kwargs):
@@ -33,9 +34,14 @@ def task_schedule(db, task) -> TaskSchedule:
     return task_schedule
 
 
-def task_task_decorator():
-    task = Task.objects.get(name="Healthcheck")
-    assert task.name == "Healthcheck"
+def test_task_decorator(db):
+    @task_decorator(name="Task From Decorator", description="Task From Decorator")
+    def healthcheck(*args, **kwargs):
+        pass
+
+    task = Task.objects.get(name="Task From Decorator")
+    assert task.name == "Task From Decorator"
+    assert task.description == "Task From Decorator"
 
 
 def test_task_schedule(task_schedule):
