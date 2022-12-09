@@ -16,7 +16,7 @@
 ## Tests
 
 - [ ] Setup integration test environment with the redis, rq scheduler, rq worker
-- [ ] Remove fireside_tests, make chat/tasks a core app + example and use that for the integration testing
+- [x] Remove fireside_tests, make chat/tasks a core app + example and use that for the integration testing
 
 ## Permissions & ACLs
 
@@ -68,7 +68,7 @@
 - [x] Add red/green indicator for ActivableModel in fireside admin
 - [x] Use full path imports instead of dumping all functions in utils (reduce circular imports)
 - [x] Write `ActivatableModel` object manager with active qs
-- [ ] Write test cases for `ActivatableModel` object manager with active qs
+- [x] Write test cases for `ActivatableModel` object manager with active qs
 
 ## Dynamic Widgets
 

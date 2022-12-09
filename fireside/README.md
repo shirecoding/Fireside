@@ -9,7 +9,7 @@ Different settings are loaded depending on the `ENVIRONMENT` variable (developme
 ```bash
 # run the following in fireside directory (fish shell)
 poetry shell
-env ENVIRONMENT=test ./manage.py makemigrations  # make sure fireside_tests models are in the db
+env ENVIRONMENT=test ./manage.py makemigrations
 env ENVIRONMENT=test ./manage.py migrate
 env ENVIRONMENT=test pytest -s
 ```
@@ -20,8 +20,6 @@ These are the relevant pytest config files
 - `fireside/conftest.py`
 
 During testing the `fireside/core/settings/test.py` django settings will loaded.
-
-- Adds `fireside_tests` app into the django project
 
 # Development Environment
 
