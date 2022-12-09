@@ -71,6 +71,9 @@ Environment variables are located at (needs to be created as it is not stored in
 
   # M1 Max (+[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.)
   OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+  # Allow print statements for development debugging (degrades performance) - do not set for production
+  PYTHONUNBUFFERED=1
   ```
 
 The Dockerfile is located at

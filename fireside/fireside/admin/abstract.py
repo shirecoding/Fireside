@@ -1,5 +1,6 @@
 __all__ = ["ModelAdmin"]
 
+import logging
 from functools import lru_cache
 from itertools import chain
 
@@ -12,6 +13,8 @@ from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 
 from fireside.models import ActivatableModel, Model
+
+logger = logging.getLogger(__name__)
 
 
 class ModelAdmin(GuardedModelAdmin):

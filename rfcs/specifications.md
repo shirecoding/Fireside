@@ -1,10 +1,10 @@
 # Specifications & TODO
 
-- [] Should `utils/widgets` have api for dynamic widgets?
+- [ ] Should `utils/widgets` have api for dynamic widgets?
 
 ## Development
 
-- [ ] enable print statement inside docker for debugging
+- [x] enable print statement inside docker for debugging
 
 ## REST Framework
 
