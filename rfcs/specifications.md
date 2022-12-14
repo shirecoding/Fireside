@@ -60,6 +60,8 @@
 - [x] `Task` should have a .delay method
 - [x] Move `tasks` into `fireside.tasks`
 
+- [ ] Task should only support kwargs or event so that events could easily integrate with tasks (ie. as inputs).
+
 ## Utils
 
 - [ ] Add enabled/disabled mask to ActivatableModel
