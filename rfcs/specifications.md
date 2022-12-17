@@ -60,7 +60,7 @@
 - [x] `Task` should have a .delay method
 - [x] Move `tasks` into `fireside.tasks`
 
-- [ ] Task should only support kwargs or event so that events could easily integrate with tasks (ie. as inputs).
+- [x] Task should only support event so that events could easily integrate with tasks (ie. as inputs).
 
 - [x] Create `TaskPreset` model (`Task` & input args/kwargs), user may run the tasks with preset args immediately
 - [x] `TaskSchedule` takes in `TaskPreset`

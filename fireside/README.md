@@ -9,9 +9,9 @@ Different settings are loaded depending on the `ENVIRONMENT` variable (developme
 ```bash
 # run the following in fireside directory (fish shell)
 poetry shell
-env ENVIRONMENT=test ./manage.py makemigrations
-env ENVIRONMENT=test ./manage.py migrate
-env ENVIRONMENT=test pytest -s
+./manage.py makemigrations
+./manage.py migrate
+pytest -s
 ```
 
 These are the relevant pytest config files

@@ -47,14 +47,14 @@ class Task(Model):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
-    def __call__(self, *args, **kwargs):
-        return self.run(*args, *kwargs)
+    def __call__(self, event):
+        return self.run(event)
 
-    def run(self, *args, **kwargs) -> Any:
-        return import_path_to_function(self.fpath)(*args, *kwargs)
+    def run(self, event) -> Any:
+        return import_path_to_function(self.fpath)(event)
 
-    def enqueue(self, priority: str, *args, **kwargs) -> Job:
-        return get_queue(name=priority).enqueue(self.run, *args, *kwargs)
+    def enqueue(self, priority: str, event) -> Job:
+        return get_queue(name=priority).enqueue(self.run, event)
 
     def is_valid(self) -> bool:
         # check if path to function is still valid (could have been deleted)
@@ -84,10 +84,6 @@ class TaskPreset(Model, ActivatableModel):
         if self.is_active:
             logger.debug(f"Running TaskPreset {self}")
             return self.task.run(self.event)
-
-
-def default_task_inputs():
-    return {"args": "", "kwargs": {}}
 
 
 class TaskSchedule(Model, ActivatableModel):
