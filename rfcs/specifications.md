@@ -62,6 +62,14 @@
 
 - [ ] Task should only support kwargs or event so that events could easily integrate with tasks (ie. as inputs).
 
+- [x] Create `TaskPreset` model (`Task` & input args/kwargs), user may run the tasks with preset args immediately
+- [x] `TaskSchedule` takes in `TaskPreset`
+
+- [ ] Create task_chain `Task`
+- [ ] Actual task chains should be created with `TaskPreset` that way, task chains are tasks themselves
+
+- [ ] Add validate/clean/save check for `TaskPreset` input_event based on Task's IO
+
 ## Utils
 
 - [ ] Add enabled/disabled mask to ActivatableModel
@@ -82,5 +90,4 @@
 
 ## Event System
 
-- [ ] Write RFC (integrate with django channels)
 - [ ] Create Producer

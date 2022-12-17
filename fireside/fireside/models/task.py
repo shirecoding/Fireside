@@ -1,4 +1,4 @@
-__all__ = ["TaskSchedule", "Task", "TaskPriority"]
+__all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
 
 import logging
 from typing import Any
@@ -66,6 +66,26 @@ class Task(Model):
             return False
 
 
+class TaskPreset(Model, ActivatableModel):
+    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
+    description = models.TextField(max_length=256, default="")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    event = models.JSONField(
+        default=dict, blank=True, help_text="Preset event for the task"
+    )
+
+    def __str__(self):
+        return f"{self.name}"
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def run(self) -> Any:
+        if self.is_active:
+            logger.debug(f"Running TaskPreset {self}")
+            return self.task.run(self.event)
+
+
 def default_task_inputs():
     return {"args": "", "kwargs": {}}
 
@@ -75,11 +95,7 @@ class TaskSchedule(Model, ActivatableModel):
     Run tasks on a schedule (cron)
     """
 
-    task = models.ForeignKey("Task", on_delete=models.CASCADE)
-    inputs = models.JSONField(
-        default=default_task_inputs,
-        help_text="JSON containing the `args` and `kwargs` for `task`",
-    )
+    task_preset = models.ForeignKey("TaskPreset", on_delete=models.CASCADE)
     cron = models.CharField(
         max_length=128,
         blank=True,
@@ -104,7 +120,9 @@ class TaskSchedule(Model, ActivatableModel):
     )
 
     def __str__(self) -> str:
-        return f"{self.task.name} - {self.cron_pretty} x {self.repeat or 'forever'}"
+        return (
+            f"{self.task_preset.name} - {self.cron_pretty} x {self.repeat or 'forever'}"
+        )
 
     def __repr__(self) -> str:
         return str(self)
@@ -112,10 +130,6 @@ class TaskSchedule(Model, ActivatableModel):
     @property
     def name(self) -> str:
         return str(self)
-
-    @property
-    def description(self) -> str:
-        return self.task.description
 
     @property
     def cron_pretty(self) -> str:
@@ -133,10 +147,7 @@ class TaskSchedule(Model, ActivatableModel):
 
     def run(self) -> Any:
         if self.is_active:
-            logger.debug(f"Running {self.task}")
-            return import_path_to_function(self.task.fpath)(
-                *self.inputs["args"], **self.inputs["kwargs"]
-            )
+            return self.task_preset.run()
 
     def __call__(self) -> Any:
         return self.run()

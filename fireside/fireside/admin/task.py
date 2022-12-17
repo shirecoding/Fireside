@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.forms import ModelForm
 
 from fireside.admin import ModelAdmin
-from fireside.models import Task, TaskSchedule
+from fireside.models import Task, TaskPreset, TaskSchedule
 from fireside.utils.widgets import CronTextInput
 
 
@@ -15,10 +15,9 @@ class TaskScheduleForm(ModelForm):
 class TaskScheduleAdmin(ModelAdmin):
     form = TaskScheduleForm
     list_display = [
-        "task",
+        "name",
         "cron_pretty",
         "repeat",
-        "description",
         "is_active",
         "priority",
         "timeout",
@@ -27,9 +26,28 @@ class TaskScheduleAdmin(ModelAdmin):
     actions = ModelAdmin.actions + ["run_tasks"]
 
     fieldsets = [
-        ["Task", {"fields": ("task", "inputs")}],
-        ["Schedule", {"fields": ("cron", "repeat", "priority")}],
-        ["Activation", {"fields": ("is_active", "activate_on", "deactivate_on")}],
+        [None, {"fields": ("name",)}],
+        ["Task", {"fields": ("task_preset",)}],
+        [
+            "Schedule",
+            {
+                "fields": (
+                    "cron",
+                    "repeat",
+                    "priority",
+                )
+            },
+        ],
+        [
+            "Activation",
+            {
+                "fields": (
+                    "is_active",
+                    "activate_on",
+                    "deactivate_on",
+                )
+            },
+        ],
     ]
 
     @admin.action(description="Run selected tasks")
@@ -55,5 +73,22 @@ class TaskAdmin(ModelAdmin):
     ]
 
 
+class TaskPresetAdmin(ModelAdmin):
+    list_display = ["name", "description", "task"]
+    fieldsets = [
+        [
+            None,
+            {
+                "fields": (
+                    "name",
+                    "task",
+                    "event",
+                )
+            },
+        ]
+    ]
+
+
 admin.site.register(TaskSchedule, TaskScheduleAdmin)
 admin.site.register(Task, TaskAdmin)
+admin.site.register(TaskPreset, TaskPresetAdmin)
