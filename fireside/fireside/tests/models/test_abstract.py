@@ -1,40 +1,8 @@
 from datetime import timedelta
 
-import pytest
 from django.utils import timezone
 
-from fireside.models import ActivatableModel, Task, TaskPriority, TaskSchedule
-from fireside.utils import function_to_import_path
-
-
-def dummy_task(*args, **kwargs):
-    pass
-
-
-@pytest.fixture
-def task(db) -> Task:
-    return Task.objects.create(
-        name="Dummy Task",
-        description="Dummy Task",
-        fpath=function_to_import_path(dummy_task),
-    )
-
-
-@pytest.fixture
-def task_schedule(db, task) -> TaskSchedule:
-
-    assert issubclass(TaskSchedule, ActivatableModel)
-
-    task_schedule = TaskSchedule.objects.create(
-        task=task,
-        cron="* * * * *",
-        repeat=2,
-        priority=TaskPriority.LOW,
-        inputs={},
-    )
-    assert TaskSchedule.objects.get(task=task).task == task
-
-    return task_schedule
+from fireside.models import TaskPriority, TaskSchedule
 
 
 def test_activatable_model(task_schedule):
@@ -85,32 +53,29 @@ def test_activatable_model(task_schedule):
     assert task_schedule.is_active == False
 
 
-def test_activatable_manager(db, task):
+def test_activatable_manager(db, task_preset):
 
     now = timezone.now()
 
     ts1 = TaskSchedule.objects.create(
-        task=task,
+        task_preset=task_preset,
         cron="* * * * *",
         repeat=2,
         priority=TaskPriority.LOW,
-        inputs={},
     )
 
     ts2 = TaskSchedule.objects.create(
-        task=task,
+        task_preset=task_preset,
         cron="* * * * *",
         repeat=2,
         priority=TaskPriority.LOW,
-        inputs={},
     )
 
     ts3 = TaskSchedule.objects.create(
-        task=task,
+        task_preset=task_preset,
         cron="* * * * *",
         repeat=2,
         priority=TaskPriority.LOW,
-        inputs={},
     )
 
     ts1.deactivate()

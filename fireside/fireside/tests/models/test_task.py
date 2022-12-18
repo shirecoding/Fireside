@@ -1,56 +1,52 @@
-import pytest
 from django_rq import get_scheduler
-from pydantic import BaseModel
 
-from fireside.models import Task, TaskPreset, TaskPriority, TaskSchedule
-from fireside.utils import function_to_import_path
+from fireside.models import Task, TaskPriority
 from fireside.utils.task import task as task_decorator
 
-
-class DummyInput(BaseModel):
-    key: str
-    value: str
-
-
-class DummyOutput(BaseModel):
-    key: str
-    value: str
+# class DummyInput(BaseModel):
+#     key: str
+#     value: str
 
 
-def dummy_task(ev: DummyInput) -> DummyOutput:
-    return DummyOutput(**ev)
+# class DummyOutput(BaseModel):
+#     key: str
+#     value: str
 
 
-@pytest.fixture
-def task(db) -> Task:
-    return Task.objects.create(
-        name="Dummy Task",
-        description="Dummy Task",
-        fpath=function_to_import_path(dummy_task),
-    )
+# def dummy_task(ev: DummyInput) -> DummyOutput:
+#     return DummyOutput(**ev)
 
 
-@pytest.fixture
-def task_preset(db, task) -> TaskPreset:
-    return TaskPreset.objects.create(
-        name="Dummy Task Hello World",
-        task=task,
-        event=DummyInput(key="hello", value="world"),
-    )
+# @pytest.fixture
+# def task(db) -> Task:
+#     return Task.objects.create(
+#         name="Dummy Task",
+#         description="Dummy Task",
+#         fpath=function_to_import_path(dummy_task),
+#     )
 
 
-@pytest.fixture
-def task_schedule(db, task, task_preset) -> TaskSchedule:
+# @pytest.fixture
+# def task_preset(db, task) -> TaskPreset:
+#     return TaskPreset.objects.create(
+#         name="Dummy Task Hello World",
+#         task=task,
+#         event=DummyInput(key="hello", value="world"),
+#     )
 
-    task_schedule = TaskSchedule.objects.create(
-        task_preset=task_preset,
-        cron="* * * * *",
-        repeat=2,
-        priority=TaskPriority.LOW,
-    )
-    assert TaskSchedule.objects.get(task_preset=task_preset).task == task
 
-    return task_schedule
+# @pytest.fixture
+# def task_schedule(db, task, task_preset) -> TaskSchedule:
+
+#     task_schedule = TaskSchedule.objects.create(
+#         task_preset=task_preset,
+#         cron="* * * * *",
+#         repeat=2,
+#         priority=TaskPriority.LOW,
+#     )
+#     assert TaskSchedule.objects.get(task_preset=task_preset).task == task
+
+#     return task_schedule
 
 
 def test_task_decorator(db):
