@@ -48,16 +48,16 @@ class Task(Model, NameDescriptionModel):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
-    def __call__(self, event):
-        return self.run(event)
+    def __call__(self, **protocols):
+        return self.run(**protocols)
 
-    def run(self, event) -> Any:
+    def run(self, **protocols) -> Any:
         """
         Blocking call of the task
         """
-        return import_path_to_function(self.fpath)(event)
+        return import_path_to_function(self.fpath)(**protocols)
 
-    def enqueue(self, priority: TaskPriority, event) -> tuple[Job, Observable]:
+    def enqueue(self, priority: TaskPriority, **protocols) -> tuple[Job, Observable]:
 
         obs = AsyncSubject()
 
@@ -71,7 +71,7 @@ class Task(Model, NameDescriptionModel):
 
         return (
             get_queue(name=priority).enqueue(
-                self.run, event, on_success=on_success, on_failure=on_failure
+                self.run, kwargs=protocols, on_success=on_success, on_failure=on_failure
             ),
             obs,
         )
@@ -97,8 +97,8 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         max_length=128,
         help_text="Priority of the task preset (overrides task priority)",
     )
-    event = models.JSONField(
-        default=dict, blank=True, help_text="Preset event for the task"
+    protocols = models.JSONField(
+        default=dict, blank=True, help_text="Preset `ProtocolDict` for the task"
     )
 
     def __str__(self):
@@ -112,11 +112,11 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         Blocking call of the task
         """
         if self.is_active:
-            return self.task.run(self.event)
+            return self.task.run(**self.protocols)
 
     def enqueue(self) -> tuple[Job, Observable] | None:
         if self.is_active:
-            return self.task.enqueue(self.priority, self.event)
+            return self.task.enqueue(self.priority, **self.protocols)
 
     def delay(self) -> tuple[Job, Observable] | None:
         if self.is_active:

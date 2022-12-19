@@ -1,20 +1,9 @@
-__all__ = [
-    "Protocol",
-    "PError",
-    "PMetric",
-]
+__all__ = ["PError", "PMetric"]
 
 from datetime import datetime
 from typing import ClassVar
 
-from pydantic import BaseModel
-
-
-class Protocol(BaseModel):
-    protocol: ClassVar[str]  # override accordingly (reserved keyword, use lowercase)
-
-    def as_kwargs(self) -> dict[str, "Protocol"]:
-        return {self.protocol: self}
+from .defs import Protocol
 
 
 class PError(Protocol):

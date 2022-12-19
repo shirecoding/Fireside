@@ -1,17 +1,18 @@
 from django_rq import get_scheduler
 
 from fireside.models import Task, TaskPriority
+from fireside.utils import ProtocolDict
 from fireside.utils.task import task as task_decorator
 
 
 def test_task_decorator(db):
-    @task_decorator(name="Task From Decorator", description="Task From Decorator")
-    def healthcheck(event):
-        pass
+    @task_decorator(name="DoNothing", description="This task does nothing")
+    def do_nothing(**protocols) -> ProtocolDict:
+        return protocols
 
-    task = Task.objects.get(name="Task From Decorator")
-    assert task.name == "Task From Decorator"
-    assert task.description == "Task From Decorator"
+    task = Task.objects.get(name="DoNothing")
+    assert task.name == "DoNothing"
+    assert task.description == "This task does nothing"
 
 
 def test_task_schedule(task_schedule):

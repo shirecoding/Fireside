@@ -1,40 +1,41 @@
+import logging
+from typing import ClassVar
+
 import pytest
 from django.core.management import call_command
-from pydantic import BaseModel
 
 from fireside.models import Task, TaskPreset, TaskPriority, TaskSchedule
-from fireside.utils import function_to_import_path
+from fireside.utils import Protocol, ProtocolDict, function_to_import_path
+
+logger = logging.getLogger(__name__)
 
 
-class DummyInput(BaseModel):
-    key: str
-    value: str
+class PMessage(Protocol):
+    protocol: ClassVar[str] = "pmessage"
+    text: str
 
 
-class DummyOutput(BaseModel):
-    key: str
-    value: str
-
-
-def dummy_task(ev: DummyInput) -> DummyOutput:
-    return DummyOutput(**ev)
+def logging_task(**protocols) -> ProtocolDict:
+    logger.debug(protocols)
+    return protocols
 
 
 @pytest.fixture
 def task(db) -> Task:
     return Task.objects.create(
-        name="Dummy Task",
-        description="Dummy Task",
-        fpath=function_to_import_path(dummy_task),
+        name="Logging Task",
+        description="Logging Task",
+        fpath=function_to_import_path(logging_task),
     )
 
 
 @pytest.fixture
 def task_preset(db, task) -> TaskPreset:
+    protocols = PMessage(text="The quick brown fox jumps over the lazy dog.")
     task_preset = TaskPreset.objects.create(
-        name="Dummy Task Hello World",
+        name="Log Messages",
         task=task,
-        event=DummyInput(key="hello", value="world").dict(),
+        protocols=protocols.as_kwargs(jsonify=True),
     )
     assert TaskPreset.objects.get(task=task) == task_preset
 

@@ -71,6 +71,9 @@
 - [ ] Add validate/clean/save check for `TaskPreset` input_event based on Task's IO
 
 - [ ] Create Task Protocol system
+- [ ] Tasks should take in protocols as kwargs and output a protocol dictionary which form the kwargs of the next task in chain
+- [ ] Task Chains support branching and aggregation
+- [ ] Task auto discover protocol types and do deserialization before running task import function
 
 - Create Observable for delayed jobs, to be able to chain tasks, as jobs are asynchronus
 
