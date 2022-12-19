@@ -7,6 +7,7 @@
 # from fireside.utils.task import task
 # from typing import Any
 # import queue
+# from fireside.models import Task
 
 # logger = logging.getLogger(__name__)
 
@@ -24,14 +25,5 @@
 # @task(name="TaskChain", description="Chains several tasks in series")
 # def task_chain(tasks: TaskChain) -> Any:
 
-#     jobs = queue.Queue()
-#     results = queue.Queue()
-
-#     def on_success(job, connection, result, *args, **kwargs):
-#         pass
-
-#     def on_failure(job, connection, type, value, traceback):
-#         pass
-
-#     for t in tasks:
-#         jobs.put(t)
+#     for t in tasks.tasks:
+#         Task.objects.get()

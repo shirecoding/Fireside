@@ -1,4 +1,4 @@
-__all__ = ["Model", "TimestampModel", "ActivatableModel"]
+__all__ = ["Model", "TimestampModel", "ActivatableModel", "NameDescriptionModel"]
 
 import uuid
 from itertools import chain
@@ -194,3 +194,12 @@ class ActivatableModel(models.Model):
         self.deactivate_on = None
         self.activate_on = None
         self.save(update_fields=["deactivate_on", "activate_on"])
+
+
+class NameDescriptionModel(models.Model):
+
+    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
+    description = models.TextField(max_length=256, default="")
+
+    class Meta:
+        abstract = True

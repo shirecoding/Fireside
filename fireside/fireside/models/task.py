@@ -1,5 +1,6 @@
 __all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
 
+
 import logging
 from typing import Any
 
@@ -7,10 +8,12 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django_rq import get_connection, get_queue, get_scheduler
+from reactivex import Observable
+from reactivex.subject import AsyncSubject
 from rq.job import Job
 from rq.queue import Queue
 
-from fireside.models import ActivatableModel, Model
+from fireside.models import ActivatableModel, Model, NameDescriptionModel
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
@@ -22,9 +25,7 @@ class TaskPriority(models.TextChoices):
     HIGH = "high", "High"
 
 
-class Task(Model):
-    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
-    description = models.TextField(max_length=256, default="")
+class Task(Model, NameDescriptionModel):
     fpath = models.CharField(
         max_length=256,
         unique=True,
@@ -56,10 +57,26 @@ class Task(Model):
         """
         return import_path_to_function(self.fpath)(event)
 
-    def enqueue(self, priority: TaskPriority, event, *args, **kwargs) -> Job:
-        return get_queue(name=priority).enqueue(self.run, event, *args, **kwargs)
+    def enqueue(self, priority: TaskPriority, event) -> tuple[Job, Observable]:
 
-    def delay(self, *args, **kwargs) -> Job:
+        obs = AsyncSubject()
+
+        def on_success(job, connection, result):
+            obs.on_next(result)
+            obs.on_completed()
+
+        def on_failure(job, connection, type, value, traceback):
+            obs.on_error(Exception(traceback))
+            obs.dispose()
+
+        return (
+            get_queue(name=priority).enqueue(
+                self.run, event, on_success=on_success, on_failure=on_failure
+            ),
+            obs,
+        )
+
+    def delay(self, *args, **kwargs) -> tuple[Job, Observable]:
         return self.enqueue(*args, **kwargs)
 
     def is_valid(self) -> bool:
@@ -72,9 +89,7 @@ class Task(Model):
             return False
 
 
-class TaskPreset(Model, ActivatableModel):
-    name = models.CharField(unique=True, max_length=128, blank=False, null=False)
-    description = models.TextField(max_length=256, default="")
+class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     priority = models.CharField(
         choices=TaskPriority.choices,
@@ -97,14 +112,15 @@ class TaskPreset(Model, ActivatableModel):
         Blocking call of the task
         """
         if self.is_active:
-            logger.debug(f"Running TaskPreset {self}")
             return self.task.run(self.event)
 
-    def enqueue(self, *args, **kwargs) -> Job:
-        return self.task.enqueue(self.priority, self.event, *args, **kwargs)
+    def enqueue(self) -> tuple[Job, Observable] | None:
+        if self.is_active:
+            return self.task.enqueue(self.priority, self.event)
 
-    def delay(self, *args, **kwargs) -> Job:
-        return self.enqueue(*args, **kwargs)
+    def delay(self) -> tuple[Job, Observable] | None:
+        if self.is_active:
+            return self.enqueue()
 
 
 class TaskSchedule(Model, ActivatableModel):
@@ -172,11 +188,12 @@ class TaskSchedule(Model, ActivatableModel):
     def __call__(self) -> Any:
         return self.run()
 
-    def enqueue(self, *args, **kwargs) -> Job:
-        return self.get_queue().enqueue(self.run, *args, **kwargs)
+    def enqueue(self) -> tuple[Job, Observable] | None:
+        if self.is_active:
+            return self.task_preset.enqueue()
 
-    def delay(self, *args, **kwargs) -> Job:
-        return self.enqueue(*args, **kwargs)
+    def delay(self) -> tuple[Job, Observable] | None:
+        return self.enqueue()
 
     def schedule(self) -> Job:
         logger.debug(f"Schedule {self}")
