@@ -70,6 +70,8 @@
 
 - [ ] Add validate/clean/save check for `TaskPreset` input_event based on Task's IO
 
+- Create Observable for delayed jobs, to be able to chain tasks, as jobs are asynchronus
+
 ## Utils
 
 - [ ] Add enabled/disabled mask to ActivatableModel

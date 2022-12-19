@@ -51,10 +51,16 @@ class Task(Model):
         return self.run(event)
 
     def run(self, event) -> Any:
+        """
+        Blocking call of the task
+        """
         return import_path_to_function(self.fpath)(event)
 
-    def enqueue(self, priority: str, event) -> Job:
-        return get_queue(name=priority).enqueue(self.run, event)
+    def enqueue(self, priority: TaskPriority, event, *args, **kwargs) -> Job:
+        return get_queue(name=priority).enqueue(self.run, event, *args, **kwargs)
+
+    def delay(self, *args, **kwargs) -> Job:
+        return self.enqueue(*args, **kwargs)
 
     def is_valid(self) -> bool:
         # check if path to function is still valid (could have been deleted)
@@ -70,6 +76,12 @@ class TaskPreset(Model, ActivatableModel):
     name = models.CharField(unique=True, max_length=128, blank=False, null=False)
     description = models.TextField(max_length=256, default="")
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    priority = models.CharField(
+        choices=TaskPriority.choices,
+        default=TaskPriority.DEFAULT,
+        max_length=128,
+        help_text="Priority of the task preset (overrides task priority)",
+    )
     event = models.JSONField(
         default=dict, blank=True, help_text="Preset event for the task"
     )
@@ -81,9 +93,18 @@ class TaskPreset(Model, ActivatableModel):
         return str(self)
 
     def run(self) -> Any:
+        """
+        Blocking call of the task
+        """
         if self.is_active:
             logger.debug(f"Running TaskPreset {self}")
             return self.task.run(self.event)
+
+    def enqueue(self, *args, **kwargs) -> Job:
+        return self.task.enqueue(self.priority, self.event, *args, **kwargs)
+
+    def delay(self, *args, **kwargs) -> Job:
+        return self.enqueue(*args, **kwargs)
 
 
 class TaskSchedule(Model, ActivatableModel):
@@ -142,14 +163,20 @@ class TaskSchedule(Model, ActivatableModel):
         return get_queue(name=self.priority)
 
     def run(self) -> Any:
+        """
+        Blocking call of the task preset
+        """
         if self.is_active:
             return self.task_preset.run()
 
     def __call__(self) -> Any:
         return self.run()
 
-    def delay(self) -> Job:
-        return self.get_queue().enqueue(self.run)
+    def enqueue(self, *args, **kwargs) -> Job:
+        return self.get_queue().enqueue(self.run, *args, **kwargs)
+
+    def delay(self, *args, **kwargs) -> Job:
+        return self.enqueue(*args, **kwargs)
 
     def schedule(self) -> Job:
         logger.debug(f"Schedule {self}")

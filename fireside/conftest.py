@@ -31,11 +31,14 @@ def task(db) -> Task:
 
 @pytest.fixture
 def task_preset(db, task) -> TaskPreset:
-    return TaskPreset.objects.create(
+    task_preset = TaskPreset.objects.create(
         name="Dummy Task Hello World",
         task=task,
         event=DummyInput(key="hello", value="world").dict(),
     )
+    assert TaskPreset.objects.get(task=task) == task_preset
+
+    return task_preset
 
 
 @pytest.fixture

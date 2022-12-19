@@ -4,10 +4,26 @@ Different settings are loaded depending on the `ENVIRONMENT` variable (developme
 
 - `core.settings.__init__.py`
 
+## Setup Python and Poetry
+
+```bash
+pyenv install 3.11.0a4
+pyenv local 3.11.0a4
+poetry env use 3.11.0a4
+
+poetry shell  # start virtual environment
+```
+
+## Build Docker Image
+
+```bash
+docker-compose build  # user --no-cache if needed to regenerate older layers
+docker-compose up  # start docker environment
+```
+
 # Testing
 
 ```bash
-# run the following in fireside directory (fish shell)
 poetry shell
 ./manage.py makemigrations
 ./manage.py migrate
@@ -33,6 +49,9 @@ Make sure to run the following on a new database
 The entire project will be mounted on `/app` inside the fireside docker container
 
 ```bash
+# build docker image
+docker-compose build  # --no-cache to rebuild pip layers
+
 # run the following in fireside directory
 docker-compose up
 
