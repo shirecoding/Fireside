@@ -15,9 +15,14 @@ class PMessage(Protocol):
     text: str
 
 
-def logging_task(**protocols) -> ProtocolDict:
-    logger.debug(protocols)
-    return protocols
+def logging_task(*, pmessage: PMessage) -> ProtocolDict:
+    logger.debug(pmessage)
+    return pmessage.as_kwargs()
+
+
+@pytest.fixture
+def pmessage() -> PMessage:
+    return PMessage(text="The quick brown fox jumps over the lazy dog.")
 
 
 @pytest.fixture
@@ -30,12 +35,11 @@ def task(db) -> Task:
 
 
 @pytest.fixture
-def task_preset(db, task) -> TaskPreset:
-    protocols = PMessage(text="The quick brown fox jumps over the lazy dog.")
+def task_preset(db, task, pmessage) -> TaskPreset:
     task_preset = TaskPreset.objects.create(
         name="Log Messages",
         task=task,
-        protocols=protocols.as_kwargs(jsonify=True),
+        protocols=pmessage.as_kwargs(jsonify=True),
     )
     assert TaskPreset.objects.get(task=task) == task_preset
 

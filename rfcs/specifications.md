@@ -73,7 +73,17 @@
 - [ ] Create Task Protocol system
 - [ ] Tasks should take in protocols as kwargs and output a protocol dictionary which form the kwargs of the next task in chain
 - [ ] Task Chains support branching and aggregation
-- [ ] Task auto discover protocol types and do deserialization before running task import function
+
+- [x] `Task` introspects function input protocol types for derialization (from JSON to `Protocol` before running as task input)
+- [x] `Task` functions should enforce keyword arguments (eg. `logging_task(*, pmessage: PMessage)`). This is used for type introspection, se/derialization
+
+## Protocols
+
+- [ ] Input to `Task`s are protocol kwargs (eg. `task.enqueue(pmetric=PMetric(...), perror=PError(...))`)
+- [ ] Output of `Task`s are `ProtocolDict` (eg. `{'pmetric': PMetric(...), 'perror': PError(...)}`)
+- [ ] `ProtocolDict` is a mapping of protocol (string) to `Protocol` or the jsonified `Protocol`
+- [ ] `Protocols` are jsonified before storing in database
+- [ ] jsonified protocols are deserialized to `Protocols` when read from the database (eg. As inputs to `tasks.run`)
 
 - Create Observable for delayed jobs, to be able to chain tasks, as jobs are asynchronus
 

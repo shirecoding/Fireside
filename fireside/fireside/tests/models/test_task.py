@@ -28,5 +28,7 @@ def test_task_schedule(task_schedule):
     assert task_schedule.get_job().id == task_schedule.job_id
 
 
-def test_task_preset(task_preset):
-    pass
+def test_task_preset(task_preset, pmessage):
+
+    # test deserialization
+    assert task_preset.run() == pmessage.as_kwargs()

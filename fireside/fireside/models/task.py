@@ -2,7 +2,7 @@ __all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
 
 
 import logging
-from typing import Any
+from typing import Any, get_type_hints
 
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -12,9 +12,10 @@ from reactivex import Observable
 from reactivex.subject import AsyncSubject
 from rq.job import Job
 from rq.queue import Queue
+from toolz import dissoc
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
-from fireside.utils import cron_pretty, import_path_to_function
+from fireside.utils import Protocol, cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,30 @@ class Task(Model, NameDescriptionModel):
         """
         Blocking call of the task
         """
-        return import_path_to_function(self.fpath)(**protocols)
+
+        # deserialize (protocols from the database are jsonified)
+
+        func = import_path_to_function(self.fpath)
+        type_hints = dissoc(get_type_hints(func), "return")
+
+        if any(issubclass(t, Protocol) == False for t in type_hints.values()):
+            raise Exception(
+                f"{self} unsupported params in {type_hints}, use only `Protocol`s"
+            )
+
+        if len(type_hints) < len(protocols):
+            raise Exception(f"{self} has untyped protocol params")
+
+        deserialized = {
+            pkey: type_hints[pkey].parse_raw(pdict)
+            for pkey, pdict in protocols.items()
+            if pkey in type_hints
+        }
+
+        if len(type_hints) != len(deserialized):
+            raise Exception(f"{self} missing required protocols {type_hints}")
+
+        return func(**deserialized)
 
     def enqueue(self, priority: TaskPriority, **protocols) -> tuple[Job, Observable]:
 
@@ -222,8 +246,7 @@ class TaskSchedule(Model, ActivatableModel):
 @receiver(pre_save, sender=TaskSchedule, dispatch_uid="pre_save_task_schedule")
 def pre_save_task_schedule(sender, instance, *args, **kwargs):
     """
-    Does the following:
-        - Unschedules all jobs for this task
+    Unschedules all jobs for this task
     """
     old_instance = sender.objects.filter(uid=instance.uid).first()
     if old_instance:
@@ -233,7 +256,6 @@ def pre_save_task_schedule(sender, instance, *args, **kwargs):
 @receiver(post_save, sender=TaskSchedule, dispatch_uid="post_save_task_schedule")
 def post_save_task_schedule(sender, instance, created, *args, **kwargs):
     """
-    Does the following:
-        - Reschedules job for this task
+    Reschedules job for this task
     """
     instance.schedule()
