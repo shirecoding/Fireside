@@ -5,7 +5,8 @@ import pytest
 from django.core.management import call_command
 
 from fireside.models import Task, TaskPreset, TaskPriority, TaskSchedule
-from fireside.utils import Protocol, ProtocolDict, function_to_import_path
+from fireside.protocols import Protocol, ProtocolDict
+from fireside.utils import function_to_import_path
 
 logger = logging.getLogger(__name__)
 

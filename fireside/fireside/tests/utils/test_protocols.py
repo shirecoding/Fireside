@@ -1,6 +1,6 @@
 from django.utils import timezone
 
-from fireside.utils import PError, PMetric
+from fireside.protocols import PError, PMetric
 
 
 def test_protocols():

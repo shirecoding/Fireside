@@ -1,6 +1,5 @@
 __all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
 
-
 import logging
 from typing import Any, get_type_hints
 
@@ -15,7 +14,8 @@ from rq.queue import Queue
 from toolz import dissoc
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
-from fireside.utils import Protocol, cron_pretty, import_path_to_function
+from fireside.protocols import Protocol
+from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +57,9 @@ class Task(Model, NameDescriptionModel):
         Blocking call of the task
         """
 
-        # deserialize (protocols from the database are jsonified)
-
+        # introspect function protocols
         func = import_path_to_function(self.fpath)
         type_hints = dissoc(get_type_hints(func), "return")
-
         if any(issubclass(t, Protocol) == False for t in type_hints.values()):
             raise Exception(
                 f"{self} unsupported params in {type_hints}, use only `Protocol`s"
@@ -70,8 +68,11 @@ class Task(Model, NameDescriptionModel):
         if len(type_hints) < len(protocols):
             raise Exception(f"{self} has untyped protocol params")
 
+        # deserialize any jsonified protocols
         deserialized = {
-            pkey: type_hints[pkey].parse_raw(pdict)
+            pkey: pdict
+            if isinstance(pdict, type_hints[pkey])
+            else type_hints[pkey].parse_raw(pdict)
             for pkey, pdict in protocols.items()
             if pkey in type_hints
         }
@@ -81,15 +82,19 @@ class Task(Model, NameDescriptionModel):
 
         return func(**deserialized)
 
-    def enqueue(self, priority: TaskPriority, **protocols) -> tuple[Job, Observable]:
-
+    def enqueue(
+        self, priority: TaskPriority | None = None, **protocols
+    ) -> tuple[Job, Observable]:
+        priority = priority or self.priority
         obs = AsyncSubject()
 
         def on_success(job, connection, result):
+            logger.debug(f"\n\n\non_success\n\n")
             obs.on_next(result)
             obs.on_completed()
 
         def on_failure(job, connection, type, value, traceback):
+            logger.debug(f"\n\n\non_failure\n\n")
             obs.on_error(Exception(traceback))
             obs.dispose()
 

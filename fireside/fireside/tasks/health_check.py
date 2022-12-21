@@ -7,7 +7,7 @@ from django.db import connection
 from django.utils import timezone
 from pydantic import BaseModel
 
-from fireside.utils import Protocol, ProtocolDict
+from fireside.protocols import Protocol, ProtocolDict
 from fireside.utils.task import task
 
 logger = logging.getLogger(__name__)

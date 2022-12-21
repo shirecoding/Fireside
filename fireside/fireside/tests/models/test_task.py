@@ -1,7 +1,7 @@
 from django_rq import get_scheduler
 
 from fireside.models import Task, TaskPriority
-from fireside.utils import ProtocolDict
+from fireside.protocols import ProtocolDict
 from fireside.utils.task import task as task_decorator
 
 
@@ -32,3 +32,14 @@ def test_task_preset(task_preset, pmessage):
 
     # test deserialization
     assert task_preset.run() == pmessage.as_kwargs()
+
+
+def test_task_enqueue(task, pmessage):
+
+    job, obs = task.enqueue(**pmessage.as_kwargs())
+
+    # res = obs.run()
+
+    # print(f'\n\nres {res}\n\n')
+
+    # print(f'\n\njob: {job} obs: {obs}\n\n\n')
