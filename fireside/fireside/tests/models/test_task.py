@@ -4,6 +4,7 @@ from django_rq import get_scheduler
 
 from fireside.models import Task, TaskPriority
 from fireside.protocols import ProtocolDict
+from fireside.utils.task import get_task_result
 from fireside.utils.task import task as task_decorator
 
 logger = logging.getLogger(__name__)
@@ -40,12 +41,8 @@ def test_task_preset(task_preset, pmessage):
 
 def test_task_enqueue(task, pmessage):
 
-    job, obs = task.enqueue(**pmessage.as_kwargs())
+    job = task.enqueue(**pmessage.as_kwargs())
 
-    res = obs.run()
+    pdict = get_task_result(job)
 
-    print(f"\n\njob: {job} res {res}\n\n")
-
-    # obs.subscribe(lambda x: logger.debug(f'GOT RESULT {x}'))
-
-    # print(f'\n\njob: {job} obs: {obs}\n\n\n')
+    assert pdict == pmessage.as_kwargs()

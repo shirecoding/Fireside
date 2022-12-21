@@ -1,13 +1,43 @@
-__all__ = ["task", "remove_invalid_tasks", "reschedule_tasks"]
+__all__ = ["task", "remove_invalid_tasks", "reschedule_tasks", "get_task_result"]
 
 import logging
+from time import sleep
 
 from django_rq import get_scheduler
+from rq.job import Job
 
 from fireside.models import TaskPriority
+from fireside.protocols import ProtocolDict
 from fireside.utils import function_to_import_path
 
 logger = logging.getLogger(__name__)
+
+TIME_STEP = 0.1
+
+
+def get_task_result(job: Job, timeout=60) -> ProtocolDict:
+    """
+    Blocking wait for job results
+    """
+
+    # poll job status
+    time_elapsed = 0
+    status = job.get_status(refresh=True)
+    while (
+        status not in {"finished", "stopped", "canceled", "failed"}
+        and time_elapsed < timeout
+    ):
+        sleep(TIME_STEP)
+        time_elapsed += TIME_STEP
+        status = job.get_status(refresh=True)
+
+    if time_elapsed > timeout:
+        raise Exception(f"`get_job_result` timed out after {timeout}s")
+
+    if status != "finished":
+        raise Exception(f"{job} failed with status: {status}")
+
+    return job.result
 
 
 def task(

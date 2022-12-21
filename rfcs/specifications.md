@@ -95,6 +95,7 @@
 - [ ] An `EventObservable` may hook into such events
 - [ ] Use django channels event loop?
 - [ ] Use a 'do while' observable on a redis queue (jobs on completion should publish to the redis queue)
+- [ ] Combine `Event` and `Protocol`
 
 ## Utils
 

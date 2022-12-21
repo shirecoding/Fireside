@@ -82,7 +82,7 @@ class TaskPresetAdmin(ModelAdmin):
                 "fields": (
                     "name",
                     "task",
-                    "event",
+                    "protocols",
                 )
             },
         ]
