@@ -1,0 +1,3 @@
+__all__ = ["EVENT_CHANNEL"]
+
+EVENT_CHANNEL = "EVENT_CHANNEL"

@@ -87,6 +87,15 @@
 
 - Create Observable for delayed jobs, to be able to chain tasks, as jobs are asynchronus
 
+## Distributed Event System
+
+- [ ] Jobs on rq workers should trigger events such as job completions
+- [ ] Use redis as an event broker
+- [ ] Processes (such as on the main django process) may listen for such events instead of polling for the results
+- [ ] An `EventObservable` may hook into such events
+- [ ] Use django channels event loop?
+- [ ] Use a 'do while' observable on a redis queue (jobs on completion should publish to the redis queue)
+
 ## Utils
 
 - [ ] Add enabled/disabled mask to ActivatableModel

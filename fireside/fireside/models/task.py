@@ -7,17 +7,25 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django_rq import get_connection, get_queue, get_scheduler
-from reactivex import Observable
-from reactivex.subject import AsyncSubject
+from reactivex import operators as op
 from rq.job import Job
 from rq.queue import Queue
 from toolz import dissoc
 
+from fireside.events import JobDone, events, publish_event
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
 from fireside.protocols import Protocol
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
+
+
+def on_success(job, connection, result):
+    publish_event(JobDone(job_id=job.id))
+
+
+def on_failure(job, connection, type, value, traceback):
+    pass
 
 
 class TaskPriority(models.TextChoices):
@@ -82,30 +90,17 @@ class Task(Model, NameDescriptionModel):
 
         return func(**deserialized)
 
-    def enqueue(
-        self, priority: TaskPriority | None = None, **protocols
-    ) -> tuple[Job, Observable]:
-        priority = priority or self.priority
-        obs = AsyncSubject()
-
-        def on_success(job, connection, result):
-            logger.debug(f"\n\n\non_success\n\n")
-            obs.on_next(result)
-            obs.on_completed()
-
-        def on_failure(job, connection, type, value, traceback):
-            logger.debug(f"\n\n\non_failure\n\n")
-            obs.on_error(Exception(traceback))
-            obs.dispose()
-
-        return (
-            get_queue(name=priority).enqueue(
-                self.run, kwargs=protocols, on_success=on_success, on_failure=on_failure
-            ),
-            obs,
+    def enqueue(self, priority: TaskPriority | None = None, **protocols) -> Job:
+        job = get_queue(name=priority or self.priority).enqueue(
+            self.run, kwargs=protocols, on_success=on_success, on_failure=on_failure
         )
+        obs = events.pipe(
+            op.filter(lambda ev: isinstance(ev, JobDone) and ev.job_id == job.id),
+            op.first(),
+        )
+        return job, obs
 
-    def delay(self, *args, **kwargs) -> tuple[Job, Observable]:
+    def delay(self, *args, **kwargs) -> Job:
         return self.enqueue(*args, **kwargs)
 
     def is_valid(self) -> bool:
@@ -143,11 +138,11 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         if self.is_active:
             return self.task.run(**self.protocols)
 
-    def enqueue(self) -> tuple[Job, Observable] | None:
+    def enqueue(self) -> Job | None:
         if self.is_active:
             return self.task.enqueue(self.priority, **self.protocols)
 
-    def delay(self) -> tuple[Job, Observable] | None:
+    def delay(self) -> Job | None:
         if self.is_active:
             return self.enqueue()
 
@@ -217,11 +212,11 @@ class TaskSchedule(Model, ActivatableModel):
     def __call__(self) -> Any:
         return self.run()
 
-    def enqueue(self) -> tuple[Job, Observable] | None:
+    def enqueue(self) -> Job | None:
         if self.is_active:
             return self.task_preset.enqueue()
 
-    def delay(self) -> tuple[Job, Observable] | None:
+    def delay(self) -> Job | None:
         return self.enqueue()
 
     def schedule(self) -> Job:

@@ -7,3 +7,7 @@ class FiresideConfig(AppConfig):
 
     def ready(self):
         import fireside.tasks  # noqa
+        from fireside.events import start_listening  # noqa
+
+        # start listening for events
+        start_listening()
