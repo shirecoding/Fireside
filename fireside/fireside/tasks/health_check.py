@@ -1,7 +1,7 @@
 __all = ["ServiceStatus", "PHealthCheck", "health_check"]
 import logging
 from datetime import datetime
-from typing import ClassVar, Literal
+from typing import Literal
 
 from django.db import connection
 from django.utils import timezone
@@ -20,7 +20,7 @@ class ServiceStatus(BaseModel):
 
 
 class PHealthCheck(Protocol):
-    protocol: ClassVar[str] = "phealthcheck"
+    protocol: str = "phealthcheck"
     services: list[ServiceStatus]
 
 

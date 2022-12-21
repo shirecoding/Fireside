@@ -1,5 +1,4 @@
 import logging
-from typing import ClassVar
 
 import pytest
 from django.core.management import call_command
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class PMessage(Protocol):
-    protocol: ClassVar[str] = "pmessage"
+    protocol: str = "pmessage"
     text: str
 
 

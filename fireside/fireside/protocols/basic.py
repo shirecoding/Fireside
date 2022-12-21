@@ -1,20 +1,19 @@
 __all__ = ["PError", "PMetric"]
 
 from datetime import datetime
-from typing import ClassVar
 
 from .defs import Protocol
 
 
 class PError(Protocol):
-    protocol: ClassVar[str] = "perror"
+    protocol: str = "perror"
     type: str
     value: str
     traceback: str | None = None
 
 
 class PMetric(Protocol):
-    protocol: ClassVar[str] = "pmetric"
+    protocol: str = "pmetric"
     started_on: datetime | None = None
     completed_on: datetime | None = None
     error: PError | None = None
