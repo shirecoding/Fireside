@@ -36,13 +36,11 @@ def test_task_schedule(task_schedule):
 def test_task_preset(task_preset, pmessage):
 
     # test deserialization
-    assert task_preset.run() == pmessage.as_kwargs()
+    assert task_preset.run() == pmessage.as_pdict()
 
 
 def test_task_enqueue(task, pmessage):
 
-    job = task.enqueue(**pmessage.as_kwargs())
-
+    job = task.enqueue(**pmessage.as_pdict())
     pdict = get_task_result(job)
-
-    assert pdict == pmessage.as_kwargs()
+    assert pdict == pmessage.as_pdict()

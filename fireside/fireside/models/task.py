@@ -12,7 +12,7 @@ from rq.queue import Queue
 from toolz import dissoc
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
-from fireside.protocols import Protocol
+from fireside.protocols import Protocol, ProtocolDict
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
@@ -50,27 +50,42 @@ class Task(Model, NameDescriptionModel):
     def __call__(self, **protocols):
         return self.run(**protocols)
 
-    def run(self, **protocols) -> Any:
-        """
-        Blocking call of the task
+    def run(self, **protocols) -> ProtocolDict | None:
+        """Task function that is run in the worker.
+        Args:
+            protocols: `ProtocolDict` as kwargs. May originate from database (`TaskPreset`)
+
+        Returns:
+            A `ProtocolDict` result
         """
 
-        # introspect function protocols
+        # introspect task input type hints
         func = import_path_to_function(self.fpath)
         type_hints = dissoc(get_type_hints(func), "return")
-        if any(issubclass(t, Protocol) == False for t in type_hints.values()):
+
+        # check that all inputs are `Protocol`s
+        if any(issubclass(t, Protocol) is False for t in type_hints.values()):
             raise Exception(
                 f"{self} unsupported params in {type_hints}, use only `Protocol`s"
             )
 
+        # check for any untyped inputs
         if len(type_hints) < len(protocols):
             raise Exception(f"{self} has untyped protocol params")
+
+        # check that protocols from `TaskPreset` matches function type hints
+        if not set(type_hints).issubset(set(protocols)):
+            raise Exception(
+                f"{self} missing protocols {set(type_hints) - set(protocols)}"
+            )
 
         # deserialize any jsonified protocols
         deserialized = {
             pkey: pdict
             if isinstance(pdict, type_hints[pkey])
-            else type_hints[pkey].parse_raw(pdict)
+            else import_path_to_function(pdict["klass"])(
+                **pdict
+            )  # use klass to deserialize as the type hint might be a base class such as `Protocol`
             for pkey, pdict in protocols.items()
             if pkey in type_hints
         }

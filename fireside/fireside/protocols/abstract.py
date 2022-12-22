@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 class Protocol(BaseModel):
     protocol: str  # override accordingly (reserved keyword, use lowercase)
+    klass: str  # import path if this class used for deserialization
 
-    def as_kwargs(self, jsonify: bool = False) -> "ProtocolDict":
-        return {self.protocol: self.json() if jsonify else self}
+    def as_pdict(self, jsonify: bool = False) -> "ProtocolDict":
+        return {self.protocol: self.dict() if jsonify else self}

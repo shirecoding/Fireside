@@ -21,6 +21,7 @@ class ServiceStatus(BaseModel):
 
 class PHealthCheck(Protocol):
     protocol: str = "phealthcheck"
+    klass: str = "fireside.tasks.health_check.PHealthCheck"
     services: list[ServiceStatus]
 
 
@@ -34,7 +35,7 @@ def check_db() -> Literal["up", "down", "pending"]:
 
 @task(name="HealthCheck", description="Performs system health check")
 def health_check(**protocols) -> ProtocolDict:
-    logger.debug(f"Performing Healthcheck")
+    logger.debug("Performing Healthcheck")
     return PHealthCheck(
         services=[
             ServiceStatus(service="db", status=check_db(), last_updated=timezone.now())

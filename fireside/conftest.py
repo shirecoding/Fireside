@@ -12,12 +12,13 @@ logger = logging.getLogger(__name__)
 
 class PMessage(Protocol):
     protocol: str = "pmessage"
+    klass: str = "conftest.PMessage"
     text: str
 
 
 def logging_task(*, pmessage: PMessage) -> ProtocolDict:
     logger.debug(pmessage)
-    return pmessage.as_kwargs()
+    return pmessage.as_pdict()
 
 
 @pytest.fixture
@@ -39,7 +40,7 @@ def task_preset(db, task, pmessage) -> TaskPreset:
     task_preset = TaskPreset.objects.create(
         name="Log Messages",
         task=task,
-        protocols=pmessage.as_kwargs(jsonify=True),
+        protocols=pmessage.as_pdict(jsonify=True),
     )
     assert TaskPreset.objects.get(task=task) == task_preset
 

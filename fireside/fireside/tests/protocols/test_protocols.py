@@ -4,6 +4,21 @@ from django.utils import timezone
 
 from fireside.protocols import PError, PMetric, PTaskChain
 from fireside.protocols.defs import TaskTree
+from fireside.utils import import_path_to_function
+
+
+def validate_protocol(protocol):
+
+    klass = import_path_to_function(protocol.klass)
+
+    # test serialization
+    assert klass.parse_raw(protocol.json()) == protocol
+
+    # test as_pdict
+    assert protocol.as_pdict() == {protocol.protocol: protocol}
+
+    # test as_pdict jsonify
+    assert protocol.as_pdict(jsonify=True) == {protocol.protocol: protocol.dict()}
 
 
 def test_metrics():
@@ -12,15 +27,7 @@ def test_metrics():
         started_on=timezone.now(),
         error=PError(type="IndexError", value="tuple index out of range"),
     )
-
-    # test serialization
-    assert PMetric.parse_raw(pmetric.json()) == pmetric
-
-    # test as_kwargs
-    assert pmetric.as_kwargs() == {"pmetric": pmetric}
-
-    # test as_kwargs jsonify
-    assert pmetric.as_kwargs(jsonify=True) == {"pmetric": pmetric.json()}
+    validate_protocol(pmetric)
 
 
 def test_task():
@@ -58,12 +65,4 @@ def test_task():
 
     # test PTaskChain
     ptaskchain = PTaskChain(task_chain=[ttree])
-
-    # test serialization
-    assert PTaskChain.parse_raw(ptaskchain.json()) == ptaskchain
-
-    # test as_kwargs
-    assert ptaskchain.as_kwargs() == {"ptaskchain": ptaskchain}
-
-    # test as_kwargs jsonify
-    assert ptaskchain.as_kwargs(jsonify=True) == {"ptaskchain": ptaskchain.json()}
+    validate_protocol(ptaskchain)

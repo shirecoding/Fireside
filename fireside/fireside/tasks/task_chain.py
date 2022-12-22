@@ -12,4 +12,13 @@ logger = logging.getLogger(__name__)
 def task_chain(input: Protocol, ptaskchain: PTaskChain) -> PTaskChain:
     """
     PROB: Problem input is a generic protocol, type hints will fail, need to support params not being tied to the protocol name!!!!
+
+    because preset as_kwargs() is used to jsonify the model and as_kwargs will use the protocol name instead of the function args
+
+    problem also if tasks take in 2 of the same type of protocols, the keyworc cannot be pmetric1/2
+
+
+    the pdict keys are rather the function input keys rather than the pkeys,
     """
+
+    # check that input matches the input of taskchain

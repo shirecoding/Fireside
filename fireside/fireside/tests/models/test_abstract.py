@@ -10,47 +10,47 @@ def test_activatable_model(task_schedule):
     now = timezone.now()
 
     # test default is_active
-    assert task_schedule.activate_on == task_schedule.deactivate_on == None
-    assert task_schedule.is_active == True
+    assert task_schedule.activate_on == task_schedule.deactivate_on is None
+    assert task_schedule.is_active is True
 
     # test deactivate
     task_schedule.deactivate()
-    assert task_schedule.is_active == False
+    assert task_schedule.is_active is False
 
     # test activate
     task_schedule.activate()
-    assert task_schedule.activate_on == task_schedule.deactivate_on == None
-    assert task_schedule.is_active == True
+    assert task_schedule.activate_on == task_schedule.deactivate_on is None
+    assert task_schedule.is_active is True
 
     # test deactivate_on
     task_schedule.deactivate_on = now - timedelta(seconds=60)
     task_schedule.save()
-    assert task_schedule.is_active == False
+    assert task_schedule.is_active is False
 
     # test activate_on
     task_schedule.activate()
-    assert task_schedule.activate_on == task_schedule.deactivate_on == None
+    assert task_schedule.activate_on == task_schedule.deactivate_on is None
     task_schedule.activate_on = now - timedelta(seconds=60)
     task_schedule.save()
-    assert task_schedule.is_active == True
+    assert task_schedule.is_active is True
 
     # test deactivate_on & activate_on
     task_schedule.activate()
-    assert task_schedule.activate_on == task_schedule.deactivate_on == None
+    assert task_schedule.activate_on == task_schedule.deactivate_on is None
     task_schedule.activate_on = now - timedelta(seconds=60)
     task_schedule.deactivate_on = now + timedelta(seconds=60)
     task_schedule.save()
-    assert task_schedule.is_active == True
+    assert task_schedule.is_active is True
 
     task_schedule.activate_on = now + timedelta(seconds=60)
     task_schedule.deactivate_on = now + timedelta(seconds=60)
     task_schedule.save()
-    assert task_schedule.is_active == False
+    assert task_schedule.is_active is False
 
     task_schedule.activate_on = now - timedelta(seconds=60)
     task_schedule.deactivate_on = now - timedelta(seconds=60)
     task_schedule.save()
-    assert task_schedule.is_active == False
+    assert task_schedule.is_active is False
 
 
 def test_activatable_manager(db, task_preset):
