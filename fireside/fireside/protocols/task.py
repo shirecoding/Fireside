@@ -1,11 +1,24 @@
-__all = ["PTaskChain"]
+__all = ["PTaskChain", "PProtocolDict"]
 
-from fireside.protocols import Protocol
+from pydantic import validator
 
-from .defs import TaskTree
+from .abstract import Protocol
+from .defs import ProtocolDict, TaskTree
+from .utils import as_serialized_pdict
 
 
 class PTaskChain(Protocol):
     protocol: str = "ptaskchain"
     klass: str = "fireside.protocols.task.PTaskChain"
     task_chain: list[TaskTree]
+
+
+class PProtocolDict(Protocol):
+    protocol: str = "pprotocoldict"
+    klass: str = "fireside.protocols.task.PProtocolDict"
+    protocols: ProtocolDict
+
+    @validator("protocols", pre=True)
+    def ensure_serialized(cls, pdict):
+        # serialize the generic instances into their specific klass
+        return as_serialized_pdict(pdict)

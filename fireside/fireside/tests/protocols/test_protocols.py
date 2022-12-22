@@ -2,7 +2,7 @@ import json
 
 from django.utils import timezone
 
-from fireside.protocols import PError, PMetric, PTaskChain
+from fireside.protocols import PError, PMetric, PProtocolDict, PTaskChain
 from fireside.protocols.defs import TaskTree
 from fireside.utils import import_path_to_function
 
@@ -21,13 +21,18 @@ def validate_protocol(protocol):
     assert protocol.as_pdict(jsonify=True) == {protocol.protocol: protocol.dict()}
 
 
-def test_metrics():
+def test_protocols():
 
+    # test PMetric
     pmetric = PMetric(
         started_on=timezone.now(),
         error=PError(type="IndexError", value="tuple index out of range"),
     )
     validate_protocol(pmetric)
+
+    # test PProtocolDict
+    pprotocoldict = PProtocolDict(protocols=pmetric.as_pdict())
+    validate_protocol(pprotocoldict)
 
 
 def test_task():

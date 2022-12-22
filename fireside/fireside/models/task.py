@@ -81,11 +81,13 @@ class Task(Model, NameDescriptionModel):
 
         # deserialize any jsonified protocols
         deserialized = {
-            pkey: pdict
+            pkey: import_path_to_function(pdict.klass)(
+                **pdict.dict()
+            )  # still need to deserialize to its klass as type hint might be a generic (eg. `Protocol`)
             if isinstance(pdict, type_hints[pkey])
             else import_path_to_function(pdict["klass"])(
                 **pdict
-            )  # use klass to deserialize as the type hint might be a base class such as `Protocol`
+            )  # deserialize with klass as the type hint might be a generic (eg. `Protocol`)
             for pkey, pdict in protocols.items()
             if pkey in type_hints
         }
