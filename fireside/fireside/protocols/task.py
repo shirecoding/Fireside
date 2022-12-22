@@ -4,7 +4,7 @@ from pydantic import validator
 
 from .abstract import Protocol
 from .defs import ProtocolDict, TaskTree
-from .utils import as_serialized_pdict
+from .utils import as_deserialized_pdict
 
 
 class PTaskChain(Protocol):
@@ -21,4 +21,4 @@ class PProtocolDict(Protocol):
     @validator("protocols", pre=True)
     def ensure_serialized(cls, pdict):
         # serialize the generic instances into their specific klass
-        return as_serialized_pdict(pdict)
+        return as_deserialized_pdict(pdict)

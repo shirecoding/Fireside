@@ -12,7 +12,7 @@ from rq.queue import Queue
 from toolz import dissoc
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
-from fireside.protocols import Protocol, ProtocolDict
+from fireside.protocols import Protocol, ProtocolDict, as_deserialized_pdict
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class Task(Model, NameDescriptionModel):
     def __call__(self, **protocols):
         return self.run(**protocols)
 
-    def run(self, **protocols) -> ProtocolDict | None:
+    def run(self, **protocols: ProtocolDict) -> ProtocolDict | None:
         """Task function that is run in the worker.
         Args:
             protocols: `ProtocolDict` as kwargs. May originate from database (`TaskPreset`)
@@ -69,33 +69,13 @@ class Task(Model, NameDescriptionModel):
                 f"{self} unsupported params in {type_hints}, use only `Protocol`s"
             )
 
-        # check for any untyped inputs
-        if len(type_hints) < len(protocols):
-            raise Exception(f"{self} has untyped protocol params")
-
         # check that protocols from `TaskPreset` matches function type hints
         if not set(type_hints).issubset(set(protocols)):
             raise Exception(
                 f"{self} missing protocols {set(type_hints) - set(protocols)}"
             )
 
-        # deserialize any jsonified protocols
-        deserialized = {
-            pkey: import_path_to_function(pdict.klass)(
-                **pdict.dict()
-            )  # still need to deserialize to its klass as type hint might be a generic (eg. `Protocol`)
-            if isinstance(pdict, type_hints[pkey])
-            else import_path_to_function(pdict["klass"])(
-                **pdict
-            )  # deserialize with klass as the type hint might be a generic (eg. `Protocol`)
-            for pkey, pdict in protocols.items()
-            if pkey in type_hints
-        }
-
-        if len(type_hints) != len(deserialized):
-            raise Exception(f"{self} missing required protocols {type_hints}")
-
-        return func(**deserialized)
+        return func(**as_deserialized_pdict(protocols))
 
     def enqueue(
         self,

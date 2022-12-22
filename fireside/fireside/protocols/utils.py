@@ -1,4 +1,4 @@
-__all__ = ["as_serialized_pdict"]
+__all__ = ["as_deserialized_pdict"]
 
 from typing import TYPE_CHECKING
 
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .defs import ProtocolDict
 
 
-def as_serialized_pdict(pdict: "ProtocolDict"):
+def as_deserialized_pdict(pdict: "ProtocolDict"):
     from fireside.protocols import Protocol
 
     return {
