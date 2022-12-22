@@ -1,9 +1,29 @@
-__all__ = ["ProtocolDict"]
+from __future__ import annotations
 
-from typing import Union
+__all__ = ["ProtocolDict", "TaskTree"]
+
+import json
+from typing import ForwardRef, Union
+
+from pydantic import BaseModel
 
 from fireside.utils import JSONObject
 
 from .abstract import Protocol
 
 ProtocolDict = dict[str, Union[Protocol, JSONObject]]
+
+TaskTree = ForwardRef("TaskTree")
+
+
+class TaskTree(BaseModel):
+    task_uid: str
+    children: list[TaskTree] = []
+
+    class Config:
+        json_encoders = {
+            TaskTree: lambda t: json.dumps(t.dict()),
+        }
+
+
+TaskTree.update_forward_refs()
