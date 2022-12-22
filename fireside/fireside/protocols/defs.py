@@ -18,6 +18,9 @@ TaskTree = ForwardRef("TaskTree")
 
 class TaskTree(BaseModel):
     task_uid: str
+    job_id: str | None = (
+        None  # used to get the `ProtocolDict` result of the completed task
+    )
     children: list[TaskTree] = []
 
     class Config:

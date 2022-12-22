@@ -2,11 +2,11 @@ import json
 
 from django.utils import timezone
 
-from fireside.protocols import PError, PMetric
+from fireside.protocols import PError, PMetric, PTaskChain
 from fireside.protocols.defs import TaskTree
 
 
-def test_protocols():
+def test_metrics():
 
     pmetric = PMetric(
         started_on=timezone.now(),
@@ -23,7 +23,7 @@ def test_protocols():
     assert pmetric.as_kwargs(jsonify=True) == {"pmetric": pmetric.json()}
 
 
-def test_base_models():
+def test_task():
 
     # test TaskTree
     ttree = TaskTree(
@@ -39,16 +39,31 @@ def test_base_models():
             ),
         ],
     )
+
     assert json.loads(ttree.json()) == {
         "task_uid": "task1",
+        "job_id": None,
         "children": [
-            {"task_uid": "task2", "children": []},
+            {"task_uid": "task2", "job_id": None, "children": []},
             {
                 "task_uid": "task3",
+                "job_id": None,
                 "children": [
-                    {"task_uid": "task4", "children": []},
-                    {"task_uid": "task5", "children": []},
+                    {"task_uid": "task4", "job_id": None, "children": []},
+                    {"task_uid": "task5", "job_id": None, "children": []},
                 ],
             },
         ],
     }
+
+    # test PTaskChain
+    ptaskchain = PTaskChain(task_chain=[ttree])
+
+    # test serialization
+    assert PTaskChain.parse_raw(ptaskchain.json()) == ptaskchain
+
+    # test as_kwargs
+    assert ptaskchain.as_kwargs() == {"ptaskchain": ptaskchain}
+
+    # test as_kwargs jsonify
+    assert ptaskchain.as_kwargs(jsonify=True) == {"ptaskchain": ptaskchain.json()}
