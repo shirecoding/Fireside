@@ -65,6 +65,7 @@ class TaskAdmin(ModelAdmin):
     list_display = ["name", "description", "fpath", "is_valid", "priority", "timeout"]
     readonly_fields = [
         "name",
+        "uid",
         "description",
         "fpath",
         "is_valid",

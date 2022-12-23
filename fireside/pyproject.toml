@@ -25,6 +25,7 @@ django-rq = "^2.5.1"
 cron-descriptor = "^1.2.31"
 django-ninja = "^0.19.1"
 reactivex = "^4.0.4"
+deepdiff = "^6.2.2"
 
 [tool.poetry.dev-dependencies]
 

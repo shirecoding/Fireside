@@ -4,10 +4,12 @@
 {% block extrahead %}
 <!-- htmx -->
 <script src="{% static 'fireside/js/htmx.min.js' %}"></script>
-<script>
-  document.body.addEventListener('htmx:configRequest', (event) => {
-    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-  })
+<script type="text/javascript">
+  window.onload = function() {
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    })
+  }
 </script>
 {{ block.super }}
 {% endblock %}

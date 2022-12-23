@@ -40,4 +40,4 @@ def health_check(**protocols) -> ProtocolDict:
         services=[
             ServiceStatus(service="db", status=check_db(), last_updated=timezone.now())
         ]
-    )
+    ).as_pdict()

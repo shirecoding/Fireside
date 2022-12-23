@@ -1,6 +1,12 @@
-__all__ = ["function_to_import_path", "import_path_to_function", "cron_pretty"]
+__all__ = [
+    "function_to_import_path",
+    "import_path_to_function",
+    "cron_pretty",
+    "generate_uuid",
+]
 
 import inspect
+import uuid
 from functools import lru_cache
 from importlib import import_module
 from typing import Callable
@@ -31,3 +37,7 @@ def cron_pretty(cron: str) -> str:
         return str(ExpressionDescriptor(cron))
     except Exception as e:
         return str(e)
+
+
+def generate_uuid() -> str:
+    return uuid.uuid4().hex

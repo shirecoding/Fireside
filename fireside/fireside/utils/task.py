@@ -69,7 +69,6 @@ def task(
             Task.objects.update_or_create(
                 name=name,
                 defaults={
-                    "name": name,
                     "fpath": fpath,
                     "description": description,
                     "priority": priority,
@@ -77,11 +76,8 @@ def task(
                 },
             )
 
-            def wrapper(*args, **kwargs):
-                return f(*args, **kwargs)
-
-            return wrapper
-        except:
+            return f
+        except Exception:
             logger.exception(
                 f"Failed to register task: {name} ({fpath}), make sure models are migrated"
             )

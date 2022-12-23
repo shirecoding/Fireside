@@ -47,8 +47,8 @@ class Task(Model, NameDescriptionModel):
     def __str__(self):
         return f"{self.name} ({self.fpath})"
 
-    def __call__(self, **protocols):
-        return self.run(**protocols)
+    def __repr__(self) -> str:
+        return str(self)
 
     def run(self, **protocols: ProtocolDict) -> ProtocolDict | None:
         """Task function that is run in the worker.
@@ -196,9 +196,6 @@ class TaskSchedule(Model, ActivatableModel):
         """
         if self.is_active:
             return self.task_preset.run()
-
-    def __call__(self) -> Any:
-        return self.run()
 
     def enqueue(self) -> Job | None:
         if self.is_active:

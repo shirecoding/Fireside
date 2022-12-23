@@ -1,5 +1,6 @@
 import logging
 
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from fireside.utils.task import remove_invalid_tasks, reschedule_tasks
+
+        # Update permissions
+        call_command("update_permissions")
+        call_command("remove_stale_contenttypes")
 
         # Clean tasks
         logger.info("Cleaning tasks ...")

@@ -1,8 +1,11 @@
-from datetime import timedelta
-from operator import attrgetter
+from datetime import datetime
 
-from django.utils import timezone
-from toolz import groupby
+from deepdiff import DeepDiff
+
+from fireside.models import Task
+from fireside.protocols import as_serialized_pdict
+from fireside.utils import function_to_import_path
+from fireside.utils.task import get_task_result
 
 
 def test_health_check(db):
@@ -12,6 +15,40 @@ def test_health_check(db):
 
     # test function
     pdict = health_check()
-    services = groupby(attrgetter("service"), pdict.services)
-    assert services["db"][0].status == "up"
-    assert services["db"][0].last_updated > timezone.now() - timedelta(seconds=1)
+    assert not DeepDiff(
+        as_serialized_pdict(pdict),
+        {
+            "phealthcheck": {
+                "klass": "fireside.tasks.health_check.PHealthCheck",
+                "protocol": "phealthcheck",
+                "services": [
+                    {"last_updated": datetime.now(), "service": "db", "status": "up"}
+                ],
+            }
+        },
+        truncate_datetime="minute",
+    )
+
+    # test task
+    health_check_task = Task.objects.create(
+        name="HealthCheck",
+        description="HealthCheck Task",
+        fpath=function_to_import_path(health_check),
+    )
+
+    job = health_check_task.enqueue()
+    pdict = get_task_result(job)
+
+    assert not DeepDiff(
+        as_serialized_pdict(pdict),
+        {
+            "phealthcheck": {
+                "klass": "fireside.tasks.health_check.PHealthCheck",
+                "protocol": "phealthcheck",
+                "services": [
+                    {"last_updated": datetime.now(), "service": "db", "status": "up"}
+                ],
+            }
+        },
+        truncate_datetime="minute",
+    )

@@ -1,4 +1,4 @@
-# Setting The Environment
+# Setting Up The Environment
 
 Different settings are loaded depending on the `ENVIRONMENT` variable (development(default), test, production). See
 
@@ -16,17 +16,30 @@ poetry shell  # start virtual environment
 
 ## Build Docker Image
 
+The Dockerfile is located at
+
+- `fireside/Fireside.Dockerfile`
+
 ```bash
-docker-compose build  # user --no-cache if needed to regenerate older layers
+docker-compose build  # use --no-cache if needed to regenerate older layers
 docker-compose up  # start docker environment
+```
+
+## Initialize Database & Static Files
+
+Make sure to run the following on a new database
+
+```bash
+./manage.py makemigrations
+./manage.py migrate
+./manage.py createsuperuser
+./manage.py collectstatic
 ```
 
 # Testing
 
 ```bash
 poetry shell
-./manage.py makemigrations
-./manage.py migrate
 pytest -s
 ```
 
@@ -35,29 +48,13 @@ These are the relevant pytest config files
 - `fireside/pytest.ini`
 - `fireside/conftest.py`
 
-During testing the `fireside/core/settings/test.py` django settings will loaded.
-
-# Development Environment
-
-Make sure to run the following on a new database
-
-```bash
-./manage.py createsuperuser
-./manage.py migrate
-```
+# Run The Server
 
 The entire project will be mounted on `/app` inside the fireside docker container
 
 ```bash
-# build docker image
-docker-compose build  # --no-cache to rebuild pip layers
-
 # run the following in fireside directory
-docker-compose up
-
-# separate window
-poetry shell
-./manage.py runserver
+docker-compose up  # This automatically starts the django server in a container
 ```
 
 ## Updating Permissions
@@ -94,7 +91,3 @@ Environment variables are located at (needs to be created as it is not stored in
   # Allow print statements for development debugging (degrades performance) - do not set for production
   PYTHONUNBUFFERED=1
   ```
-
-The Dockerfile is located at
-
-- `fireside/Fireside.Dockerfile`
