@@ -13,16 +13,10 @@ def test_health_check(db):
     )
 
     # test function call
-    p_health_check = health_check()
+    hc = health_check()
     assert not DeepDiff(
-        p_health_check.dict(),
-        {
-            "protocol": "phealthcheck",
-            "klass": "fireside.tasks.health_check.PHealthCheck",
-            "services": [
-                {"service": "db", "status": "up", "last_updated": datetime.now()}
-            ],
-        },
+        [s.dict() for s in hc["services"]],
+        [{"service": "db", "status": "up", "last_updated": datetime.now()}],
         truncate_datetime="minute",
     )
 
@@ -34,16 +28,10 @@ def test_health_check(db):
     )
 
     job = health_check_task.enqueue()
-    p_health_check = get_task_result(job)
+    hc = get_task_result(job)
 
     assert not DeepDiff(
-        p_health_check.dict(),
-        {
-            "protocol": "phealthcheck",
-            "klass": "fireside.tasks.health_check.PHealthCheck",
-            "services": [
-                {"service": "db", "status": "up", "last_updated": datetime.now()}
-            ],
-        },
+        [s.dict() for s in hc["services"]],
+        [{"service": "db", "status": "up", "last_updated": datetime.now()}],
         truncate_datetime="minute",
     )
