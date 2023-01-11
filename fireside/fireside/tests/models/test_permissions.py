@@ -21,7 +21,7 @@ def humans(db) -> Group:
     return Group.objects.create(name="humans")
 
 
-def test_permissions_created(db, task_schedule):
+def test_permissions_created(db, logging_task_schedule):
 
     perms = Permission.objects.filter(
         content_type=ContentType.objects.get_for_model(TaskSchedule)
@@ -46,7 +46,7 @@ def test_permissions_created(db, task_schedule):
         assert any([p.codename == f"view_{model_name}_{f}" for p in perms])
 
 
-def test_field_permissions(task_schedule, humans, starbuck):
+def test_field_permissions(logging_task_schedule, humans, starbuck):
 
     # test no perms at start
     assert bool(starbuck.get_all_permissions()) is False
@@ -87,7 +87,7 @@ def test_field_permissions(task_schedule, humans, starbuck):
         assert starbuck.has_perm(f"{app_name}.change_{model_name}_{f.name}") is False
 
 
-def test_object_permissions(task_schedule, humans, starbuck, adama):
+def test_object_permissions(logging_task_schedule, humans, starbuck, adama):
 
     app_name = "fireside"
     model_name = TaskSchedule._meta.model_name
@@ -99,41 +99,60 @@ def test_object_permissions(task_schedule, humans, starbuck, adama):
         view_field_perm = TaskSchedule.get_field_permission(f, "view")
 
         # test add & remove user object level permission
-        task_schedule.assign_perm(view_field_perm, adama)
+        logging_task_schedule.assign_perm(view_field_perm, adama)
         adama = get_object_or_404(User, pk=adama.id)  # refetch
         assert (
-            adama.has_perm(f"{app_name}.view_{model_name}_{f.name}", task_schedule)
+            adama.has_perm(
+                f"{app_name}.view_{model_name}_{f.name}", logging_task_schedule
+            )
             is True
         )
-        assert task_schedule.has_perm(view_field_perm, adama) is True
+        assert logging_task_schedule.has_perm(view_field_perm, adama) is True
         assert (
-            task_schedule.has_perm(f"{app_name}.view_{model_name}_{f.name}", adama)
+            logging_task_schedule.has_perm(
+                f"{app_name}.view_{model_name}_{f.name}", adama
+            )
             is True
         )
         assert (
-            starbuck.has_perm(f"{app_name}.view_{model_name}_{f.name}", task_schedule)
+            starbuck.has_perm(
+                f"{app_name}.view_{model_name}_{f.name}", logging_task_schedule
+            )
             is False
         )
 
-        task_schedule.remove_perm(view_field_perm, adama)
+        logging_task_schedule.remove_perm(view_field_perm, adama)
         adama = get_object_or_404(User, pk=adama.id)  # refetch
         assert (
-            adama.has_perm(f"{app_name}.view_{model_name}_{f.name}", task_schedule)
+            adama.has_perm(
+                f"{app_name}.view_{model_name}_{f.name}", logging_task_schedule
+            )
             is False
         )
-        assert task_schedule.has_perm(view_field_perm, adama) is False
+        assert logging_task_schedule.has_perm(view_field_perm, adama) is False
         assert (
-            starbuck.has_perm(f"{app_name}.view_{model_name}_{f.name}", task_schedule)
+            starbuck.has_perm(
+                f"{app_name}.view_{model_name}_{f.name}", logging_task_schedule
+            )
             is False
         )
 
         # test add & remove group object level permission
-        assert adama.has_perm(f"{app_name}.add_{model_name}", task_schedule) is False
-        task_schedule.assign_perm(add_perm, humans)
+        assert (
+            adama.has_perm(f"{app_name}.add_{model_name}", logging_task_schedule)
+            is False
+        )
+        logging_task_schedule.assign_perm(add_perm, humans)
         humans.user_set.add(adama)
         adama = get_object_or_404(User, pk=adama.id)  # refetch
-        assert adama.has_perm(f"{app_name}.add_{model_name}", task_schedule) is True
+        assert (
+            adama.has_perm(f"{app_name}.add_{model_name}", logging_task_schedule)
+            is True
+        )
 
-        task_schedule.remove_perm(add_perm, humans)
+        logging_task_schedule.remove_perm(add_perm, humans)
         adama = get_object_or_404(User, pk=adama.id)  # refetch
-        assert adama.has_perm(f"{app_name}.add_{model_name}", task_schedule) is False
+        assert (
+            adama.has_perm(f"{app_name}.add_{model_name}", logging_task_schedule)
+            is False
+        )

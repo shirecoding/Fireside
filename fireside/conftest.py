@@ -64,7 +64,9 @@ def logging_task_preset(db, logging_task, text_message) -> TaskPreset:
     task_preset = TaskPreset.objects.create(
         name="Log Messages Task Preset",
         task=logging_task,
-        kwargs={"message": text_message},
+        kwargs={
+            "message": text_message.dict()
+        },  # `TaskPreset` kwargs is a JSONField and needs to be JSON serializable
     )
     assert TaskPreset.objects.get(task=logging_task) == task_preset
 
