@@ -77,6 +77,11 @@
 - [x] `Task` introspects function input protocol types for derialization (from JSON to `Protocol` before running as task input)
 - [x] `Task` functions should enforce keyword arguments (eg. `logging_task(*, pmessage: PMessage)`). This is used for type introspection, se/derialization
 
+- [ ] Output type hints for task decorator. Input type hints can be introspected, but output is a `ProtocolDict`
+- [ ] Handle timeout for `task_chain`
+
+How to deal with tasks with multiple of the same protocols? use protocol dict always? have symmetry instead of accepting kwargs
+
 ## Protocols
 
 - [ ] Input to `Task`s are protocol kwargs (eg. `task.enqueue(pmetric=PMetric(...), perror=PError(...))`)

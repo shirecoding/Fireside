@@ -5,7 +5,7 @@ __all__ = ["ProtocolDict", "TaskTree"]
 import json
 from typing import ForwardRef, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from fireside.utils import JSONObject
 
@@ -27,6 +27,10 @@ class TaskTree(BaseModel):
         json_encoders = {
             TaskTree: lambda t: json.dumps(t.dict()),
         }
+
+    @validator("task_uid", pre=True)
+    def ensure_string(cls, task_uid):
+        return str(task_uid)
 
 
 TaskTree.update_forward_refs()

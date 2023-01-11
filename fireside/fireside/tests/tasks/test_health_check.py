@@ -3,7 +3,6 @@ from datetime import datetime
 from deepdiff import DeepDiff
 
 from fireside.models import Task
-from fireside.protocols import as_serialized_pdict
 from fireside.utils import function_to_import_path
 from fireside.utils.task import get_task_result
 
@@ -13,18 +12,16 @@ def test_health_check(db):
         health_check,  # need to import here as it requires db connection
     )
 
-    # test function
-    pdict = health_check()
+    # test function call
+    p_health_check = health_check()
     assert not DeepDiff(
-        as_serialized_pdict(pdict),
+        p_health_check.dict(),
         {
-            "phealthcheck": {
-                "klass": "fireside.tasks.health_check.PHealthCheck",
-                "protocol": "phealthcheck",
-                "services": [
-                    {"last_updated": datetime.now(), "service": "db", "status": "up"}
-                ],
-            }
+            "protocol": "phealthcheck",
+            "klass": "fireside.tasks.health_check.PHealthCheck",
+            "services": [
+                {"service": "db", "status": "up", "last_updated": datetime.now()}
+            ],
         },
         truncate_datetime="minute",
     )
@@ -37,18 +34,16 @@ def test_health_check(db):
     )
 
     job = health_check_task.enqueue()
-    pdict = get_task_result(job)
+    p_health_check = get_task_result(job)
 
     assert not DeepDiff(
-        as_serialized_pdict(pdict),
+        p_health_check.dict(),
         {
-            "phealthcheck": {
-                "klass": "fireside.tasks.health_check.PHealthCheck",
-                "protocol": "phealthcheck",
-                "services": [
-                    {"last_updated": datetime.now(), "service": "db", "status": "up"}
-                ],
-            }
+            "protocol": "phealthcheck",
+            "klass": "fireside.tasks.health_check.PHealthCheck",
+            "services": [
+                {"service": "db", "status": "up", "last_updated": datetime.now()}
+            ],
         },
         truncate_datetime="minute",
     )

@@ -9,10 +9,8 @@ from django.dispatch import receiver
 from django_rq import get_connection, get_queue, get_scheduler
 from rq.job import Job
 from rq.queue import Queue
-from toolz import dissoc
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
-from fireside.protocols import Protocol, ProtocolDict, as_deserialized_pdict
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
@@ -25,6 +23,10 @@ class TaskPriority(models.TextChoices):
 
 
 class Task(Model, NameDescriptionModel):
+    """
+    Only `kwargs` are supported
+    """
+
     fpath = models.CharField(
         max_length=256,
         unique=True,
@@ -50,46 +52,48 @@ class Task(Model, NameDescriptionModel):
     def __repr__(self) -> str:
         return str(self)
 
-    def run(self, **protocols: ProtocolDict) -> ProtocolDict | None:
-        """Task function that is run in the worker.
-        Args:
-            protocols: `ProtocolDict` as kwargs. May originate from database (`TaskPreset`)
+    def run(self, *args, **kwargs):
+        """Task function that is run in the worker."""
 
-        Returns:
-            A `ProtocolDict` result
-        """
+        if args:
+            raise Exception(f"Tasks support `kwargs` only, detected `args` {args}")
 
         # introspect task input type hints
         func = import_path_to_function(self.fpath)
-        type_hints = dissoc(get_type_hints(func), "return")
 
-        # check that all inputs are `Protocol`s
-        if any(issubclass(t, Protocol) is False for t in type_hints.values()):
-            raise Exception(
-                f"{self} unsupported params in {type_hints}, use only `Protocol`s"
-            )
+        # type_hints = dissoc(get_type_hints(func), "return")
 
-        # check that protocols from `TaskPreset` matches function type hints
-        if not set(type_hints).issubset(set(protocols)):
-            raise Exception(
-                f"{self} missing protocols {set(type_hints) - set(protocols)}"
-            )
+        # # check that all inputs are `Protocol`s
+        # if any(issubclass(t, Protocol) is False for t in type_hints.values()):
+        #     raise Exception(
+        #         f"{self} unsupported params in {type_hints}, use only `Protocol`s"
+        #     )
 
-        return func(**as_deserialized_pdict(protocols))
+        # # check that protocols from `TaskPreset` matches function type hints
+        # if not set(type_hints).issubset(set(protocols)):
+        #     raise Exception(
+        #         f"{self} missing protocols {set(type_hints) - set(protocols)}"
+        #     )
+
+        return func(**kwargs)
+
+    def get_type_hints(self):
+        return get_type_hints(import_path_to_function(self.fpath))
 
     def enqueue(
         self,
+        *args,
         priority: TaskPriority | None = None,
         on_success=None,
         on_failure=None,
-        **protocols,
+        **kwargs,
     ) -> Job:
         return get_queue(name=priority or self.priority).enqueue(
-            self.run, kwargs=protocols, on_success=on_success, on_failure=on_failure
+            self.run, kwargs=kwargs, on_success=on_success, on_failure=on_failure
         )
 
     def delay(self, *args, **kwargs) -> Job:
-        return self.enqueue(*args, **kwargs)
+        return self.enqueue(**kwargs)
 
     def is_valid(self) -> bool:
         # check if path to function is still valid (could have been deleted)
@@ -102,6 +106,10 @@ class Task(Model, NameDescriptionModel):
 
 
 class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
+    """
+    Inputs for `Task`s are `kwargs` only, `args` are not supported
+    """
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     priority = models.CharField(
         choices=TaskPriority.choices,
@@ -109,8 +117,8 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         max_length=128,
         help_text="Priority of the task preset (overrides task priority)",
     )
-    protocols = models.JSONField(
-        default=dict, blank=True, help_text="Preset `ProtocolDict` for the task"
+    kwargs = models.JSONField(
+        default=dict, blank=True, help_text="Input kwargs for the task"
     )
 
     def __str__(self):
@@ -120,15 +128,13 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         return str(self)
 
     def run(self) -> Any:
-        """
-        Blocking call of the task
-        """
+        """Blocking call of the task"""
         if self.is_active:
-            return self.task.run(**self.protocols)
+            return self.task.run(**self.kwargs)
 
     def enqueue(self) -> Job | None:
         if self.is_active:
-            return self.task.enqueue(self.priority, **self.protocols)
+            return self.task.enqueue(self.priority, **self.kwargs)
 
     def delay(self) -> Job | None:
         if self.is_active:

@@ -7,7 +7,7 @@ from django.db import connection
 from django.utils import timezone
 from pydantic import BaseModel
 
-from fireside.protocols import Protocol, ProtocolDict
+from fireside.protocols import Protocol
 from fireside.utils.task import task
 
 logger = logging.getLogger(__name__)
@@ -34,10 +34,10 @@ def check_db() -> Literal["up", "down", "pending"]:
 
 
 @task(name="HealthCheck", description="Performs system health check")
-def health_check(**protocols) -> ProtocolDict:
+def health_check() -> PHealthCheck:
     logger.debug("Performing Healthcheck")
     return PHealthCheck(
         services=[
             ServiceStatus(service="db", status=check_db(), last_updated=timezone.now())
         ]
-    ).as_pdict()
+    )

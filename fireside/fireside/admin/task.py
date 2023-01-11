@@ -83,7 +83,7 @@ class TaskPresetAdmin(ModelAdmin):
                 "fields": (
                     "name",
                     "task",
-                    "protocols",
+                    "kwargs",
                 )
             },
         ]

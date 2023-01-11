@@ -1,29 +1,28 @@
-# __all = ["task_chain"]
+__all = ["task_chain"]
 
-# import logging
+import logging
 
-# from fireside.protocols import Protocol, PTaskChain, PProtocolDict
-# from fireside.utils.task import task
-# from fireside.models import Task
+from fireside.models import Task
+from fireside.utils import JSONObject
+from fireside.utils.task import TaskTree, get_task_result, task
 
-# logger = logging.getLogger(__name__)
-
-
-# @task(name="TaskChain", description="Chain a tree of tasks")
-# def task_chain(pprotocoldict: PProtocolDict, ptaskchain: PTaskChain) -> PTaskChain:
-#     """
-#     PROB: Problem input is a generic protocol, type hints will fail, need to support params not being tied to the protocol name!!!!
-
-#     because preset as_kwargs() is used to jsonify the model and as_kwargs will use the protocol name instead of the function args
-
-#     problem also if tasks take in 2 of the same type of protocols, the keyworc cannot be pmetric1/2
+logger = logging.getLogger(__name__)
 
 
-#     the pdict keys are rather the function input keys rather than the pkeys,
-#     """
+def traverse_tree(tree, **kwargs):
+    """
+    Does a blocking call at each node and passes the result as input to the children.
+    When the function returns, the task results are ready to be fetched
+    """
+    job = Task.objects.get(uid=tree.task_uid).enqueue(**kwargs)
+    result_kwargs = get_task_result(job)
+    return TaskTree(
+        task_uid=tree.task_uid,
+        job_id=job.id,
+        children=[traverse_tree(t, **result_kwargs) for t in tree.children],
+    )
 
-#     # TODO: check that input matches the input of taskchain
 
-
-#     # for task_tree in ptaskchain.task_chain:
-#     #     Task.objects.get(uid=task_tree.task_uid).enqueue()
+@task(name="TaskChain", description="Chain a tree of tasks")
+def task_chain(*, trees: list[TaskTree], initial_kwargs: JSONObject) -> list[TaskTree]:
+    return [traverse_tree(t, **initial_kwargs) for t in trees]

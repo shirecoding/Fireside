@@ -1,21 +1,60 @@
-__all__ = ["task", "remove_invalid_tasks", "reschedule_tasks", "get_task_result"]
+from __future__ import annotations
 
+__all__ = [
+    "task",
+    "remove_invalid_tasks",
+    "reschedule_tasks",
+    "get_task_result",
+    "get_task_tree_result",
+    "get_task_trees_result",
+    "fetch_job",
+    "TaskTree",
+]
+
+import json
 import logging
 from time import sleep
+from typing import Any, ForwardRef
 
-from django_rq import get_scheduler
+from django_rq import get_connection, get_scheduler
+from pydantic import BaseModel, validator
 from rq.job import Job
+from toolz import dissoc
 
 from fireside.models import TaskPriority
-from fireside.protocols import ProtocolDict
 from fireside.utils import function_to_import_path
 
 logger = logging.getLogger(__name__)
 
 TIME_STEP = 0.1
 
+TaskTree = ForwardRef("TaskTree")
 
-def get_task_result(job: Job, timeout=60) -> ProtocolDict:
+
+class TaskTree(BaseModel):
+    task_uid: str
+    job_id: str | None = None
+    result: Any = None
+    children: list[TaskTree] = []
+
+    class Config:
+        json_encoders = {
+            TaskTree: lambda t: json.dumps(t.dict()),
+        }
+
+    @validator("task_uid", pre=True)
+    def ensure_string(cls, task_uid):
+        return str(task_uid)
+
+
+TaskTree.update_forward_refs()
+
+
+def fetch_job(job_id: str) -> Job:
+    return Job.fetch(job_id, connection=get_connection())
+
+
+def get_task_result(job: Job, timeout=60) -> Any:
     """
     Blocking wait for job results
     """
@@ -38,6 +77,21 @@ def get_task_result(job: Job, timeout=60) -> ProtocolDict:
         raise Exception(f"{job} failed with status: {status}")
 
     return job.result
+
+
+def get_task_trees_result(trees: list[TaskTree]) -> list[TaskTree]:
+    return [get_task_tree_result(t) for t in trees]
+
+
+def get_task_tree_result(tree: TaskTree) -> TaskTree:
+    """
+    Blocking wait for task tree jobs
+    """
+    return TaskTree(
+        **dissoc(tree.dict(), "result", "children"),
+        result=get_task_result(fetch_job(tree.job_id)),
+        children=[get_task_tree_result(t) for t in tree.children],
+    )
 
 
 def task(
