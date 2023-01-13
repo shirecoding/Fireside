@@ -4,8 +4,16 @@ import pytest
 from django.core.management import call_command
 from pydantic import BaseModel
 
-from fireside.models import Task, TaskPreset, TaskPriority, TaskSchedule
+from fireside.models import (
+    Event,
+    EventHandler,
+    Task,
+    TaskPreset,
+    TaskPriority,
+    TaskSchedule,
+)
 from fireside.utils import JSONObject, function_to_import_path
+from fireside.utils.event import register_event
 
 logger = logging.getLogger(__name__)
 
@@ -88,3 +96,33 @@ def logging_task_schedule(db, logging_task_preset) -> TaskSchedule:
     call_command("remove_stale_contenttypes")
 
     return task_schedule
+
+
+@pytest.fixture
+def chat_message_event(db) -> Event:
+    event = register_event(
+        "ChatMessageEvent", Message, description="A Chat Message Event"
+    )
+
+    assert event.name == "ChatMessageEvent"
+    assert event.description == "A Chat Message Event"
+    assert event.get_data_klass() == Message
+
+    return event
+
+
+@pytest.fixture
+def chat_message_event_handler(db, chat_message_event, logging_task) -> EventHandler:
+    ev_handler = EventHandler.objects.create(
+        task=logging_task,
+        event=chat_message_event,
+        name="ChatMessageEventHandler",
+        description="Logs `ChatMessageEvent`s to debug console",
+    )
+
+    assert ev_handler.name == "ChatMessageEventHandler"
+    assert ev_handler.description == "Logs `ChatMessageEvent`s to debug console"
+    assert ev_handler.task == logging_task
+    assert ev_handler.event == chat_message_event
+
+    return ev_handler

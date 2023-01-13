@@ -1,6 +1,7 @@
 # Specifications & TODO
 
 - [ ] Should `utils/widgets` have api for dynamic widgets?
+- [ ] Move TaskTree to tasks instead of utils
 
 ## Development
 
@@ -122,4 +123,6 @@ How to deal with tasks with multiple of the same protocols? use protocol dict al
 
 ## Event System
 
-- [ ] Create Producer
+- [ ] `EventHandler` model takes in `Task` as well as `Event`
+- [ ] A global `event_handler_task` hangles events for all producers. It find all `EventHandler`s which accept `Event` and calls it's `Task`, passing in the event as input
+- [ ] `register_event` util
