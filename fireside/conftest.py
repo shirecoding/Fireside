@@ -100,13 +100,10 @@ def logging_task_schedule(db, logging_task_preset) -> TaskSchedule:
 
 @pytest.fixture
 def chat_message_event(db) -> Event:
-    event = register_event(
-        "ChatMessageEvent", Message, description="A Chat Message Event"
-    )
+    event = register_event("ChatMessageEvent", description="A Chat Message Event")
 
     assert event.name == "ChatMessageEvent"
     assert event.description == "A Chat Message Event"
-    assert event.get_data_klass() == Message
 
     return event
 
