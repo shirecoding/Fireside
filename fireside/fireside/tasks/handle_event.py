@@ -3,6 +3,8 @@ __all = ["handle_event"]
 import logging
 from typing import Iterable
 
+from rq.job import Job
+
 from fireside.models import Event, EventHandler
 from fireside.utils.task import task
 
@@ -18,6 +20,5 @@ def get_event_handlers(event: Event | str) -> Iterable[Event]:
 @task(
     name="HandleEvent", description="Run `EventHandlers` which listens for the event."
 )
-def handle_event(event: Event | str, **kwargs) -> None:
-    for e in get_event_handlers(event):
-        e.task.delay(**kwargs)
+def handle_event(event: Event | str, **kwargs) -> list[Job]:
+    return [e.task.delay(**kwargs) for e in get_event_handlers(event)]
