@@ -9,10 +9,11 @@ from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import format_html
 from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 
-from fireside.models import ActivatableModel, Model
+from fireside.models import ActivatableModel, Model, NameDescriptionModel
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +264,9 @@ class ModelAdmin(GuardedModelAdmin):
         )
 
     def get_list_display(self, request, *args, **kwargs):
-        return ["shortcuts"] + super().get_list_display(request, *args, **kwargs)
+        return ["shortcuts", "name_uid"] + super().get_list_display(
+            request, *args, **kwargs
+        )
 
     def get_list_display_links(self, request, list_display, *args, **kwargs):
         return super().get_list_display_links(
@@ -290,6 +293,13 @@ class ModelAdmin(GuardedModelAdmin):
     def deactivate(self, request, qs):
         qs.deactivate()
 
+    @admin.display(description="Name/UID")
+    def name_uid(self, obj):
+        if obj.name:
+            return format_html("<p>{}</br>{}</p>", obj.name, obj.uid)
+        else:
+            return format_html("<p>{}</p>", obj.uid)
+
     @admin.display(description="")
     def shortcuts(self, obj):
         """
@@ -299,10 +309,15 @@ class ModelAdmin(GuardedModelAdmin):
         context = {
             "is_active": None,
             "olp_link": None,
+            "description": None,
+            "uid": str(obj.uid),
         }
 
         if isinstance(obj, ActivatableModel):
             context["is_active"] = obj.is_active
+
+        if isinstance(obj, NameDescriptionModel):
+            context["description"] = obj.description
 
         if isinstance(obj, Model):
             context["olp_link"] = reverse(

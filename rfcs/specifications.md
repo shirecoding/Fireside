@@ -2,6 +2,11 @@
 
 - [ ] Should `utils/widgets` have api for dynamic widgets?
 - [ ] Move TaskTree to tasks instead of utils
+- [ ] change chat to fireside_messaging
+- [ ] Partial task preset, events can run tasks or task preset
+- [ ] event run should check task is activated
+- [ ] activatable model + name description admin model mixin
+- [ ] endpoint to render markdown for description
 
 ## Development
 

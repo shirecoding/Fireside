@@ -403,6 +403,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "markdown"
+version = "3.4.1"
+description = "Python implementation of Markdown."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+testing = ["coverage", "pyyaml"]
+
+[[package]]
 name = "msgpack"
 version = "1.0.4"
 description = "MessagePack serializer"
@@ -767,8 +778,8 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.11.0a4"
-content-hash = "a2daecb913557a605d6783b04cb1e97cfd8c26eead94828826683c8882d41251"
+python-versions = "^3.11.1"
+content-hash = "0e477f65e6376879d4f0174046282ebd94ab69ab8b641c398818b1035f97ff05"
 
 [metadata.files]
 aioredis = [
@@ -824,6 +835,7 @@ hyperlink = [
 idna = []
 incremental = []
 iniconfig = []
+markdown = []
 msgpack = [
     {file = "msgpack-1.0.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:4ab251d229d10498e9a2f3b1e68ef64cb393394ec477e3370c457f9430ce9250"},
     {file = "msgpack-1.0.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:112b0f93202d7c0fef0b7810d465fde23c746a2d482e1e2de2aafd2ce1492c88"},
