@@ -1,6 +1,5 @@
 import logging
 
-import markdown as md
 from django.http import HttpRequest, HttpResponse
 from ninja import Form, Schema
 
@@ -16,6 +15,5 @@ class Markdown(Schema):
 @router.post("/render_markdown", url_name="render_markdown")
 def render_markdown(
     request: HttpRequest, response: HttpResponse, markdown: Markdown = Form(...)
-) -> str:
-    response["Content-Type"] = "text/html"
-    return md.markdown(markdown.text)
+) -> HttpResponse:
+    return HttpResponse(markdown.text, content_type="text/plain")
