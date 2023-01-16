@@ -2,6 +2,11 @@
 {% load i18n static %}
 
 {% block extrahead %}
+<!-- fireside -->
+<link rel="stylesheet" href="{% static 'fireside/css/fireside.css' %}">
+<script src="{% static 'fireside/js/fireside.js' %}"></script>
+<!-- hyperscript -->
+<script src="https://unpkg.com/hyperscript.org@0.9.7"></script>
 <!-- htmx -->
 <script src="{% static 'fireside/js/htmx.min.js' %}"></script>
 <script type="text/javascript">
@@ -12,4 +17,13 @@
   }
 </script>
 {{ block.super }}
+{% endblock %}
+
+{% block header %}
+{{ block.super }}
+<!-- modal -->
+<div id="modal" class="hide">
+  <div class="modal-underlay" _="on click remove .show from #modal then add .hide to #modal"></div>
+  <div id="modal-content" class="modal-content"></div>
+</div>
 {% endblock %}

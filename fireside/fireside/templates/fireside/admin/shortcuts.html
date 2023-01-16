@@ -10,10 +10,13 @@
     </a>
   {% endif %}
   {% if description %}
-    <a
+    <a style="cursor: pointer;"
+      hx-target="#modal-content"
       hx-post="{% url 'fireside:render_markdown' %}"
       hx-vals='{"text": "{{description}}"}'
       hx-trigger="click"
+      hx-swap="innerHTML"
+      _="on htmx:afterOnLoad remove .hide from #modal then add .show to #modal"
     >
       <img src="{% static 'fireside/img/fa-book.svg' %}" style="height: 1em; padding-left: 1px; padding-right: 1px; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
     </a>
