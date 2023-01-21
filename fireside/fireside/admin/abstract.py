@@ -217,8 +217,9 @@ class ModelAdmin(GuardedModelAdmin):
         fields = super().get_fields(request, obj)
         if obj is None:
             return fields
-        # add uid, name, description
+        # add uid
         fields.append("uid")
+        # add name, description
         if isinstance(obj, NameDescriptionModel):
             fields = {"name", "description", *fields}
         # add activation
@@ -229,12 +230,12 @@ class ModelAdmin(GuardedModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fields = self.get_fields(request, obj)
-
+        fieldsets = super().get_fieldsets(request, obj)
         return (
-            self.name_uid_fieldset(request, obj=obj)
+            self.name_uid_fieldset(request, fields, obj=obj)
             + [
                 (x or "Ungrouped", {**d, "fields": fs})
-                for x, d in super().get_fieldsets(request, obj)
+                for x, d in fieldsets
                 if (
                     fs := [
                         f
@@ -253,18 +254,32 @@ class ModelAdmin(GuardedModelAdmin):
                     ]
                 )
             ]
-            + self.activation_fieldset(request, obj=obj)
+            + self.activation_fieldset(request, fields, obj=obj)
         )
 
-    def name_uid_fieldset(self, request, obj=None):
-        if obj is None or isinstance(obj, NameDescriptionModel):
-            return [("Instance", {"fields": ["name", "description", "uid"]})]
-
-        return [("Instance", {"fields": ["uid"]})]
-
-    def activation_fieldset(self, request, obj=None):
+    def name_uid_fieldset(self, request, fields, obj=None):
         if obj is None:
-            return [("Activation", {"fields": ["activate_on", "deactivate_on"]})]
+            if issubclass(self.model, NameDescriptionModel):
+                return [("Instance", {"fields": ["name", "description", "uid"]})]
+            return [("Instance", {"fields": ["uid"]})]
+
+        _fields = []
+        if isinstance(obj, NameDescriptionModel):
+            if "name" in fields:
+                _fields.append("name")
+            if "description" in fields:
+                _fields.append("description")
+
+        if "uid" in fields:
+            _fields.append("uid")
+
+        return [("Instance", {"fields": _fields})]
+
+    def activation_fieldset(self, request, fields, obj=None):
+        if obj is None:
+            if issubclass(self.model, ActivatableModel):
+                return [("Activation", {"fields": ["activate_on", "deactivate_on"]})]
+            return []
         if isinstance(obj, ActivatableModel):
             return [
                 (

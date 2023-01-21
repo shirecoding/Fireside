@@ -7,14 +7,12 @@ from fireside.models import EventHandler
 class EventHandlerAdmin(ModelAdmin):
 
     list_display = [
-        "name",
-        "description",
         "event",
         "task",
     ]
 
     fieldsets = [
-        [None, {"fields": ("name", "description", "event", "task")}],
+        [None, {"fields": ("event", "task")}],
     ]
 
 

@@ -18,15 +18,13 @@ class TaskScheduleAdmin(ModelAdmin):
         "name",
         "cron_pretty",
         "repeat",
-        "is_active",
         "priority",
         "timeout",
     ]
-    readonly_fields = ["is_active"]
+    readonly_fields = ["name"]
     actions = ModelAdmin.actions + ["run_tasks"]
 
     fieldsets = [
-        [None, {"fields": ("name",)}],
         ["Task", {"fields": ("task_preset",)}],
         [
             "Schedule",
@@ -35,16 +33,6 @@ class TaskScheduleAdmin(ModelAdmin):
                     "cron",
                     "repeat",
                     "priority",
-                )
-            },
-        ],
-        [
-            "Activation",
-            {
-                "fields": (
-                    "is_active",
-                    "activate_on",
-                    "deactivate_on",
                 )
             },
         ],
