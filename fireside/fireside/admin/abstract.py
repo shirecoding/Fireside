@@ -221,32 +221,58 @@ class ModelAdmin(GuardedModelAdmin):
         fields.append("uid")
         if isinstance(obj, NameDescriptionModel):
             fields = {"name", "description", *fields}
+        # add activation
+        if isinstance(obj, ActivatableModel):
+            fields = {"activate_on", "deactivate_on", *fields}
         # filter FLP
         return self.filter_fields_for_obj(request.user, obj, tuple(fields))
 
     def get_fieldsets(self, request, obj=None):
         fields = self.get_fields(request, obj)
 
-        return self.name_uid_fieldset(request, obj=obj) + [
-            (x or "Ungrouped", {**d, "fields": fs})
-            for x, d in super().get_fieldsets(request, obj)
-            if (
-                fs := [
-                    f
-                    if isinstance(f, str)
-                    and f in fields
-                    and f not in {"uid", "name", "description"}
-                    else tuple(t for t in f if t in fields)
-                    for f in d.get("fields", [])
-                ]
-            )
-        ]
+        return (
+            self.name_uid_fieldset(request, obj=obj)
+            + [
+                (x or "Ungrouped", {**d, "fields": fs})
+                for x, d in super().get_fieldsets(request, obj)
+                if (
+                    fs := [
+                        f
+                        if isinstance(f, str)
+                        and f in fields
+                        and f
+                        not in {
+                            "uid",
+                            "name",
+                            "description",
+                            "activate_on",
+                            "deactivate_on",
+                        }
+                        else tuple(t for t in f if t in fields)
+                        for f in d.get("fields", [])
+                    ]
+                )
+            ]
+            + self.activation_fieldset(request, obj=obj)
+        )
 
     def name_uid_fieldset(self, request, obj=None):
         if obj is None or isinstance(obj, NameDescriptionModel):
             return [("Instance", {"fields": ["name", "description", "uid"]})]
 
         return [("Instance", {"fields": ["uid"]})]
+
+    def activation_fieldset(self, request, obj=None):
+        if obj is None:
+            return [("Activation", {"fields": ["activate_on", "deactivate_on"]})]
+        if isinstance(obj, ActivatableModel):
+            return [
+                (
+                    "Activation",
+                    {"fields": ["is_active", "activate_on", "deactivate_on"]},
+                )
+            ]
+        return []
 
     @lru_cache
     def _editable_fields(self) -> tuple[str]:
@@ -260,6 +286,10 @@ class ModelAdmin(GuardedModelAdmin):
         self, request, obj: Model | None = None
     ) -> tuple[str] | list[str]:
         readonly_fields = ["uid", *super().get_readonly_fields(request, obj)]
+
+        if isinstance(obj, ActivatableModel):
+            readonly_fields += ["is_active"]  # calculated field
+
         if request.user.is_superuser:
             return readonly_fields
 
