@@ -31,7 +31,7 @@ class Task(Model, NameDescriptionModel):
         max_length=256,
         unique=True,
         blank=False,
-        null=False,
+        null=True,
         help_text="Path to the function to be run (eg. path.to.function)",
     )
     priority = models.CharField(
@@ -101,7 +101,8 @@ class Task(Model, NameDescriptionModel):
             import_path_to_function(self.fpath)
             return True
         except Exception:
-            logger.exception(f"Failed to import {self}")
+            if self.fpath is not None:  # `fpath` is None during creation
+                logger.exception(f"Failed to import {self}")
             return False
 
 

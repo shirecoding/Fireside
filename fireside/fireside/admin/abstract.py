@@ -231,6 +231,7 @@ class ModelAdmin(GuardedModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fields = self.get_fields(request, obj)
         fieldsets = super().get_fieldsets(request, obj)
+
         return (
             self.name_uid_fieldset(request, fields, obj=obj)
             + [
@@ -280,11 +281,17 @@ class ModelAdmin(GuardedModelAdmin):
             if issubclass(self.model, ActivatableModel):
                 return [("Activation", {"fields": ["activate_on", "deactivate_on"]})]
             return []
+
         if isinstance(obj, ActivatableModel):
+            _fields = ["is_active"]
+            if "activate_on" in fields:
+                _fields.append("activate_on")
+            if "deactivate_on" in fields:
+                _fields.append("deactivate_on")
             return [
                 (
                     "Activation",
-                    {"fields": ["is_active", "activate_on", "deactivate_on"]},
+                    {"fields": _fields},
                 )
             ]
         return []

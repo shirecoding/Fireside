@@ -23,3 +23,6 @@ class Command(BaseCommand):
         logger.info("Cleaning tasks ...")
         remove_invalid_tasks()
         reschedule_tasks()
+
+        # Create default tasks
+        import fireside.tasks  # noqa
