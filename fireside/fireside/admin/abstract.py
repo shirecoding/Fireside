@@ -9,7 +9,6 @@ from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
 from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 
@@ -218,24 +217,36 @@ class ModelAdmin(GuardedModelAdmin):
         fields = super().get_fields(request, obj)
         if obj is None:
             return fields
-
+        # add uid, name, description
+        fields.append("uid")
+        if isinstance(obj, NameDescriptionModel):
+            fields = {"name", "description", *fields}
         # filter FLP
         return self.filter_fields_for_obj(request.user, obj, tuple(fields))
 
     def get_fieldsets(self, request, obj=None):
         fields = self.get_fields(request, obj)
-        return [
-            (x, {**d, "fields": fs})
+
+        return self.name_uid_fieldset(request, obj=obj) + [
+            (x or "Ungrouped", {**d, "fields": fs})
             for x, d in super().get_fieldsets(request, obj)
             if (
                 fs := [
                     f
-                    if isinstance(f, str) and f in fields
+                    if isinstance(f, str)
+                    and f in fields
+                    and f not in {"uid", "name", "description"}
                     else tuple(t for t in f if t in fields)
                     for f in d.get("fields", [])
                 ]
             )
         ]
+
+    def name_uid_fieldset(self, request, obj=None):
+        if obj is None or isinstance(obj, NameDescriptionModel):
+            return [("Instance", {"fields": ["name", "description", "uid"]})]
+
+        return [("Instance", {"fields": ["uid"]})]
 
     @lru_cache
     def _editable_fields(self) -> tuple[str]:
@@ -248,7 +259,7 @@ class ModelAdmin(GuardedModelAdmin):
     def get_readonly_fields(
         self, request, obj: Model | None = None
     ) -> tuple[str] | list[str]:
-        readonly_fields = super().get_readonly_fields(request, obj)
+        readonly_fields = ["uid", *super().get_readonly_fields(request, obj)]
         if request.user.is_superuser:
             return readonly_fields
 
@@ -296,9 +307,9 @@ class ModelAdmin(GuardedModelAdmin):
     @admin.display(description="Name/UID")
     def name_uid(self, obj):
         if obj.name:
-            return format_html("<p>{}</br>{}</p>", obj.name, obj.uid)
+            return f"{obj.name} ({obj.uid})"
         else:
-            return format_html("<p>{}</p>", obj.uid)
+            return str(obj.uid)
 
     @admin.display(description="")
     def shortcuts(self, obj):

@@ -6,7 +6,7 @@
   {% endif %}
   {% if olp_link %}
     <a href="{{olp_link}}" target="_blank">
-      <img src="{% static 'fireside/img/fa-shield-halved.svg' %}" style="height: 1em; padding-left: 1px; padding-right: 1px; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
+      <img src="{% static 'fireside/img/fa-shield-halved.svg' %}" style="height: 1em; padding: 1px; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
     </a>
   {% endif %}
   {% if description %}
@@ -18,7 +18,7 @@
       hx-swap="innerHTML"
       _="on htmx:afterOnLoad remove .hide from #modal then add .show to #modal"
     >
-      <img src="{% static 'fireside/img/fa-book.svg' %}" style="height: 1em; padding-left: 1px; padding-right: 1px; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
+      <img src="{% static 'fireside/img/fa-book.svg' %}" style="height: 1em; padding: 1px; filter: invert(45%) sepia(82%) saturate(724%) hue-rotate(154deg) brightness(95%) contrast(103%);">
     </a>
   {% endif %}
 </div>

@@ -62,10 +62,9 @@ class TaskAdmin(ModelAdmin):
     Use `fireside.utils.task.task` to register a Task
     """
 
-    list_display = ["description", "fpath", "is_valid", "priority", "timeout"]
+    list_display = ["fpath", "is_valid", "priority", "timeout"]
     readonly_fields = [
         "name",
-        "uid",
         "description",
         "fpath",
         "is_valid",
@@ -75,13 +74,12 @@ class TaskAdmin(ModelAdmin):
 
 
 class TaskPresetAdmin(ModelAdmin):
-    list_display = ["name", "description", "task"]
+    list_display = ["task"]
     fieldsets = [
         [
             None,
             {
                 "fields": (
-                    "name",
                     "task",
                     "kwargs",
                 )
