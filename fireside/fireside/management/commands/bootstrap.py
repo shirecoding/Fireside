@@ -25,4 +25,5 @@ class Command(BaseCommand):
         reschedule_tasks()
 
         # Create default tasks
+        import fireside.events  # noqa
         import fireside.tasks  # noqa

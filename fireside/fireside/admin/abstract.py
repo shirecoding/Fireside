@@ -262,36 +262,40 @@ class ModelAdmin(GuardedModelAdmin):
         )
 
     def name_uid_fieldset(self, request, fields, obj=None):
-        return [
-            (
-                "Instance",
-                {
-                    "fields": remove_none(
-                        [
-                            "name" if "name" in fields else None,
-                            "description" if "description" in fields else None,
-                            "uid" if "uid" in fields else None,
-                        ]
-                    )
-                },
-            )
-        ]
+        _fields = remove_none(
+            [
+                "name" if "name" in fields else None,
+                "description" if "description" in fields else None,
+                "uid" if "uid" in fields else None,
+            ]
+        )
+        if _fields:
+            return [
+                (
+                    "Instance",
+                    {"fields": _fields},
+                )
+            ]
+        return []
 
     def activation_fieldset(self, request, fields, obj=None):
-        return [
-            (
-                "Activation",
-                {
-                    "fields": remove_none(
-                        [
-                            "is_active" if "is_active" in fields else None,
-                            "activate_on" if "activate_on" in fields else None,
-                            "deactivate_on" if "deactivate_on" in fields else None,
-                        ]
-                    )
-                },
-            )
-        ]
+        _fields = remove_none(
+            [
+                "is_active" if "is_active" in fields else None,
+                "activate_on" if "activate_on" in fields else None,
+                "deactivate_on" if "deactivate_on" in fields else None,
+            ]
+        )
+
+        if _fields:
+            return [
+                (
+                    "Activation",
+                    {"fields": _fields},
+                )
+            ]
+
+        return []
 
     @lru_cache
     def _editable_fields(self) -> set[str]:
@@ -328,22 +332,25 @@ class ModelAdmin(GuardedModelAdmin):
         )
 
     def get_list_display(self, request, *args, **kwargs):
-        if issubclass(self.model, Model):
+        if issubclass(self.model, (Model, NameDescriptionModel)):
             return [
                 "shortcuts",
                 "name_uid",
                 *super().get_list_display(request, *args, **kwargs),
             ]
 
-        if issubclass(self.model, NameDescriptionModel):
-            return ["name_uid", *super().get_list_display(request, *args, **kwargs)]
+        if issubclass(self.model, ActivatableModel):
+            return ["shortcuts", *super().get_list_display(request, *args, **kwargs)]
 
         return super().get_list_display(request, *args, **kwargs)
 
     def get_list_display_links(self, request, list_display, *args, **kwargs):
-        return super().get_list_display_links(
-            request, list_display[1:], *args, **kwargs
-        )  # offset shortcuts
+        if issubclass(self.model, (Model, NameDescriptionModel, ActivatableModel)):
+            return super().get_list_display_links(
+                request, list_display[1:], *args, **kwargs
+            )  # offset shortcuts
+
+        return super().get_list_display_links(request, list_display, *args, **kwargs)
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -371,6 +378,8 @@ class ModelAdmin(GuardedModelAdmin):
             if isinstance(obj, NameDescriptionModel):
                 return f"{obj.name} ({obj.uid})"
             return str(obj.uid)
+        if isinstance(obj, NameDescriptionModel):
+            return f"{obj.name}"
         return ""
 
     @admin.display(description="")
@@ -383,7 +392,7 @@ class ModelAdmin(GuardedModelAdmin):
             "is_active": None,
             "olp_link": None,
             "description": None,
-            "uid": str(obj.uid),
+            "uid": str(obj.uid) if hasattr(obj, "uid") else None,
         }
 
         if isinstance(obj, ActivatableModel):
