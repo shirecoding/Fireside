@@ -5,7 +5,8 @@ from fireside.models import Event, EventHandler
 
 
 class EventAdmin(ModelAdmin):
-    ...
+    # add using `register_event`
+    readonly_fields = ["name", "description"]
 
 
 class EventHandlerAdmin(ModelAdmin):
