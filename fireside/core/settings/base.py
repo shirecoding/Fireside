@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",  # https://channels.readthedocs.io/
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

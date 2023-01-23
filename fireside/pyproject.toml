@@ -11,8 +11,6 @@ django-environ = "^0.8.1"
 psycopg2 = "^2.9.3"
 hiredis = "^2.0.0"
 redis = "^4.3.3"
-channels = "^3.0.4"
-channels-redis = "^3.4.0"
 django-guardian = "^2.4.0"
 django-extensions = "^3.1.5"
 toolz = "^0.12.0"
@@ -27,8 +25,8 @@ django-ninja = "^0.19.1"
 reactivex = "^4.0.4"
 deepdiff = "^6.2.2"
 Markdown = "^3.4.1"
-uvicorn = "^0.20.0"
-gunicorn = "^20.1.0"
+channels = {extras = ["daphne"], version = "^4.0.0"}
+channels-redis = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 

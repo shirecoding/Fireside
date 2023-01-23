@@ -2,11 +2,11 @@ __all__ = ["api", "misc_router"]
 
 from ninja import NinjaAPI, Router
 
-# from ninja.security import django_auth  # default django cookie based authentication
+from .security import django_auth_async
 
-# Warning: It is not secure to use API's with cookie-based authentication without csrf
-# api = NinjaAPI(urls_namespace="fireside", auth=django_auth, csrf=True)
-api = NinjaAPI(urls_namespace="fireside")
+api = NinjaAPI(
+    urls_namespace="fireside", auth=django_auth_async, csrf=True
+)  # Warning: It is not secure to use API's with cookie-based authentication without csrf
 
 # routers
 misc_router = Router()
