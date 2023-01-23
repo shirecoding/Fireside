@@ -168,10 +168,6 @@ LOGGING = {
             "level": "DEBUG",
             "handlers": ["console"],
         },
-        "tasks": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-        },
         "chat": {
             "level": "DEBUG",
             "handlers": ["console"],

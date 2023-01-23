@@ -13,6 +13,7 @@ from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
+from fireside.utils import remove_none
 
 logger = logging.getLogger(__name__)
 
@@ -217,14 +218,6 @@ class ModelAdmin(GuardedModelAdmin):
         fields = super().get_fields(request, obj)
         if obj is None:
             return fields
-        # add uid
-        fields.append("uid")
-        # add name, description
-        if isinstance(obj, NameDescriptionModel):
-            fields = {"name", "description", *fields}
-        # add activation
-        if isinstance(obj, ActivatableModel):
-            fields = {"activate_on", "deactivate_on", *fields}
         # filter FLP
         return self.filter_fields_for_obj(request.user, obj, tuple(fields))
 
@@ -232,10 +225,20 @@ class ModelAdmin(GuardedModelAdmin):
         fields = self.get_fields(request, obj)
         fieldsets = super().get_fieldsets(request, obj)
 
-        return (
+        name_uid_fieldset = (
             self.name_uid_fieldset(request, fields, obj=obj)
+            if issubclass(self.model, (Model, NameDescriptionModel))
+            else []
+        )
+        activation_fieldset = (
+            self.activation_fieldset(request, fields, obj=obj)
+            if issubclass(self.model, ActivatableModel)
+            else []
+        )
+        return (
+            name_uid_fieldset
             + [
-                (x or "Ungrouped", {**d, "fields": fs})
+                (x, {**d, "fields": fs})
                 for x, d in fieldsets
                 if (
                     fs := [
@@ -255,62 +258,60 @@ class ModelAdmin(GuardedModelAdmin):
                     ]
                 )
             ]
-            + self.activation_fieldset(request, fields, obj=obj)
+            + activation_fieldset
         )
 
     def name_uid_fieldset(self, request, fields, obj=None):
-        if obj is None:
-            if issubclass(self.model, NameDescriptionModel):
-                return [("Instance", {"fields": ["name", "description", "uid"]})]
-            return [("Instance", {"fields": ["uid"]})]
-
-        _fields = []
-        if isinstance(obj, NameDescriptionModel):
-            if "name" in fields:
-                _fields.append("name")
-            if "description" in fields:
-                _fields.append("description")
-
-        if "uid" in fields:
-            _fields.append("uid")
-
-        return [("Instance", {"fields": _fields})]
+        return [
+            (
+                "Instance",
+                {
+                    "fields": remove_none(
+                        [
+                            "name" if "name" in fields else None,
+                            "description" if "description" in fields else None,
+                            "uid" if "uid" in fields else None,
+                        ]
+                    )
+                },
+            )
+        ]
 
     def activation_fieldset(self, request, fields, obj=None):
-        if obj is None:
-            if issubclass(self.model, ActivatableModel):
-                return [("Activation", {"fields": ["activate_on", "deactivate_on"]})]
-            return []
-
-        if isinstance(obj, ActivatableModel):
-            _fields = ["is_active"]
-            if "activate_on" in fields:
-                _fields.append("activate_on")
-            if "deactivate_on" in fields:
-                _fields.append("deactivate_on")
-            return [
-                (
-                    "Activation",
-                    {"fields": _fields},
-                )
-            ]
-        return []
+        return [
+            (
+                "Activation",
+                {
+                    "fields": remove_none(
+                        [
+                            "is_active" if "is_active" in fields else None,
+                            "activate_on" if "activate_on" in fields else None,
+                            "deactivate_on" if "deactivate_on" in fields else None,
+                        ]
+                    )
+                },
+            )
+        ]
 
     @lru_cache
-    def _editable_fields(self) -> tuple[str]:
-        return [
+    def _editable_fields(self) -> set[str]:
+        return {
             f.name
             for f in chain(self.opts.fields, self.opts.many_to_many)
             if f.editable
-        ]
+        }
 
     def get_readonly_fields(
         self, request, obj: Model | None = None
     ) -> tuple[str] | list[str]:
-        readonly_fields = ["uid", *super().get_readonly_fields(request, obj)]
+
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+
+        if issubclass(self.model, Model):
+            readonly_fields.append("uid")
 
         if isinstance(obj, ActivatableModel):
-            readonly_fields += ["is_active"]  # calculated field
+            readonly_fields.append("is_active")  # calculated field
 
         if request.user.is_superuser:
             return readonly_fields
@@ -327,9 +328,17 @@ class ModelAdmin(GuardedModelAdmin):
         )
 
     def get_list_display(self, request, *args, **kwargs):
-        return ["shortcuts", "name_uid"] + super().get_list_display(
-            request, *args, **kwargs
-        )
+        if issubclass(self.model, Model):
+            return [
+                "shortcuts",
+                "name_uid",
+                *super().get_list_display(request, *args, **kwargs),
+            ]
+
+        if issubclass(self.model, NameDescriptionModel):
+            return ["name_uid", *super().get_list_display(request, *args, **kwargs)]
+
+        return super().get_list_display(request, *args, **kwargs)
 
     def get_list_display_links(self, request, list_display, *args, **kwargs):
         return super().get_list_display_links(
@@ -358,10 +367,11 @@ class ModelAdmin(GuardedModelAdmin):
 
     @admin.display(description="Name/UID")
     def name_uid(self, obj):
-        if obj.name:
-            return f"{obj.name} ({obj.uid})"
-        else:
+        if isinstance(obj, Model):
+            if isinstance(obj, NameDescriptionModel):
+                return f"{obj.name} ({obj.uid})"
             return str(obj.uid)
+        return ""
 
     @admin.display(description="")
     def shortcuts(self, obj):
