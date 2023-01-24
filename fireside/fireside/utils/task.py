@@ -76,7 +76,7 @@ def get_task_result(job: Job, timeout=60) -> Any:
     if status != "finished":
         raise Exception(f"{job} failed with status: {status}")
 
-    return job.result
+    return job.return_value()
 
 
 def get_task_trees_result(trees: list[TaskTree]) -> list[TaskTree]:
