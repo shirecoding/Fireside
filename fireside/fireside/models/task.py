@@ -31,7 +31,7 @@ class Task(Model, NameDescriptionModel):
         max_length=256,
         unique=True,
         blank=False,
-        null=True,
+        null=True,  # when adding, is_valid checks for None
         help_text="Path to the function to be run (eg. path.to.function)",
     )
     priority = models.CharField(

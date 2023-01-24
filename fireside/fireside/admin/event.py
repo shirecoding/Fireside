@@ -6,8 +6,12 @@ from fireside.models import Event, EventHandler
 
 class EventAdmin(ModelAdmin):
     # add using `register_event`
-    list_display = []
-    readonly_fields = ["name", "description"]
+    list_display = ["mpath"]
+    readonly_fields = ["name", "description", "mpath"]
+
+    fieldsets = [
+        [None, {"fields": ["mpath"]}],
+    ]
 
 
 class EventHandlerAdmin(ModelAdmin):
@@ -18,7 +22,7 @@ class EventHandlerAdmin(ModelAdmin):
     ]
 
     fieldsets = [
-        [None, {"fields": ("event", "task")}],
+        [None, {"fields": ["event", "task"]}],
     ]
 
 
