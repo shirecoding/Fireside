@@ -36,12 +36,12 @@ def test_task_schedule(logging_task_schedule):
 def test_task_preset(logging_task_preset, text_message):
 
     # `TaskPreset` `kwargs` is a `JSONField` and needs to be JSON serializable (no current deserialization, tasks should handle it)
-    assert logging_task_preset.run() == {"message": text_message.dict()}
+    assert logging_task_preset.run() == text_message.dict()
 
 
 def test_task_enqueue(logging_task, text_message):
 
     # `Task`s can handle pydantic BaseModel de/serialization but not `TaskPreset` as the kwargs is a `JSONField`
-    job = logging_task.enqueue(message=text_message)
+    job = logging_task.enqueue(**text_message.dict())
     res = get_task_result(job)
-    assert res == {"message": text_message}
+    assert res == text_message.dict()

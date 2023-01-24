@@ -22,17 +22,31 @@ class Message(BaseModel):
     text: str
 
 
-def log_message(*, message: Message) -> JSONObject:
+def log_message(**kwargs) -> JSONObject:
+
+    # validate
+    message = Message.parse_obj(kwargs)
+
+    # do stuff
     logger.debug(message)
-    return {"message": message}
+
+    return message.dict()
 
 
-def capitalize_message(*, message: Message) -> JSONObject:
-    return {"message": Message(text=message.text.title())}
+def capitalize_message(**kwargs) -> JSONObject:
+
+    # validate
+    message = Message.parse_obj(kwargs)
+
+    return Message(text=message.text.title()).dict()
 
 
-def reverse_message(*, message: Message) -> JSONObject:
-    return {"message": Message(text=message.text[::-1])}
+def reverse_message(**kwargs) -> JSONObject:
+
+    # validate
+    message = Message.parse_obj(kwargs)
+
+    return Message(text=message.text[::-1]).dict()
 
 
 @pytest.fixture
@@ -72,9 +86,7 @@ def logging_task_preset(db, logging_task, text_message) -> TaskPreset:
     task_preset = TaskPreset.objects.create(
         name="Log Messages Task Preset",
         task=logging_task,
-        kwargs={
-            "message": text_message.dict()
-        },  # `TaskPreset` kwargs is a JSONField and needs to be JSON serializable
+        kwargs=text_message.dict(),
     )
     assert TaskPreset.objects.get(task=logging_task) == task_preset
 

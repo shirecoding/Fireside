@@ -23,4 +23,8 @@ def get_event_handlers(event: Event | str) -> Iterable[Event]:
     name="HandleEvent", description="Run `EventHandlers` which listens for the event."
 )
 def handle_event(event: Event | str, **kwargs) -> list[Job]:
+
+    # validate kwargs (throws ValidationError)
+    event.base_model.parse_obj(kwargs)
+
     return [e.task.delay(**kwargs) for e in get_event_handlers(event)]

@@ -16,7 +16,7 @@ def test_handle_event(
     assert chat_message_event_handler.event == chat_message_event
     assert chat_message_event_handler.task == logging_task
 
-    jobs = handle_event(chat_message_event, message=text_message)
+    jobs = handle_event(chat_message_event, text=text_message.text)
     result = get_task_result(jobs[0])
 
-    assert result == {"message": text_message}
+    assert result == text_message.dict()

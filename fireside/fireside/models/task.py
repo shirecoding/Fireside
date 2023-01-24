@@ -1,6 +1,7 @@
 __all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
 
 import logging
+from datetime import datetime
 from typing import Any, get_type_hints
 
 from django.db import models
@@ -10,6 +11,7 @@ from django_rq import get_connection, get_queue, get_scheduler
 from rq.job import Job
 from rq.queue import Queue
 
+from fireside.events.task import task_completed_event
 from fireside.models import ActivatableModel, Model, NameDescriptionModel
 from fireside.utils import cron_pretty, import_path_to_function
 
@@ -55,6 +57,8 @@ class Task(Model, NameDescriptionModel):
     def run(self, *args, **kwargs):
         """Task function that is run in the worker."""
 
+        from fireside.tasks import handle_event
+
         if args:
             raise Exception(f"Tasks support `kwargs` only, detected `args` {args}")
 
@@ -74,6 +78,11 @@ class Task(Model, NameDescriptionModel):
         #     raise Exception(
         #         f"{self} missing protocols {set(type_hints) - set(protocols)}"
         #     )
+
+        # handle `TaskCompleted` event
+        handle_event(
+            task_completed_event, task_uid=str(self.uid), completed_on=datetime.now()
+        )
 
         return func(**kwargs)
 
