@@ -27,12 +27,12 @@ def test_task_chain(db, capitalize_message_task, reverse_message_task, text_mess
         [
             {
                 "task_uid": str(reverse_message_task.uid),
-                "job_id": "1830f68d-b080-41ea-a0e0-1899c11d1d60",
+                "task_log_uid": "1830f68d-b080-41ea-a0e0-1899c11d1d60",
                 "result": {"text": ".god yzal eht revo spmuj xof nworb kciuq ehT"},
                 "children": [
                     {
                         "task_uid": str(capitalize_message_task.uid),
-                        "job_id": "c4df3893-a086-4e42-8846-2acf09cc527b",
+                        "task_log_uid": "c4df3893-a086-4e42-8846-2acf09cc527b",
                         "result": {
                             "text": ".God Yzal Eht Revo Spmuj Xof Nworb Kciuq Eht"
                         },
@@ -42,10 +42,10 @@ def test_task_chain(db, capitalize_message_task, reverse_message_task, text_mess
             },
             {
                 "task_uid": str(capitalize_message_task.uid),
-                "job_id": "4ed6d6f9-149c-4dee-b5a3-fe43ff83226e",
+                "task_log_uid": "4ed6d6f9-149c-4dee-b5a3-fe43ff83226e",
                 "result": {"text": "The Quick Brown Fox Jumps Over The Lazy Dog."},
                 "children": [],
             },
         ],
-        exclude_regex_paths=re.compile(r"\['job_id'\]"),
+        exclude_regex_paths=re.compile(r"\['task_log_uid'\]"),
     )

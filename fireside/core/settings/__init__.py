@@ -1,10 +1,10 @@
 import os
 
-_env = os.environ.get("ENVIRONMENT", "development")
+_env = os.environ.get("ENVIRONMENT", "development").lower()
 
-if _env == "production":
-    from .production import *
-elif _env == "test":
-    from .test import *
+if _env in ["prod", "production"]:
+    from .production import *  # noqa
+elif _env in ["test", "testing"]:
+    from .test import *  # noqa
 else:
-    from .development import *
+    from .development import *  # noqa

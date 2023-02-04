@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
-from fireside.models import TaskSchedule
+from fireside.models.task import TaskSchedule
 
 
 @pytest.fixture

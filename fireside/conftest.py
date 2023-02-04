@@ -4,14 +4,8 @@ import pytest
 from django.core.management import call_command
 from pydantic import BaseModel
 
-from fireside.models import (
-    Event,
-    EventHandler,
-    Task,
-    TaskPreset,
-    TaskPriority,
-    TaskSchedule,
-)
+from fireside.models.event import Event, EventHandler
+from fireside.models.task import Task, TaskPreset, TaskPriority, TaskSchedule
 from fireside.utils import JSONObject, function_to_import_path
 from fireside.utils.event import register_event
 

@@ -1,18 +1,24 @@
-__all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset"]
+__all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset", "TaskStatus"]
 
 import logging
-from datetime import datetime
+import traceback
+import uuid
 from typing import Any, get_type_hints
 
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django_rq import get_connection, get_queue, get_scheduler
 from rq.job import Job
 from rq.queue import Queue
 
-from fireside.events.task import task_completed_event
-from fireside.models import ActivatableModel, Model, NameDescriptionModel
+from fireside.models import (
+    ActivatableModel,
+    Model,
+    NameDescriptionModel,
+    TimestampModel,
+)
 from fireside.utils import cron_pretty, import_path_to_function
 
 logger = logging.getLogger(__name__)
@@ -22,6 +28,63 @@ class TaskPriority(models.TextChoices):
     LOW = "low", "Low"
     DEFAULT = "default", "Default"
     HIGH = "high", "High"
+
+
+class TaskStatus(models.TextChoices):
+    ENQUEUED = "enqueued", "Enqueued"
+    IN_PROGRESS = "in_progress", "In Progress"
+    COMPLETED = "completed", "Completed"
+    FAILED = "failed", "Failed"
+
+
+class TaskLog(TimestampModel):
+
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    task = models.ForeignKey("Task", to_field="uid", on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=256,
+        choices=TaskStatus.choices,
+        default=TaskStatus.ENQUEUED,
+    )
+    started_on = models.DateTimeField(blank=True, null=True)
+    completed_on = models.DateTimeField(blank=True, null=True)
+    traceback = models.TextField(blank=True, null=True)
+    result = models.JSONField(blank=True, null=True)
+
+
+def on_success(job, connection, result, *args, **kwargs):
+
+    # update task log
+    task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
+    task_log.status = TaskStatus.COMPLETED
+    task_log.completed_on = timezone.now()
+    task_log.result = result
+    task_log.save(update_fields=["status", "completed_on", "result"])
+
+    # INFINITE - task_completed_event -> event handler that lists for it runs its task -> task_completed_event
+    # # handle `TaskCompleted` event
+    # handle_event(
+    #     task_completed_event,
+    #     task_uid=str(task_log.task.uid),
+    #     task_log_uid=str(task_log.uid),
+    # )
+
+
+def on_failure(job, connection, type, value, tb):
+
+    # update task log
+    task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
+    task_log.status = TaskStatus.FAILED
+    task_log.completed_on = timezone.now()
+    task_log.traceback = "".join(traceback.format_tb(tb))
+    task_log.save(update_fields=["status", "completed_on", "traceback"])
+
+    # # handle `TaskCompleted` event
+    # handle_event(
+    #     task_completed_event,
+    #     task_uid=str(task_log.task.uid),
+    #     task_log_uid=str(task_log.uid),
+    # )
 
 
 class Task(Model, NameDescriptionModel):
@@ -54,36 +117,13 @@ class Task(Model, NameDescriptionModel):
     def __repr__(self) -> str:
         return str(self)
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, task_log_uid: str | None = None, **kwargs):
         """Task function that is run in the worker."""
 
-        from fireside.tasks import handle_event
-
         if args:
-            raise Exception(f"Tasks support `kwargs` only, detected `args` {args}")
+            raise Exception("`Task` support `kwargs` only")
 
-        # introspect task input type hints
         func = import_path_to_function(self.fpath)
-
-        # type_hints = dissoc(get_type_hints(func), "return")
-
-        # # check that all inputs are `Protocol`s
-        # if any(issubclass(t, Protocol) is False for t in type_hints.values()):
-        #     raise Exception(
-        #         f"{self} unsupported params in {type_hints}, use only `Protocol`s"
-        #     )
-
-        # # check that protocols from `TaskPreset` matches function type hints
-        # if not set(type_hints).issubset(set(protocols)):
-        #     raise Exception(
-        #         f"{self} missing protocols {set(type_hints) - set(protocols)}"
-        #     )
-
-        # handle `TaskCompleted` event
-        handle_event(
-            task_completed_event, task_uid=str(self.uid), completed_on=datetime.now()
-        )
-
         return func(**kwargs)
 
     def get_type_hints(self):
@@ -93,15 +133,26 @@ class Task(Model, NameDescriptionModel):
         self,
         *args,
         priority: TaskPriority | None = None,
-        on_success=None,
-        on_failure=None,
         **kwargs,
-    ) -> Job:
-        return get_queue(name=priority or self.priority).enqueue(
-            self.run, kwargs=kwargs, on_success=on_success, on_failure=on_failure
+    ) -> TaskLog:
+
+        # create/update task log
+        task_log = TaskLog.objects.create(
+            task=self,
+            status=TaskStatus.ENQUEUED,
+        )
+        kwargs["task_log_uid"] = str(task_log.uid)
+
+        get_queue(name=priority or self.priority).enqueue(
+            self.run,
+            kwargs=kwargs,
+            on_success=on_success,
+            on_failure=on_failure,
         )
 
-    def delay(self, *args, **kwargs) -> Job:
+        return task_log
+
+    def delay(self, *args, **kwargs) -> TaskLog:
         return self.enqueue(**kwargs)
 
     def is_valid(self) -> bool:
@@ -142,11 +193,11 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         if self.is_active:
             return self.task.run(**self.kwargs)
 
-    def enqueue(self) -> Job | None:
+    def enqueue(self) -> TaskLog | None:
         if self.is_active:
             return self.task.enqueue(self.priority, **self.kwargs)
 
-    def delay(self) -> Job | None:
+    def delay(self) -> TaskLog | None:
         if self.is_active:
             return self.enqueue()
 
@@ -196,12 +247,15 @@ class TaskSchedule(Model, ActivatableModel):
     def cron_pretty(self) -> str:
         return cron_pretty(self.cron)
 
+    def get_job(self) -> Job:
+        """
+        Fetches the internal rq job for this task schedule
+        """
+        return Job.fetch(self.job_id, connection=get_connection())
+
     @property
     def job_id(self) -> str:
         return str(self.uid)
-
-    def get_job(self) -> Job:
-        return Job.fetch(self.job_id, connection=get_connection())
 
     def get_queue(self) -> Queue:
         return get_queue(name=self.priority)
@@ -213,19 +267,19 @@ class TaskSchedule(Model, ActivatableModel):
         if self.is_active:
             return self.task_preset.run()
 
-    def enqueue(self) -> Job | None:
+    def enqueue(self) -> TaskLog | None:
         if self.is_active:
             return self.task_preset.enqueue()
 
-    def delay(self) -> Job | None:
+    def delay(self) -> TaskLog | None:
         return self.enqueue()
 
-    def schedule(self) -> Job:
+    def schedule(self) -> None:
         logger.debug(f"Schedule {self}")
-        return get_scheduler(self.priority).cron(
+        get_scheduler(self.priority).cron(
             self.cron,
             id=self.job_id,
-            func=self.run,
+            func=self.enqueue,  # enqueue instead of run so that task logs are generated
             args=[],
             kwargs={},
             repeat=self.repeat,

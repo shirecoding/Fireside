@@ -1,6 +1,6 @@
 __all__ = ["TaskCompleted", "task_completed_event"]
 
-from datetime import datetime
+import contextlib
 
 from pydantic import BaseModel
 
@@ -9,11 +9,12 @@ from fireside.utils.event import register_event
 
 class TaskCompleted(BaseModel):
     task_uid: str
-    completed_on: datetime
+    task_log_uid: str
 
 
-task_completed_event = register_event(
-    "TaskCompleted",
-    TaskCompleted,
-    description="`Event` when a `Task` is completed.",
-)
+with contextlib.suppress(Exception):
+    task_completed_event = register_event(
+        "TaskCompleted",
+        TaskCompleted,
+        description="`Event` when a `Task` is completed.",
+    )

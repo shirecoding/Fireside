@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from fireside.models import TaskPriority, TaskSchedule
+from fireside.models.task import TaskPriority, TaskSchedule
 
 
 def test_activatable_model(logging_task_schedule):

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from fireside.admin import ModelAdmin
-from fireside.models import Event, EventHandler
+from fireside.models.event import Event, EventHandler
 
 
 class EventAdmin(ModelAdmin):

@@ -18,9 +18,6 @@ class FieldPermissionsMetaClass(ModelBase):
     """
     Adds view and change field permissions
 
-    TODO:
-        Add `can view all instances`
-
     Update permissions by running:
         ```
         ./manage.py update_permissions
@@ -107,13 +104,9 @@ class Model(models.Model, metaclass=FieldPermissionsMetaClass):
 
 
 class TimestampModel(models.Model):
-    """
-    TODO:
-        - write test cases
-    """
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True

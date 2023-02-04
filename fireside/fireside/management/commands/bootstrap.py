@@ -15,6 +15,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from fireside.utils.task import remove_invalid_tasks, reschedule_tasks
 
+        # Migrate
+        call_command("migrate")
+
         # Update permissions
         call_command("update_permissions")
         call_command("remove_stale_contenttypes")

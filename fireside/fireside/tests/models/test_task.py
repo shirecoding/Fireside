@@ -1,8 +1,9 @@
 import logging
 
+import pytest
 from django_rq import get_scheduler
 
-from fireside.models import Task, TaskPriority
+from fireside.models.task import Task, TaskPriority, TaskStatus
 from fireside.utils import JSONObject
 from fireside.utils.task import get_task_result
 from fireside.utils.task import task as task_decorator
@@ -34,14 +35,21 @@ def test_task_schedule(logging_task_schedule):
 
 
 def test_task_preset(logging_task_preset, text_message):
-
-    # `TaskPreset` `kwargs` is a `JSONField` and needs to be JSON serializable (no current deserialization, tasks should handle it)
     assert logging_task_preset.run() == text_message.dict()
 
 
 def test_task_enqueue(logging_task, text_message):
 
-    # `Task`s can handle pydantic BaseModel de/serialization but not `TaskPreset` as the kwargs is a `JSONField`
-    job = logging_task.enqueue(**text_message.dict())
-    res = get_task_result(job)
-    assert res == text_message.dict()
+    # test task success
+    task_log = logging_task.enqueue(**text_message.dict())
+    assert get_task_result(task_log) == text_message.dict()
+
+    # test task failure
+    task_log = logging_task.enqueue(invalid_arg="this will cause an error")
+
+    with pytest.raises(Exception):
+        get_task_result(task_log)
+
+    assert task_log.status == TaskStatus.FAILED
+    assert task_log.result is None
+    assert task_log.traceback

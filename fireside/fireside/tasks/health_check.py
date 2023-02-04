@@ -1,6 +1,5 @@
 __all = ["ServiceStatus", "health_check"]
 import logging
-from datetime import datetime
 from typing import Literal
 
 from django.db import connection
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ServiceStatus(BaseModel):
     service: str
     status: Literal["up", "down", "pending"] = "pending"
-    last_updated: datetime
+    last_updated: str
 
 
 def check_db() -> Literal["up", "down", "pending"]:
@@ -32,6 +31,8 @@ def health_check() -> JSONObject:
     logger.debug("Performing Healthcheck")
     return {
         "services": [
-            ServiceStatus(service="db", status=check_db(), last_updated=timezone.now())
+            ServiceStatus(
+                service="db", status=check_db(), last_updated=timezone.now().isoformat()
+            ).dict()
         ]
     }
