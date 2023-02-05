@@ -20,6 +20,7 @@ from fireside.models import (
     TimestampModel,
 )
 from fireside.utils import cron_pretty, import_path_to_function
+from fireside.utils.event import handle_event
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ class TaskLog(TimestampModel):
 
 
 def on_success(job, connection, result, *args, **kwargs):
+    from fireside.events.task import task_completed_event
 
     # update task log
     task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
@@ -61,16 +63,16 @@ def on_success(job, connection, result, *args, **kwargs):
     task_log.result = result
     task_log.save(update_fields=["status", "completed_on", "result"])
 
-    # INFINITE - task_completed_event -> event handler that lists for it runs its task -> task_completed_event
-    # # handle `TaskCompleted` event
-    # handle_event(
-    #     task_completed_event,
-    #     task_uid=str(task_log.task.uid),
-    #     task_log_uid=str(task_log.uid),
-    # )
+    # handle `task_completed_event`
+    handle_event(
+        task_completed_event,
+        task_uid=str(task_log.task.uid),
+        task_log_uid=str(task_log.uid),
+    )
 
 
 def on_failure(job, connection, type, value, tb):
+    from fireside.events.task import task_completed_event
 
     # update task log
     task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
@@ -79,12 +81,12 @@ def on_failure(job, connection, type, value, tb):
     task_log.traceback = "".join(traceback.format_tb(tb))
     task_log.save(update_fields=["status", "completed_on", "traceback"])
 
-    # # handle `TaskCompleted` event
-    # handle_event(
-    #     task_completed_event,
-    #     task_uid=str(task_log.task.uid),
-    #     task_log_uid=str(task_log.uid),
-    # )
+    # handle `task_completed_event`
+    handle_event(
+        task_completed_event,
+        task_uid=str(task_log.task.uid),
+        task_log_uid=str(task_log.uid),
+    )
 
 
 class Task(Model, NameDescriptionModel):
@@ -140,6 +142,7 @@ class Task(Model, NameDescriptionModel):
         task_log = TaskLog.objects.create(
             task=self,
             status=TaskStatus.ENQUEUED,
+            started_on=timezone.now(),
         )
         kwargs["task_log_uid"] = str(task_log.uid)
 

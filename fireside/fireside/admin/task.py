@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.forms import ModelForm
 
 from fireside.admin import ModelAdmin
-from fireside.models.task import Task, TaskPreset, TaskSchedule
+from fireside.models.task import Task, TaskLog, TaskPreset, TaskSchedule
 from fireside.utils.widgets import CronTextInput
 
 
@@ -76,6 +76,11 @@ class TaskPresetAdmin(ModelAdmin):
     ]
 
 
+class TaskLogAdmin(admin.ModelAdmin):
+    list_display = ["task", "started_on", "completed_on", "status"]
+
+
+admin.site.register(TaskLog, TaskLogAdmin)
 admin.site.register(TaskSchedule, TaskScheduleAdmin)
 admin.site.register(Task, TaskAdmin)
 admin.site.register(TaskPreset, TaskPresetAdmin)

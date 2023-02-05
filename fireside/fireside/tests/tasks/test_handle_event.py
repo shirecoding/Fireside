@@ -20,6 +20,14 @@ def test_handle_event(
 
     assert result == text_message.dict()
 
+    # test partial kwargs
+    task_logs = handle_event(
+        chat_message_event, text=text_message.text, invalid_kwarg=10
+    )
+    result = get_task_result(task_logs[0])
+
+    assert result == text_message.dict()
+
 
 def test_handle_event_invalid_input(
     db,
@@ -33,11 +41,3 @@ def test_handle_event_invalid_input(
 
     with pytest.raises(ValidationError):
         handle_event(chat_message_event, invalid_kwarg=10)
-
-    # test partial kwargs
-    task_logs = handle_event(
-        chat_message_event, text=text_message.text, invalid_kwarg=10
-    )
-    result = get_task_result(task_logs[0])
-
-    assert result == text_message.dict()
