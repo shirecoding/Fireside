@@ -11,11 +11,13 @@ __all__ = [
     "TaskTree",
 ]
 
+import contextlib
 import json
 import logging
 from time import sleep
 from typing import TYPE_CHECKING, Any, ForwardRef, Optional
 
+from django.db import ProgrammingError
 from django_rq import get_connection, get_scheduler
 from pydantic import BaseModel, validator
 from rq.job import Job
@@ -132,16 +134,17 @@ def task(
 
             logger.debug(f"Registering Task: {name} ({fpath})")
 
-            # create/update task with unique name
-            Task.objects.update_or_create(
-                name=name,
-                defaults={
-                    "fpath": fpath,
-                    "description": description,
-                    "priority": priority or TaskPriority.DEFAULT,
-                    "timeout": timeout,
-                },
-            )
+            # create/update task with unique name (model does not exist yet on a fresh database)
+            with contextlib.suppress(ProgrammingError):
+                Task.objects.update_or_create(
+                    name=name,
+                    defaults={
+                        "fpath": fpath,
+                        "description": description,
+                        "priority": priority or TaskPriority.DEFAULT,
+                        "timeout": timeout,
+                    },
+                )
 
             return f
         except Exception:

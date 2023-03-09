@@ -1,9 +1,11 @@
 __all__ = ["register_event", "handle_event"]
 
+import contextlib
 import logging
 from typing import TYPE_CHECKING, Iterable
 
 from cachetools.func import ttl_cache
+from django.db import ProgrammingError
 from pydantic import BaseModel
 
 from fireside.models.event import Event, EventHandler
@@ -16,13 +18,15 @@ logger = logging.getLogger(__name__)
 
 
 def register_event(name: str, base_model: BaseModel, description: str = "") -> Event:
-    return Event.objects.update_or_create(
-        name=name,
-        defaults={
-            "description": description,
-            "mpath": function_to_import_path(base_model),
-        },
-    )[0]
+    # model is not created yet on a fresh database
+    with contextlib.suppress(ProgrammingError):
+        return Event.objects.update_or_create(
+            name=name,
+            defaults={
+                "description": description,
+                "mpath": function_to_import_path(base_model),
+            },
+        )[0]
 
 
 @ttl_cache(ttl=600)
