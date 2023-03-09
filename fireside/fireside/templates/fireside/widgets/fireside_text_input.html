@@ -7,7 +7,7 @@
         {% include "django/forms/widgets/attrs.html" %}
 
         {% if hint_callback %}
-            hx-trigger="load, keyup changed throttle:500ms"
+            hx-trigger="load, keyup changed delay:500ms"
             hx-get="{{ hint_callback }}"
             hx-target="#hint"
             hx-swap="innerHTML"

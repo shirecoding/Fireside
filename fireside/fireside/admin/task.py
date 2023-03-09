@@ -15,7 +15,6 @@ class TaskScheduleForm(ModelForm):
 class TaskScheduleAdmin(ModelAdmin):
     form = TaskScheduleForm
     list_display = [
-        "name",
         "cron_pretty",
         "repeat",
         "priority",

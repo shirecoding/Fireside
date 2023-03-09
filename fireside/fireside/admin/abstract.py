@@ -375,7 +375,7 @@ class ModelAdmin(GuardedModelAdmin):
     @admin.display(description="Name/UID")
     def name_uid(self, obj):
         if isinstance(obj, Model):
-            if isinstance(obj, NameDescriptionModel):
+            if isinstance(obj, NameDescriptionModel) or hasattr(obj, "name"):
                 return f"{obj.name} ({obj.uid})"
             return str(obj.uid)
         if isinstance(obj, NameDescriptionModel):
