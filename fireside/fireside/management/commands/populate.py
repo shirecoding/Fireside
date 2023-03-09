@@ -30,6 +30,20 @@ class Command(BaseCommand):
             ),
         )
 
+        task_log = health_check_preset.delay()
+
+        logger.debug(
+            f"""
+            uid: {task_log.uid}
+            task: {task_log.task}
+            status: {task_log.status}
+            started_on: {task_log.started_on}
+            completed_on: {task_log.completed_on}
+            traceback: {task_log.traceback}
+            result: {task_log.result}
+        """
+        )
+
         TaskSchedule.objects.update_or_create(
             task_preset=health_check_preset, cron="0 * * * *"  # every hour
         )

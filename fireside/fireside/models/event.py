@@ -15,6 +15,12 @@ class Event(NameDescriptionModel):
         help_text="Import path to the `BaseModel` which represents the data type of the `Event`",
     )
 
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        return self.name
+
     @property
     def base_model(self) -> BaseModel:
         return import_path_to_function(self.mpath)

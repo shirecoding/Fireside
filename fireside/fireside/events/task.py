@@ -10,6 +10,7 @@ class TaskCompleted(BaseModel):
     task_log_uid: str
 
 
+# TODO: event handler which listens for this task and triggers another task will cause another TaskCompleted event leading to an endless chain
 task_completed_event = register_event(
     "TaskCompleted",
     TaskCompleted,
