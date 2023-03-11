@@ -19,6 +19,9 @@ class Command(BaseCommand):
         logger.info("Bootstrapping ...")
         call_command("bootstrap")
 
+        #
+        # Create a HealthCheck `TaskPreset`
+        #
         health_check_task = Task.objects.get(name="HealthCheck")
 
         health_check_preset, _ = TaskPreset.objects.update_or_create(
@@ -30,6 +33,7 @@ class Command(BaseCommand):
             ),
         )
 
+        # maunally run HealthCheck `TaskPreset` once
         task_log = health_check_preset.delay()
 
         logger.debug(
@@ -44,6 +48,29 @@ class Command(BaseCommand):
         """
         )
 
+        #
+        # Create an hourly `TaskSchedule` for the HealthCheck `TaskPreset`
+        #
         TaskSchedule.objects.update_or_create(
             task_preset=health_check_preset, cron="0 * * * *"  # every hour
         )
+
+        #
+        # Create an `EventHandler` for HealthCheckSuccess `Event` which hooks up to StdoutLogger `Task`
+        #
+        from fireside.models.event import EventHandler
+        from fireside.tasks.health_check import health_check_success
+
+        stdout_logger_task = Task.objects.get(name="StdoutLogger")
+
+        log_health_check_success, _ = EventHandler.objects.update_or_create(
+            name="LogHealthCheckSuccess",
+            defaults=dict(
+                description="Logs HealthCheck success to stdout.",
+                event=health_check_success,
+                task=stdout_logger_task,
+            ),
+        )
+
+        # check event is logged to stdout debug
+        health_check_preset.delay()

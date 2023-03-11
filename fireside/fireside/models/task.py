@@ -20,7 +20,6 @@ from fireside.models import (
     TimestampModel,
 )
 from fireside.utils import cron_pretty, import_path_to_function
-from fireside.utils.event import handle_event
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +53,6 @@ class TaskLog(TimestampModel):
 
 
 def on_success(job, connection, result, *args, **kwargs):
-    from fireside.events.task import task_completed_event
 
     # update task log
     task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
@@ -63,16 +61,8 @@ def on_success(job, connection, result, *args, **kwargs):
     task_log.result = result
     task_log.save(update_fields=["status", "completed_on", "result"])
 
-    # handle `task_completed_event`
-    handle_event(
-        task_completed_event,
-        task_uid=str(task_log.task.uid),
-        task_log_uid=str(task_log.uid),
-    )
-
 
 def on_failure(job, connection, type, value, tb):
-    from fireside.events.task import task_completed_event
 
     # update task log
     task_log = TaskLog.objects.get(uid=job.kwargs["task_log_uid"])
@@ -80,13 +70,6 @@ def on_failure(job, connection, type, value, tb):
     task_log.completed_on = timezone.now()
     task_log.traceback = "".join(traceback.format_tb(tb))
     task_log.save(update_fields=["status", "completed_on", "traceback"])
-
-    # handle `task_completed_event`
-    handle_event(
-        task_completed_event,
-        task_uid=str(task_log.task.uid),
-        task_log_uid=str(task_log.uid),
-    )
 
 
 class Task(Model, NameDescriptionModel):

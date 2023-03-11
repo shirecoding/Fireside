@@ -1,4 +1,10 @@
-__all = ["ServiceStatus", "health_check"]
+__all = [
+    "ServiceStatus",
+    "Services",
+    "health_check",
+    "health_check_success",
+    "health_check_failure",
+]
 import logging
 from typing import Literal
 
@@ -7,6 +13,7 @@ from django.utils import timezone
 from pydantic import BaseModel
 
 from fireside.utils import JSONObject
+from fireside.utils.event import handle_event, register_event
 from fireside.utils.task import task
 
 logger = logging.getLogger(__name__)
@@ -18,6 +25,10 @@ class ServiceStatus(BaseModel):
     last_updated: str
 
 
+class Services(BaseModel):
+    services: list[ServiceStatus]
+
+
 def check_db() -> Literal["up", "down", "pending"]:
     with connection.cursor() as cursor:
         cursor.execute("select 1")
@@ -26,13 +37,37 @@ def check_db() -> Literal["up", "down", "pending"]:
     return "down"
 
 
+health_check_success = register_event(
+    "HealthCheckSuccess",
+    Services,
+    description="`Event` when a `HealthCheck` is completed successfully.",
+)
+
+
+health_check_failure = register_event(
+    "HealthCheckFailure",
+    Services,
+    description="`Event` when a `HealthCheck` is unsuccessful.",
+)
+
+
 @task(name="HealthCheck", description="Performs system health check")
 def health_check() -> JSONObject:
     logger.debug("Performing Healthcheck")
-    return {
-        "services": [
+
+    services = Services(
+        services=[
             ServiceStatus(
                 service="db", status=check_db(), last_updated=timezone.now().isoformat()
-            ).dict()
+            )
         ]
-    }
+    )
+
+    services_d = services.dict()
+
+    if any(s.status == "down" for s in services.services):
+        handle_event(health_check_failure, **services_d)
+    else:
+        handle_event(health_check_success, **services_d)
+
+    return services_d
