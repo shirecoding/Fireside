@@ -28,6 +28,7 @@ Markdown = "^3.4.1"
 channels = {extras = ["daphne"], version = "^4.0.0"}
 channels-redis = "^4.0.0"
 django-ace = "^1.15.3"
+django-jsonform = "^2.16.1"
 
 [tool.poetry.dev-dependencies]
 

@@ -320,6 +320,17 @@ python-versions = ">=3.5"
 Django = ">=2.2"
 
 [[package]]
+name = "django-jsonform"
+version = "2.16.1"
+description = "A user-friendly JSON editing form for Django admin."
+category = "main"
+optional = false
+python-versions = ">=3.4"
+
+[package.dependencies]
+django = ">=2.0"
+
+[[package]]
 name = "django-ninja"
 version = "0.19.1"
 description = "Django Ninja - Fast Django REST framework"
@@ -785,7 +796,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11.0a4"
-content-hash = "2842e3b6f2d6f43b554768772ff1ce73bc79fc98958b2fa4c9ba1d7887436c6d"
+content-hash = "c241575d43416910dedecb8d10a8869d7bd62775476ec7c8df2ab55937065ae7"
 
 [metadata.files]
 asgiref = []
@@ -825,6 +836,7 @@ django-guardian = [
     {file = "django-guardian-2.4.0.tar.gz", hash = "sha256:c58a68ae76922d33e6bdc0e69af1892097838de56e93e78a8361090bcd9f89a0"},
     {file = "django_guardian-2.4.0-py3-none-any.whl", hash = "sha256:440ca61358427e575323648b25f8384739e54c38b3d655c81d75e0cd0d61b697"},
 ]
+django-jsonform = []
 django-ninja = []
 django-rq = []
 hiredis = []

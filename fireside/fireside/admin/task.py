@@ -60,7 +60,21 @@ class TaskAdmin(ModelAdmin):
     ]
 
 
+class TaskPresetForm(ModelForm):
+    """
+    Set the instance on the widget so that the `kwargs` json schema callable may access the `instance`
+
+    https://django-jsonform.readthedocs.io/en/latest/fields-and-widgets.html?highlight=callable#accessing-model-instance-in-callable-schema
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["kwargs"].widget.instance = self.instance
+
+
 class TaskPresetAdmin(ModelAdmin):
+    form = TaskPresetForm
+
     list_display = ["task"]
     fieldsets = [
         [

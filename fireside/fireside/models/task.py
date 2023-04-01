@@ -10,8 +10,10 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django_rq import get_connection, get_queue, get_scheduler
+from pydantic import schema_of
 from rq.job import Job
 from rq.queue import Queue
+from toolz import assoc, dissoc
 
 from fireside.models import (
     ActivatableModel,
@@ -20,6 +22,7 @@ from fireside.models import (
     TimestampModel,
 )
 from fireside.utils import cron_pretty, import_path_to_function
+from fireside.utils.fields import JSONField
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +85,7 @@ class Task(Model, NameDescriptionModel):
         unique=True,
         blank=False,
         null=True,  # when adding, is_valid checks for None
-        help_text="Path to the function to be run (eg. path.to.function)",
+        help_text="Path to the function to be run (eg. path.to.function).",
     )
     priority = models.CharField(
         choices=TaskPriority.choices,
@@ -93,7 +96,7 @@ class Task(Model, NameDescriptionModel):
     timeout = models.IntegerField(
         blank=True,
         null=True,
-        help_text="Timeout of the task in seconds (leave empty to use the default timeout)",
+        help_text="Timeout of the task in seconds (leave empty to use the default timeout).",
     )
 
     def __str__(self):
@@ -162,10 +165,25 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         choices=TaskPriority.choices,
         default=TaskPriority.DEFAULT,
         max_length=128,
-        help_text="Priority of the task preset (overrides task priority)",
+        help_text="Priority of the task preset (overrides task priority).",
     )
-    kwargs = models.JSONField(
-        default=dict, blank=True, help_text="Input kwargs for the task"
+
+    def get_schema(instance: "TaskPreset" = None):
+        if instance:
+            schema = {
+                "type": "object",
+                "properties": {
+                    p: assoc(schema_of(x), "title", p)
+                    for p, x in dissoc(instance.task.get_type_hints(), "return").items()
+                },
+            }
+            return schema
+
+    kwargs = JSONField(
+        schema=get_schema,
+        default=dict,
+        blank=True,
+        help_text="Input kwargs for the `task`.",
     )
 
     def __str__(self):

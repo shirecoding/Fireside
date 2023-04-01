@@ -7,10 +7,8 @@ from itertools import chain
 from cachetools.func import ttl_cache
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
-from django.db.models.fields.json import JSONField
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django_ace import AceWidget
 from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user, get_perms_for_model
 
@@ -60,18 +58,18 @@ class ModelAdmin(GuardedModelAdmin):
     save_on_top = True
     actions = ["activate", "deactivate"]
 
-    formfield_overrides = {
-        JSONField: {
-            "widget": AceWidget(
-                mode="json",
-                theme="twilight",
-                width="500px",
-                height="300px",
-                toolbar=False,
-                showgutter=False,
-            )
-        }
-    }
+    # formfield_overrides = {
+    #     JSONField: {
+    #         "widget": AceWidget(
+    #             mode="json",
+    #             theme="twilight",
+    #             width="500px",
+    #             height="300px",
+    #             toolbar=False,
+    #             showgutter=False,
+    #         )
+    #     }
+    # }
 
     @lru_cache
     def permission_from_op(

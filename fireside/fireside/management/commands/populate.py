@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Populate database with initial data for example & testing"
+    help = "For use as a bootstrap environment with pre-populated data and configurations for integration testing."
 
     def add_arguments(self, parser):
         pass
@@ -74,3 +74,7 @@ class Command(BaseCommand):
 
         # check event is logged to stdout debug
         health_check_preset.delay()
+
+        #
+        # Task Chain
+        #

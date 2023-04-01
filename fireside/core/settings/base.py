@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django_extensions",  # https://django-extensions.readthedocs.io/
     "django_rq",  # https://github.com/rq/django-rq
     "django_ace",  # https://github.com/django-ace/django-ace
+    "django_jsonform",  # https://github.com/bhch/django-jsonform
     # ours
     "fireside.apps.FiresideConfig",
     "chat.apps.ChatConfig",

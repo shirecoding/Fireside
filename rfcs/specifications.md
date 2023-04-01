@@ -1,3 +1,13 @@
+# IDEAS
+
+Why not use partial for task presets
+
+Why not use compose/map for task trees
+
+Make tasks like mix/match functional programming
+
+Why not absorb task preset into tasks and add initial kwargs / partial?
+
 # Specifications & TODO
 
 - [ ] Should `utils/widgets` have api for dynamic widgets?

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class ServiceStatus(BaseModel):
     service: str
     status: Literal["up", "down", "pending"] = "pending"
-    last_updated: str
+    last_updated: str | None = None
 
 
 class Services(BaseModel):
@@ -65,6 +65,7 @@ def health_check() -> JSONObject:
 
     services_d = services.dict()
 
+    # handle events
     if any(s.status == "down" for s in services.services):
         handle_event(health_check_failure, **services_d)
     else:
