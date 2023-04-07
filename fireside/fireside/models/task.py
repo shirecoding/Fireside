@@ -3,6 +3,7 @@ __all__ = ["TaskSchedule", "Task", "TaskPriority", "TaskPreset", "TaskStatus"]
 import logging
 import traceback
 import uuid
+from inspect import getfullargspec
 from typing import Any, get_type_hints
 
 from django.db import models
@@ -13,7 +14,7 @@ from django_rq import get_connection, get_queue, get_scheduler
 from pydantic import schema_of
 from rq.job import Job
 from rq.queue import Queue
-from toolz import assoc, dissoc
+from toolz import assoc
 
 from fireside.models import (
     ActivatableModel,
@@ -107,12 +108,7 @@ class Task(Model, NameDescriptionModel):
 
     def run(self, *args, task_log_uid: str | None = None, **kwargs):
         """Task function that is run in the worker."""
-
-        if args:
-            raise Exception("`Task` support `kwargs` only")
-
-        func = import_path_to_function(self.fpath)
-        return func(**kwargs)
+        return import_path_to_function(self.fpath)(*args, **kwargs)
 
     def get_type_hints(self):
         return get_type_hints(import_path_to_function(self.fpath))
@@ -130,11 +126,10 @@ class Task(Model, NameDescriptionModel):
             status=TaskStatus.ENQUEUED,
             started_on=timezone.now(),
         )
-        kwargs["task_log_uid"] = str(task_log.uid)
-
         get_queue(name=priority or self.priority).enqueue(
             self.run,
-            kwargs=kwargs,
+            *args,
+            kwargs=assoc(kwargs, "task_log_uid", str(task_log.uid)),
             on_success=on_success,
             on_failure=on_failure,
         )
@@ -142,7 +137,7 @@ class Task(Model, NameDescriptionModel):
         return task_log
 
     def delay(self, *args, **kwargs) -> TaskLog:
-        return self.enqueue(**kwargs)
+        return self.enqueue(*args, **kwargs)
 
     def is_valid(self) -> bool:
         # check if path to function is still valid (could have been deleted)
@@ -156,9 +151,6 @@ class Task(Model, NameDescriptionModel):
 
 
 class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
-    """
-    Inputs for `Task`s are `kwargs` only, `args` are not supported
-    """
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     priority = models.CharField(
@@ -168,22 +160,37 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
         help_text="Priority of the task preset (overrides task priority).",
     )
 
-    def get_schema(instance: "TaskPreset" = None):
+    def get_kwargs_schema(instance: "TaskPreset" = None):
+
         if instance:
-            schema = {
+
+            spec = getfullargspec(import_path_to_function(instance.task.fpath))
+
+            return {
                 "type": "object",
                 "properties": {
-                    p: assoc(schema_of(x), "title", p)
-                    for p, x in dissoc(instance.task.get_type_hints(), "return").items()
+                    p: assoc(
+                        assoc(schema_of(spec.annotations[p]), "title", p),
+                        "default",
+                        spec.kwonlydefaults[p],
+                    )
+                    if p in spec.kwonlydefaults
+                    else assoc(schema_of(spec.annotations[p]), "title", p)
+                    for p in spec.kwonlyargs
                 },
             }
-            return schema
 
     kwargs = JSONField(
-        schema=get_schema,
+        schema=get_kwargs_schema,
         default=dict,
         blank=True,
         help_text="Input kwargs for the `task`.",
+    )
+
+    args = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Input args for the `task`.",
     )
 
     def __str__(self):
@@ -195,11 +202,11 @@ class TaskPreset(Model, ActivatableModel, NameDescriptionModel):
     def run(self) -> Any:
         """Blocking call of the task"""
         if self.is_active:
-            return self.task.run(**self.kwargs)
+            return self.task.run(*self.args, **self.kwargs)
 
     def enqueue(self) -> TaskLog | None:
         if self.is_active:
-            return self.task.enqueue(self.priority, **self.kwargs)
+            return self.task.enqueue(*self.args, priority=self.priority, **self.kwargs)
 
     def delay(self) -> TaskLog | None:
         if self.is_active:

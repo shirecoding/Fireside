@@ -60,12 +60,27 @@ class TaskAdmin(ModelAdmin):
     ]
 
 
+from django_ace import AceWidget
+
+
 class TaskPresetForm(ModelForm):
     """
     Set the instance on the widget so that the `kwargs` json schema callable may access the `instance`
 
     https://django-jsonform.readthedocs.io/en/latest/fields-and-widgets.html?highlight=callable#accessing-model-instance-in-callable-schema
     """
+
+    class Meta:
+        widgets = {
+            "args": AceWidget(
+                mode="json",
+                theme="twilight",
+                width="500px",
+                height="100px",
+                toolbar=False,
+                showgutter=False,
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,10 +93,11 @@ class TaskPresetAdmin(ModelAdmin):
     list_display = ["task"]
     fieldsets = [
         [
-            None,
+            "Task",
             {
                 "fields": (
                     "task",
+                    "args",
                     "kwargs",
                 )
             },
